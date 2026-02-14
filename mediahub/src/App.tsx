@@ -53,9 +53,9 @@ function App() {
               </h1>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Kaip Veikia</a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Kūrėjams</a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Pagalba</a>
+              <button className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Kaip Veikia</button>
+              <button className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Kūrėjams</button>
+              <button className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Pagalba</button>
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -160,10 +160,10 @@ function App() {
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Profesionalūs {category.name.toLowerCase()} jūsų projektams
                   </p>
-                  <a href="#" className="text-gray-900 dark:text-white font-semibold flex items-center group-hover:gap-2 transition-all">
+                  <button className="text-gray-900 dark:text-white font-semibold flex items-center group-hover:gap-2 transition-all">
                     Žiūrėti visus
                     <ArrowRight size={18} className="ml-1" />
-                  </a>
+                  </button>
                 </div>
               );
             })}
@@ -313,17 +313,17 @@ function App() {
             <div>
               <h5 className="text-white font-semibold mb-4">Kūrėjams</h5>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Kaip pradėti</a></li>
-                <li><a href="#" className="hover:text-white transition">Kainos</a></li>
-                <li><a href="#" className="hover:text-white transition">DUK</a></li>
+                <li><button className="hover:text-white transition">Kaip pradėti</button></li>
+                <li><button className="hover:text-white transition">Kainos</button></li>
+                <li><button className="hover:text-white transition">DUK</button></li>
               </ul>
             </div>
             <div>
               <h5 className="text-white font-semibold mb-4">Klientams</h5>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Kaip veikia</a></li>
-                <li><a href="#" className="hover:text-white transition">Kategorijos</a></li>
-                <li><a href="#" className="hover:text-white transition">Pagalba</a></li>
+                <li><button className="hover:text-white transition">Kaip veikia</button></li>
+                <li><button className="hover:text-white transition">Kategorijos</button></li>
+                <li><button className="hover:text-white transition">Pagalba</button></li>
               </ul>
             </div>
             <div>
