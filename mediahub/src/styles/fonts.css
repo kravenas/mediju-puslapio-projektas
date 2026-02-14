@@ -1,0 +1,71 @@
+/* MediaHub - Custom Fonts */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Font Families */
+:root {
+  /* Heading Font - Sora (creative, modern) */
+  --font-heading: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Body Font - Inter (readable, professional) */
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Font Weights */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+}
+
+/* Base Typography */
+body {
+  font-family: var(--font-body);
+  font-weight: var(--weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+}
+
+/* Special Class: Italic Accent */
+.italic-accent {
+  font-style: italic;
+  font-weight: var(--weight-semibold);
+  background: linear-gradient(135deg, #F7931E 0%, #FF6B35 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero Heading Styles */
+.hero-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: var(--weight-extrabold);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Hero Subheading */
+.hero-subheading {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: var(--weight-regular);
+  line-height: 1.6;
+}
+
+/* Button Text */
+.btn-text {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.01em;
+}

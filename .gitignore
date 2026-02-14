@@ -1,0 +1,7 @@
+node_modules/
+.claude/
+.playwright-mcp/
+.mcp.json
+build/
+.env
+.env.local

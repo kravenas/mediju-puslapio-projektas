@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artifex - Rask Tobulą Kūrėją Savo Projektui</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFC50F',
+                        'primary-hover': '#E6B00F',
+                        secondary: '#DBDBDB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Font Variables */
+        :root {
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 197, 15, 0.1);
+        }
+
+        /* Italic Accent - for special emphasis */
+        .italic-accent {
+            font-style: italic;
+            font-weight: 600;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white dark:bg-gray-900">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center gap-3">
+                        <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
+                            <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                        </div>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-gray-900 dark:text-white">ARTIFEX</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kūrėjai</a>
+                    <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kaip Veikia</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800" style="border-radius: 4px;">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </button>
+                    <a href="#" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">
+                        Prisijungti
+                    </a>
+                    <a href="#" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 font-medium" style="border-radius: 4px;">
+                        Registruotis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-28 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 mb-8" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">500+ kūrėjų dabar prisijungę</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">• Vidutinis atsakymo laikas: 2val</span>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                    Rask Lietuvos kūrėjus,<br>
+                    kurie pavers <span class="bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">tavo viziją</span> <em class="font-serif italic text-gray-700 dark:text-gray-300">realybe</em>.
+                </h1>
+
+                <p class="text-base text-gray-500 dark:text-gray-500 mb-12">
+                    Ar tai verslo projektas ar asmeninė šventė? Pradėk čia.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="mb-12 max-w-2xl mx-auto">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <div class="flex-1 relative">
+                            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <input type="text" placeholder="pvz. vestuvių fotografas Vilniuje..." class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-800 border-2 border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-base" style="border-radius: 8px;">
+                        </div>
+                        <a href="kurejai.html" class="h-14 bg-primary hover:bg-primary-hover text-white px-10 font-bold flex items-center justify-center text-base" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 197, 15, 0.3);">
+                            Ieškoti
+                        </a>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-500 mt-3 text-left">
+                        Populiariausios paieškos: <span class="font-medium text-gray-700 dark:text-gray-400">produktų fotografija</span>, <span class="font-medium text-gray-700 dark:text-gray-400">dronas</span>, <span class="font-medium text-gray-700 dark:text-gray-400">corporate video</span>
+                    </p>
+                </div>
+
+                <!-- Stats with context -->
+                <div class="grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+                    <div class="text-center">
+                        <div class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">500+</div>
+                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Patikrintų kūrėjų</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">su portfolio</div>
+                    </div>
+                    <div class="text-center border-x border-secondary dark:border-gray-700">
+                        <div class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">2000+</div>
+                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Sėkmingų projektų</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">šiemet</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl md:text-5xl font-extrabold text-primary mb-2">4.9★</div>
+                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Vidutinis įvertinimas</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">iš 800+ atsiliepimų</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Proposition -->
+    <section class="py-20 bg-white dark:bg-gray-900 border-y border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-12 text-center">
+                <div>
+                    <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center mx-auto mb-5" style="border-radius: 8px;">
+                        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Per 24val rask specialistą</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                        Užuot tyrinėjęs savaitėmis, gauk pasiūlymus iš kelių kūrėjų per vieną dieną. Palyginimas – akimirka.
+                    </p>
+                </div>
+                <div>
+                    <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center mx-auto mb-5" style="border-radius: 8px;">
+                        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Tik patikrinti profesionalai</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                        Kiekvienas kūrėjas – su portfolio, atsiliepimais ir dokumentais. Jokių netikrų profilių ar nusivylimų.
+                    </p>
+                </div>
+                <div>
+                    <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center mx-auto mb-5" style="border-radius: 8px;">
+                        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Skaidrios kainos, jokių paslėptų</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                        Žinok tikslią kainą iš anksto. Derinkis tiesiogiai su kūrėju. Be platformos mokesčių už sandorį.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section class="py-24 bg-gray-50 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Du keliai į sėkmę</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
+                    Koks tavo projektas?
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Verslui reikia patikimumo? O gal ieškoti naujų talentų už geresnę kainą?
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                <!-- Professional Creators -->
+                <a href="kurejai.html" class="block card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-10 relative overflow-hidden group" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-gray-900 dark:bg-gray-100 flex items-center justify-center mb-6" style="border-radius: 8px;">
+                            <span class="text-3xl">💼</span>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-3">Profesionalai</h3>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-bold" style="border-radius: 4px;">TOP 500</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">• Patikrinti ir įvertinti</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                            <strong class="text-gray-900 dark:text-white">Idealus verslui:</strong> Patyrę kūrėjai su 100+ projektų, licencijomis ir draudimu. Garantuotas rezultatas.
+                        </p>
+                        <ul class="space-y-2 mb-8 text-sm text-gray-600 dark:text-gray-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Pilnas portfolio ir atsiliepimai
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Sutartis ir SF išrašymas
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Greitas atsakymas (vidutiniškai 2val)
+                            </li>
+                        </ul>
+                        <div class="flex items-center text-primary font-bold text-lg group-hover:gap-3 gap-2 transition-all">
+                            <span>Peržiūrėti katalogą</span>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Rising Stars -->
+                <a href="kylancios-zvaigzdes.html" class="block card-hover bg-gradient-to-br from-primary to-primary-hover p-10 relative overflow-hidden group" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 197, 15, 0.25);">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -mr-20 -mt-20 opacity-10"></div>
+                    <div class="absolute top-6 right-6">
+                        <span class="px-4 py-1.5 bg-white text-primary text-xs font-black uppercase tracking-wide" style="border-radius: 6px;">
+                            🔥 Naujiena
+                        </span>
+                    </div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center mb-6" style="border-radius: 8px;">
+                            <span class="text-3xl">⭐</span>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-white mb-3">Kylančios Žvaigždės</h3>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm mb-4" style="border-radius: 6px;">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-white font-black text-sm">0€ UŽ PASLAUGĄ</span>
+                        </div>
+                        <p class="text-white text-opacity-95 mb-6 leading-relaxed text-lg">
+                            <strong class="text-white font-bold">Abipusė nauda:</strong> Talentingi naujokai kuria portfolio, tu gauni profesionalų darbą nemokamai arba už simbolinę kainą.
+                        </p>
+                        <ul class="space-y-2 mb-8 text-sm text-white text-opacity-90">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                80+ kūrėjų su įspūdingu talentu
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Idealus portreto, event, produktų foto
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Tavo projektas = jų karjeros startas
+                            </li>
+                        </ul>
+                        <div class="flex items-center text-white font-bold text-lg group-hover:gap-3 gap-2 transition-all">
+                            <span>Atrasti talentus</span>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="text-center mt-10">
+                <p class="text-sm text-gray-500 dark:text-gray-500">
+                    💡 <strong class="text-gray-700 dark:text-gray-400">Nesigaili kam pasirinkti?</strong> Išbandyk abu – pamatysi kas tau labiau tinka.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-24 bg-white dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Kas tau reikia?</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
+                    Populiariausios kategorijos
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Nuo asmeninių švenčių iki korporatyvinio turinio – turime specialistų visoms sritims
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-pink-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">💍</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Vestuvės</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">127 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-blue-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">🏢</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Corporate</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">89 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-primary flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">📦</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Produktai</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">67 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-red-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">🍔</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Maistas</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">45 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-purple-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">🎥</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Video</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">156 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-teal-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">🏠</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Nekilnojamas Turtas</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">43 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-green-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">👨‍👩‍👧</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Portretai</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">92 kūrėjų</p>
+                </a>
+
+                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+                    <div class="w-12 h-12 bg-sky-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
+                        <span class="text-2xl">🚁</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Dronas</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">28 kūrėjų</p>
+                </a>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="kurejai.html" class="inline-flex items-center gap-2 px-8 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold" style="border-radius: 6px;">
+                    Visos kategorijos
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-24 bg-gray-50 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Kaip tai veikia</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
+                    Nuo idėjos iki rezultato<br/>per 3 žingsnius
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Dauguma klientų randa specialistą per 24val. Jokių sudėtingų procesų ar begalinio laukimo.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">1</div>
+                    <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
+                        <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
+                            <span class="text-3xl">🎯</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Aprašyk viziją</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                            <strong class="text-gray-900 dark:text-white">„Reikia vestuvių fotografo Kaune"</strong> – tiek ir užtenka. O gal gali detalizuoti? Dar geriau.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">2</div>
+                    <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
+                        <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
+                            <span class="text-3xl">⚡</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Gauk atsakymus greitai</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                            Per kelias valandas gausi <strong class="text-gray-900 dark:text-white">3-7 pasiūlymus</strong> su kainomis, portfolio nuorodom ir kontaktais.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">3</div>
+                    <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
+                        <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
+                            <span class="text-3xl">🤝</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Susisiek tiesiogiai</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                            Palyginai? Puiku! <strong class="text-gray-900 dark:text-white">Susisiek su kūrėju</strong> – derinkis, klausk, detalink. Be tarpininkų.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 max-w-3xl mx-auto" style="border-radius: 8px;">
+                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                    <strong class="text-gray-900 dark:text-white text-lg">Dažniausias klausimas:</strong>
+                </p>
+                <p class="text-gray-500 dark:text-gray-500 text-sm">
+                    "Ar reikia mokėti platformai už sandorį?" <strong class="text-primary">Ne.</strong> Artifex neuždirba iš tavo projektų. Sutarti ir mokėjimai – tiesiai su kūrėju.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="py-20 bg-white dark:bg-gray-900">
+        <div class="max-w-6xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Ką sako klientai</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
+                    Kodėl žmonės renkasi Artifex?
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8" style="border-radius: 8px;">
+                    <div class="flex items-center gap-1 mb-4">
+                        <span class="text-primary text-xl">★★★★★</span>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                        "Per 3 valandas gavau 5 pasiūlymus vestuvėms. Fotografas kurį pasirinkau buvo nuostabus – profesionalus ir draugiškas."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-primary flex items-center justify-center text-white font-bold" style="border-radius: 8px;">L</div>
+                        <div>
+                            <div class="font-semibold text-gray-900 dark:text-white">Laura M.</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Vilnius • Vestuvės</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8" style="border-radius: 8px;">
+                    <div class="flex items-center gap-1 mb-4">
+                        <span class="text-primary text-xl">★★★★★</span>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                        "Mūsų startupo produktų foto reikėjo skubiai. Kylančios Žvaigždės skiltyje radau talentą, kainavo tik 50€. Rezultatas – įspūdingas!"
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-primary flex items-center justify-center text-white font-bold" style="border-radius: 8px;">T</div>
+                        <div>
+                            <div class="font-semibold text-gray-900 dark:text-white">Tomas K.</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Kaunas • Startupo CEO</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8" style="border-radius: 8px;">
+                    <div class="flex items-center gap-1 mb-4">
+                        <span class="text-primary text-xl">★★★★★</span>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                        "Ieškojau 2 savaites kitur. Artifex per dieną suorganizavo viską. Corporate video + foto paketas. Greita, profesionalu."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-primary flex items-center justify-center text-white font-bold" style="border-radius: 8px;">R</div>
+                        <div>
+                            <div class="font-semibold text-gray-900 dark:text-white">Rita P.</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Klaipėda • Marketing Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-28 bg-gradient-to-br from-primary via-primary to-primary-hover relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -ml-48 -mt-48"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mb-48"></div>
+        </div>
+        <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center relative z-10">
+            <h2 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+                Tavo projektas laukia.<br/>
+                Pradėk šiandien.
+            </h2>
+            <p class="text-xl md:text-2xl text-white text-opacity-95 mb-4 max-w-2xl mx-auto leading-relaxed">
+                Prisijunk prie <strong>500+ kūrėjų</strong> ir <strong>2000+ patenkintų klientų</strong>, kurie jau atrado idealų sprendimą.
+            </p>
+            <p class="text-base text-white text-opacity-80 mb-10">
+                ⚡ Registracija 100% nemokama • 🚀 Pirmas pasiūlymas per kelias valandas
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="kurejai.html" class="bg-white text-gray-900 px-10 py-4 font-black text-lg hover:bg-gray-100 inline-flex items-center justify-center gap-2 group" style="border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+                    <span>Rasti Kūrėją Dabar</span>
+                    <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+                <a href="#" class="border-2 border-white text-white px-10 py-4 font-bold text-lg hover:bg-white hover:text-primary inline-flex items-center justify-center gap-2" style="border-radius: 8px;">
+                    <span>Tapti Kūrėju</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </a>
+            </div>
+            <p class="text-sm text-white text-opacity-70 mt-8">
+                Turite klausimų? <a href="#" class="underline hover:text-white font-semibold">Skambinkite mums</a> arba <a href="#" class="underline hover:text-white font-semibold">rašykite</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 dark:bg-black text-gray-400 py-16 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
+                            <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                        </div>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                    </div>
+                    <p class="text-sm mb-4">
+                        Viena platforma - visos medijų paslaugos. Jungiame kūrėjus ir klientus Lietuvoje.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Rask Kūrėją</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="kurejai.html" class="hover:text-primary">Profesionalai</a></li>
+                        <li><a href="kylancios-zvaigzdes.html" class="hover:text-primary">Kylančios Žvaigždės</a></li>
+                        <li><a href="#" class="hover:text-primary">Kategorijos</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kūrėjams</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-primary">Kaip pradėti</a></li>
+                        <li><a href="#" class="hover:text-primary">Kainos</a></li>
+                        <li><a href="#" class="hover:text-primary">DUK</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li>info@artifex.lt</li>
+                        <li>+370 600 12345</li>
+                        <li>Vilnius, Lietuva</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <div class="flex gap-6 text-sm">
+                    <a href="#" class="hover:text-primary">Privatumo politika</a>
+                    <a href="#" class="hover:text-primary">Naudojimo sąlygos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        if (localStorage.getItem('darkMode') === 'true' ||
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('darkMode', html.classList.contains('dark'));
+        });
+    </script>
+</body>
+</html>
