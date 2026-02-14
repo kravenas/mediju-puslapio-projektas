@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -147,19 +148,19 @@
                 <!-- Stats with context -->
                 <div class="grid grid-cols-3 gap-8 max-w-3xl mx-auto">
                     <div class="text-center">
-                        <div class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">500+</div>
+                        <div id="stat-creators" class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">...</div>
                         <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Patikrintų kūrėjų</div>
                         <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">su portfolio</div>
                     </div>
                     <div class="text-center border-x border-secondary dark:border-gray-700">
-                        <div class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">2000+</div>
-                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Sėkmingų projektų</div>
+                        <div id="stat-reviews" class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">...</div>
+                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Atsiliepimų</div>
                         <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">šiemet</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-4xl md:text-5xl font-extrabold text-primary mb-2">4.9★</div>
+                        <div id="stat-rating" class="text-4xl md:text-5xl font-extrabold text-primary mb-2">...★</div>
                         <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Vidutinis įvertinimas</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">iš 800+ atsiliepimų</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">iš atsiliepimų</div>
                     </div>
                 </div>
             </div>
@@ -339,70 +340,8 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-pink-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">💍</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Vestuvės</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">127 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-blue-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">🏢</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Corporate</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">89 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-primary flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">📦</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Produktai</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">67 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-red-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">🍔</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Maistas</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">45 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-purple-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">🎥</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Video</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">156 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-teal-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">🏠</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Nekilnojamas Turtas</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">43 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-green-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">👨‍👩‍👧</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Portretai</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">92 kūrėjų</p>
-                </a>
-
-                <a href="kurejai.html" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
-                    <div class="w-12 h-12 bg-sky-500 flex items-center justify-center mb-4" style="border-radius: 6px;">
-                        <span class="text-2xl">🚁</span>
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-1">Dronas</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">28 kūrėjų</p>
-                </a>
+            <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Loaded dynamically from Supabase -->
             </div>
 
             <div class="text-center mt-12">
@@ -491,54 +430,8 @@
                 </h2>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8" style="border-radius: 8px;">
-                    <div class="flex items-center gap-1 mb-4">
-                        <span class="text-primary text-xl">★★★★★</span>
-                    </div>
-                    <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                        "Per 3 valandas gavau 5 pasiūlymus vestuvėms. Fotografas kurį pasirinkau buvo nuostabus – profesionalus ir draugiškas."
-                    </p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-primary flex items-center justify-center text-white font-bold" style="border-radius: 8px;">L</div>
-                        <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Laura M.</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Vilnius • Vestuvės</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8" style="border-radius: 8px;">
-                    <div class="flex items-center gap-1 mb-4">
-                        <span class="text-primary text-xl">★★★★★</span>
-                    </div>
-                    <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                        "Mūsų startupo produktų foto reikėjo skubiai. Kylančios Žvaigždės skiltyje radau talentą, kainavo tik 50€. Rezultatas – įspūdingas!"
-                    </p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-primary flex items-center justify-center text-white font-bold" style="border-radius: 8px;">T</div>
-                        <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Tomas K.</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Kaunas • Startupo CEO</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8" style="border-radius: 8px;">
-                    <div class="flex items-center gap-1 mb-4">
-                        <span class="text-primary text-xl">★★★★★</span>
-                    </div>
-                    <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                        "Ieškojau 2 savaites kitur. Artifex per dieną suorganizavo viską. Corporate video + foto paketas. Greita, profesionalu."
-                    </p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-primary flex items-center justify-center text-white font-bold" style="border-radius: 8px;">R</div>
-                        <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Rita P.</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Klaipėda • Marketing Manager</div>
-                        </div>
-                    </div>
-                </div>
+            <div id="reviews-grid" class="grid md:grid-cols-3 gap-6">
+                <!-- Loaded dynamically from Supabase -->
             </div>
         </div>
     </section>
@@ -630,6 +523,8 @@
         </div>
     </footer>
 
+    <script src="js/supabase-config.js"></script>
+    <script src="js/home.js"></script>
     <script>
         // Theme Toggle
         const themeToggle = document.getElementById('theme-toggle');

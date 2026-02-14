@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -210,27 +211,27 @@
                 <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <input type="text" placeholder="Ieškoti kylančios žvaigždės..." class="w-full h-12 pl-12 pr-4 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring" style="border-radius: 8px;">
+                <input id="rs-search" type="text" placeholder="Ieškoti kylančios žvaigždės..." class="w-full h-12 pl-12 pr-4 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring" style="border-radius: 8px;">
             </div>
 
             <!-- Filter Tags -->
             <div class="flex gap-3 overflow-x-auto hide-scrollbar justify-center flex-wrap">
-                <button class="filter-pill active px-4 py-2 border border-secondary dark:border-gray-700 text-sm font-medium whitespace-nowrap" style="border-radius: 6px;">
+                <button class="filter-pill active px-4 py-2 border border-secondary dark:border-gray-700 text-sm font-medium whitespace-nowrap" data-category="" style="border-radius: 6px;">
                     Visi
                 </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" style="border-radius: 6px;">
+                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="vestuvės" style="border-radius: 6px;">
                     Vestuvės
                 </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" style="border-radius: 6px;">
+                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="portretai" style="border-radius: 6px;">
                     Portretai
                 </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" style="border-radius: 6px;">
+                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="produktai" style="border-radius: 6px;">
                     Produktai
                 </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" style="border-radius: 6px;">
+                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="eventai" style="border-radius: 6px;">
                     Eventai
                 </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" style="border-radius: 6px;">
+                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="video" style="border-radius: 6px;">
                     Video
                 </button>
             </div>
@@ -242,202 +243,12 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="flex items-center justify-between mb-6">
                 <p class="text-gray-600 dark:text-gray-400">
-                    Rasta <span class="font-semibold text-gray-900 dark:text-white">8</span> kylančios žvaigždės
+                    Rasta <span id="rs-count" class="font-semibold text-gray-900 dark:text-white">...</span> kylančios žvaigždės
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Rising Star Card 1 -->
-                <div class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 6px;">
-                    <div class="relative h-48 bg-gradient-to-br from-pink-500 to-rose-500 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&h=400&fit=crop" alt="" class="w-full h-full object-cover opacity-80">
-                        <div class="absolute top-3 left-3">
-                            <span class="px-3 py-1 bg-primary text-white text-xs font-bold" style="border-radius: 6px;">
-                                KYLANTI ŽVAIGŽDĖ
-                            </span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="px-3 py-1 bg-green-500 text-white text-xs font-bold" style="border-radius: 6px;">
-                                NEMOKAMAI
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-start justify-between mb-3">
-                            <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">Simona Kazlauskaitė</h3>
-                                <p class="text-sm text-primary">Fotografė</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="flex items-center text-sm">
-                                    <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                    </svg>
-                                    <span class="ml-1 font-bold text-gray-900 dark:text-white">4.8</span>
-                                    <span class="ml-1 text-gray-400">(3)</span>
-                                </div>
-                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Vilnius</p>
-                            </div>
-                        </div>
-
-                        <!-- Portfolio Progress -->
-                        <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700" style="border-radius: 6px;">
-                            <div class="flex items-center justify-between text-sm mb-2">
-                                <span class="text-gray-600 dark:text-gray-400">Portfolio pažanga</span>
-                                <span class="font-semibold text-primary">3/10</span>
-                            </div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2" style="border-radius: 4px;">
-                                <div class="bg-primary h-2" style="width: 30%; border-radius: 4px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Looking For -->
-                        <div class="mb-4">
-                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Ieško projektų:</p>
-                            <div class="flex flex-wrap gap-1">
-                                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-secondary dark:border-gray-700" style="border-radius: 4px;">vestuvės</span>
-                                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-secondary dark:border-gray-700" style="border-radius: 4px;">portretai</span>
-                            </div>
-                        </div>
-
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                            Studijuoju fotografiją VDA. Ieškau vestuvių ir portretų projektų portfolio kūrimui.
-                        </p>
-
-                        <button class="w-full bg-primary hover:bg-primary-hover text-white py-3 font-semibold" style="border-radius: 4px;">
-                            Siųsti Užklausą
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Rising Star Card 2 -->
-                <div class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 6px;">
-                    <div class="relative h-48 bg-gradient-to-br from-purple-500 to-violet-600 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop" alt="" class="w-full h-full object-cover opacity-80">
-                        <div class="absolute top-3 left-3">
-                            <span class="px-3 py-1 bg-primary text-white text-xs font-bold" style="border-radius: 6px;">
-                                KYLANTI ŽVAIGŽDĖ
-                            </span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="px-3 py-1 bg-amber-500 text-white text-xs font-bold" style="border-radius: 6px;">
-                                ~€30
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-start justify-between mb-3">
-                            <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">Matas Jankauskas</h3>
-                                <p class="text-sm text-primary">Videografas</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="flex items-center text-sm">
-                                    <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                    </svg>
-                                    <span class="ml-1 font-bold text-gray-900 dark:text-white">5.0</span>
-                                    <span class="ml-1 text-gray-400">(5)</span>
-                                </div>
-                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Kaunas</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700" style="border-radius: 6px;">
-                            <div class="flex items-center justify-between text-sm mb-2">
-                                <span class="text-gray-600 dark:text-gray-400">Portfolio pažanga</span>
-                                <span class="font-semibold text-primary">5/10</span>
-                            </div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2" style="border-radius: 4px;">
-                                <div class="bg-primary h-2" style="width: 50%; border-radius: 4px;"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Ieško projektų:</p>
-                            <div class="flex flex-wrap gap-1">
-                                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-secondary dark:border-gray-700" style="border-radius: 4px;">promo video</span>
-                                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-secondary dark:border-gray-700" style="border-radius: 4px;">eventai</span>
-                            </div>
-                        </div>
-
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                            Turiu profesionalią įrangą (Sony A7III). Kuriu trumpus promo video ir eventų coverage.
-                        </p>
-
-                        <button class="w-full bg-primary hover:bg-primary-hover text-white py-3 font-semibold" style="border-radius: 4px;">
-                            Siųsti Užklausą
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Rising Star Card 3 -->
-                <div class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 6px;">
-                    <div class="relative h-48 bg-gradient-to-br from-emerald-500 to-teal-600 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&h=400&fit=crop" alt="" class="w-full h-full object-cover opacity-80">
-                        <div class="absolute top-3 left-3">
-                            <span class="px-3 py-1 bg-primary text-white text-xs font-bold" style="border-radius: 6px;">
-                                KYLANTI ŽVAIGŽDĖ
-                            </span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="px-3 py-1 bg-green-500 text-white text-xs font-bold" style="border-radius: 6px;">
-                                NEMOKAMAI
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-start justify-between mb-3">
-                            <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">Gabrielė Mockutė</h3>
-                                <p class="text-sm text-primary">Fotografė</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="flex items-center text-sm">
-                                    <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                    </svg>
-                                    <span class="ml-1 font-bold text-gray-900 dark:text-white">4.9</span>
-                                    <span class="ml-1 text-gray-400">(7)</span>
-                                </div>
-                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Vilnius</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700" style="border-radius: 6px;">
-                            <div class="flex items-center justify-between text-sm mb-2">
-                                <span class="text-gray-600 dark:text-gray-400">Portfolio pažanga</span>
-                                <span class="font-semibold text-primary">7/10</span>
-                            </div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2" style="border-radius: 4px;">
-                                <div class="bg-primary h-2" style="width: 70%; border-radius: 4px;"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Ieško projektų:</p>
-                            <div class="flex flex-wrap gap-1">
-                                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-secondary dark:border-gray-700" style="border-radius: 4px;">produktai</span>
-                                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-secondary dark:border-gray-700" style="border-radius: 4px;">maistas</span>
-                            </div>
-                        </div>
-
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                            Specializuojuosi produktų ir maisto fotografijoje. Turiu mini studiją namuose.
-                        </p>
-
-                        <button class="w-full bg-primary hover:bg-primary-hover text-white py-3 font-semibold" style="border-radius: 4px;">
-                            Siųsti Užklausą
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Load More -->
-            <div class="text-center mt-12">
-                <button class="px-8 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold" style="border-radius: 6px;">
-                    Rodyti daugiau
-                </button>
+            <div id="rs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loaded dynamically from Supabase -->
             </div>
         </div>
     </section>
@@ -545,6 +356,8 @@
         </div>
     </footer>
 
+    <script src="js/supabase-config.js"></script>
+    <script src="js/rising-stars.js"></script>
     <script>
         // Theme Toggle
         const themeToggle = document.getElementById('theme-toggle');
@@ -558,14 +371,6 @@
         themeToggle.addEventListener('click', () => {
             html.classList.toggle('dark');
             localStorage.setItem('darkMode', html.classList.contains('dark'));
-        });
-
-        // Filter Pills
-        document.querySelectorAll('.filter-pill').forEach(pill => {
-            pill.addEventListener('click', () => {
-                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-                pill.classList.add('active');
-            });
         });
     </script>
 </body>
