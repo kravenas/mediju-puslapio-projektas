@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artifex - Rask Tobulą Kūrėją Savo Projektui</title>
 
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Sexsmith';
+            src: url('fonts/Sexsmith.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +38,7 @@
     <style>
         /* Font Variables */
         :root {
-            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
@@ -85,6 +94,7 @@
                 <div class="hidden lg:flex items-center space-x-8">
                     <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kūrėjai</a>
                     <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kaip Veikia</a>
                 </div>
 
@@ -97,13 +107,31 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </button>
-                    <a href="#" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">
-                        Prisijungti
-                    </a>
-                    <a href="#" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 font-medium" style="border-radius: 4px;">
-                        Registruotis
-                    </a>
+                    <div class="auth-nav-buttons flex items-center space-x-4">
+                        <a href="prisijungimas.html" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">
+                            Prisijungti
+                        </a>
+                        <a href="prisijungimas.html?tab=register" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 font-medium" style="border-radius: 4px;">
+                            Registruotis
+                        </a>
+                    </div>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800" style="border-radius: 4px;">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            <path id="menu-icon-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-secondary dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div class="px-6 py-4 space-y-3">
+                <a href="kurejai.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Kūrėjai</a>
+                <a href="kylancios-zvaigzdes.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Naujokai</a>
+                <a href="planai.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Planai</a>
+                <a href="#how-it-works" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Kaip Veikia</a>
             </div>
         </div>
     </nav>
@@ -118,9 +146,9 @@
                     <span class="text-sm text-gray-500 dark:text-gray-400">• Vidutinis atsakymo laikas: 2val</span>
                 </div>
 
-                <h1 class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                <h1 class="text-5xl md:text-7xl text-gray-900 dark:text-white mb-6 leading-tight" style="font-family: 'Sexsmith', Georgia, serif; font-weight: 400;">
                     Rask Lietuvos kūrėjus,<br>
-                    kurie pavers <span class="bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">tavo viziją</span> <em class="font-serif italic text-gray-700 dark:text-gray-300">realybe</em>.
+                    kurie pavers <span class="text-primary">tavo viziją</span> <em class="italic text-gray-900 dark:text-white" style="font-family: 'Sexsmith', Georgia, serif;">realybe</em>.
                 </h1>
 
                 <p class="text-base text-gray-500 dark:text-gray-500 mb-12">
@@ -134,14 +162,14 @@
                             <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
-                            <input type="text" placeholder="pvz. vestuvių fotografas Vilniuje..." class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-800 border-2 border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-base" style="border-radius: 8px;">
+                            <input type="text" id="hero-search" placeholder="pvz. vestuvių fotografas Vilniuje..." class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-800 border-2 border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-base" style="border-radius: 8px;">
                         </div>
-                        <a href="kurejai.html" class="h-14 bg-primary hover:bg-primary-hover text-white px-10 font-bold flex items-center justify-center text-base" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 197, 15, 0.3);">
+                        <button id="hero-search-btn" class="h-14 bg-primary hover:bg-primary-hover text-white px-10 font-bold flex items-center justify-center text-base cursor-pointer" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 197, 15, 0.3);">
                             Ieškoti
-                        </a>
+                        </button>
                     </div>
                     <p class="text-xs text-gray-500 dark:text-gray-500 mt-3 text-left">
-                        Populiariausios paieškos: <span class="font-medium text-gray-700 dark:text-gray-400">produktų fotografija</span>, <span class="font-medium text-gray-700 dark:text-gray-400">dronas</span>, <span class="font-medium text-gray-700 dark:text-gray-400">corporate video</span>
+                        Populiariausios paieškos: <span class="popular-search-tag font-medium text-gray-700 dark:text-gray-400 hover:text-primary">produktų fotografija</span>, <span class="popular-search-tag font-medium text-gray-700 dark:text-gray-400 hover:text-primary">dronas</span>, <span class="popular-search-tag font-medium text-gray-700 dark:text-gray-400 hover:text-primary">corporate video</span>
                     </p>
                 </div>
 
@@ -227,7 +255,7 @@
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full -mr-16 -mt-16 opacity-50"></div>
                     <div class="relative">
                         <div class="w-14 h-14 bg-gray-900 dark:bg-gray-100 flex items-center justify-center mb-6" style="border-radius: 8px;">
-                            <span class="text-3xl">💼</span>
+                            <svg class="w-7 h-7 text-white dark:text-gray-900" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                         </div>
                         <h3 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-3">Profesionalai</h3>
                         <div class="flex items-center gap-3 mb-4">
@@ -276,7 +304,7 @@
                     </div>
                     <div class="relative">
                         <div class="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center mb-6" style="border-radius: 8px;">
-                            <span class="text-3xl">⭐</span>
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
                         </div>
                         <h3 class="text-3xl font-extrabold text-white mb-3">Kylančios Žvaigždės</h3>
                         <div class="inline-flex items-center gap-2 px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm mb-4" style="border-radius: 6px;">
@@ -321,7 +349,7 @@
 
             <div class="text-center mt-10">
                 <p class="text-sm text-gray-500 dark:text-gray-500">
-                    💡 <strong class="text-gray-700 dark:text-gray-400">Nesigaili kam pasirinkti?</strong> Išbandyk abu – pamatysi kas tau labiau tinka.
+                    <svg class="w-4 h-4 inline-block text-primary -mt-0.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg> <strong class="text-gray-700 dark:text-gray-400">Nesigaili kam pasirinkti?</strong> Išbandyk abu – pamatysi kas tau labiau tinka.
                 </p>
             </div>
         </div>
@@ -373,7 +401,7 @@
                     <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">1</div>
                     <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
                         <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
-                            <span class="text-3xl">🎯</span>
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Aprašyk viziją</h3>
                         <p class="text-gray-600 dark:text-gray-400 text-center leading-relaxed">
@@ -386,7 +414,7 @@
                     <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">2</div>
                     <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
                         <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
-                            <span class="text-3xl">⚡</span>
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Gauk atsakymus greitai</h3>
                         <p class="text-gray-600 dark:text-gray-400 text-center leading-relaxed">
@@ -399,7 +427,7 @@
                     <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">3</div>
                     <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
                         <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
-                            <span class="text-3xl">🤝</span>
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Susisiek tiesiogiai</h3>
                         <p class="text-gray-600 dark:text-gray-400 text-center leading-relaxed">
@@ -460,7 +488,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                 </a>
-                <a href="#" class="border-2 border-white text-white px-10 py-4 font-bold text-lg hover:bg-white hover:text-primary inline-flex items-center justify-center gap-2" style="border-radius: 8px;">
+                <a href="prisijungimas.html?tab=register&role=kurejas" class="border-2 border-white text-white px-10 py-4 font-bold text-lg hover:bg-white hover:text-primary inline-flex items-center justify-center gap-2" style="border-radius: 8px;">
                     <span>Tapti Kūrėju</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -500,7 +528,7 @@
                     <h5 class="text-white font-semibold mb-4">Kūrėjams</h5>
                     <ul class="space-y-3 text-sm">
                         <li><a href="#" class="hover:text-primary">Kaip pradėti</a></li>
-                        <li><a href="#" class="hover:text-primary">Kainos</a></li>
+                        <li><a href="planai.html" class="hover:text-primary">Kainos</a></li>
                         <li><a href="#" class="hover:text-primary">DUK</a></li>
                     </ul>
                 </div>
@@ -516,14 +544,17 @@
             <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-sm">&copy; 2026 Artifex. Visos teisės saugomos.</p>
                 <div class="flex gap-6 text-sm">
-                    <a href="#" class="hover:text-primary">Privatumo politika</a>
+                    <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
                     <a href="#" class="hover:text-primary">Naudojimo sąlygos</a>
                 </div>
             </div>
         </div>
     </footer>
 
+    <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/subscription.js"></script>
     <script src="js/home.js"></script>
     <script>
         // Theme Toggle
@@ -538,6 +569,17 @@
         themeToggle.addEventListener('click', () => {
             html.classList.toggle('dark');
             localStorage.setItem('darkMode', html.classList.contains('dark'));
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIconOpen = document.getElementById('menu-icon-open');
+        const menuIconClose = document.getElementById('menu-icon-close');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuIconOpen.classList.toggle('hidden');
+            menuIconClose.classList.toggle('hidden');
         });
     </script>
 </body>

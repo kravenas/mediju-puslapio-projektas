@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artifex - Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFC50F',
+                        'primary-hover': '#E6B00F',
+                        secondary: '#DBDBDB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900">
+
+    <!-- Top bar -->
+    <nav class="bg-white dark:bg-gray-900 border-b border-secondary dark:border-gray-800">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-3">
+                    <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                    <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-gray-900 dark:text-white">ARTIFEX</span>
+                </a>
+                <span class="ml-4 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold uppercase" style="border-radius:4px;">Admin</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="admin-email" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                <button onclick="supabase.auth.signOut().then(()=>location.href='prisijungimas.html')" class="text-sm text-gray-400 hover:text-red-500">Atsijungti</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Loading -->
+    <div id="admin-loading" class="max-w-md mx-auto mt-32 text-center px-6">
+        <p class="text-gray-400 dark:text-gray-500">Tikrinama prieiga...</p>
+    </div>
+
+    <!-- Access denied -->
+    <div id="access-denied" class="hidden max-w-md mx-auto mt-32 text-center px-6">
+        <div class="w-16 h-16 bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4" style="border-radius:50%;">
+            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Prieiga uždrausta</h2>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Šis puslapis prieinamas tik administratoriams.</p>
+        <a href="index.html" class="inline-block mt-4 text-primary hover:underline text-sm font-medium">Grįžti į pagrindinį</a>
+    </div>
+
+    <!-- Admin content -->
+    <div id="admin-content" class="hidden max-w-6xl mx-auto px-6 py-8">
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-8 border-b border-secondary dark:border-gray-700">
+            <button class="admin-tab active px-5 py-3 text-sm font-semibold border-b-2 border-primary text-gray-900 dark:text-white" data-tab="listings">
+                Skelbimai
+                <span id="listings-pending-count" class="ml-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-bold" style="border-radius:10px;"></span>
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="applications">
+                Ženkliukų paraiškos
+                <span id="pending-count" class="ml-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-bold" style="border-radius:10px;"></span>
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="subscriptions">
+                Prenumeratos
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="analytics">
+                Analitika
+            </button>
+        </div>
+
+        <!-- Listings Tab -->
+        <div id="tab-listings">
+            <div class="flex items-center gap-3 mb-6">
+                <button class="listings-filter active px-4 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" style="border-radius:6px;" data-status="pending">Laukiantys</button>
+                <button class="listings-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="approved">Patvirtinti</button>
+                <button class="listings-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="rejected">Atmesti</button>
+                <button class="listings-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="all">Visi</button>
+            </div>
+
+            <div id="listings-list" class="space-y-4">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Badge Applications Tab -->
+        <div id="tab-applications" class="hidden">
+            <!-- Filters -->
+            <div class="flex items-center gap-3 mb-6">
+                <button class="status-filter active px-4 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" style="border-radius:6px;" data-status="pending">Laukiančios</button>
+                <button class="status-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="approved">Patvirtintos</button>
+                <button class="status-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="rejected">Atmestos</button>
+                <button class="status-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="all">Visos</button>
+            </div>
+
+            <!-- Applications list -->
+            <div id="applications-list" class="space-y-4">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Subscriptions Tab -->
+        <div id="tab-subscriptions" class="hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:10px;">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Aktyvūs trial</p>
+                    <p id="stat-trials" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:10px;">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Aktyvūs Pro</p>
+                    <p id="stat-pro" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:10px;">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Pasibaigę</p>
+                    <p id="stat-expired" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                </div>
+            </div>
+            <div id="subscriptions-list" class="space-y-3">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="tab-analytics" class="hidden">
+
+            <!-- Conversion Funnel -->
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Konversijų piltuvėlis</h3>
+                <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-6" style="border-radius:10px;">
+                    <div class="flex items-end gap-4" id="funnel-bars">
+                        <div class="text-center text-gray-400 text-sm py-8 w-full">Kraunama...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trial Expiration Alerts -->
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    Baigiasi trial
+                    <span id="expiring-count" class="ml-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs font-bold" style="border-radius:10px;"></span>
+                </h3>
+                <div id="trial-alerts" class="space-y-3">
+                    <div class="text-center py-8 text-gray-400 dark:text-gray-500">Kraunama...</div>
+                </div>
+            </div>
+
+            <!-- Revenue Overview -->
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Pajamos</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:10px;">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">MRR (mėnesio pajamos)</p>
+                        <p id="stat-mrr" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:10px;">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Viso gauta</p>
+                        <p id="stat-total-revenue" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:10px;">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Su nuolaida (atsiliepimas)</p>
+                        <p id="stat-discounted" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                    </div>
+                </div>
+                <div id="revenue-list" class="space-y-3">
+                    <div class="text-center py-8 text-gray-400 dark:text-gray-500">Kraunama...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject modal -->
+    <div id="reject-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
+        <div class="bg-white dark:bg-gray-900 w-full max-w-md p-6" style="border-radius:12px;">
+            <h3 id="reject-modal-title" class="text-lg font-bold text-gray-900 dark:text-white mb-4">Atmesti paraišką</h3>
+            <textarea id="reject-note" rows="3" placeholder="Priežastis (matys kūrėjas)..." class="w-full px-3 py-2.5 border border-secondary dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm outline-none resize-none" style="border-radius:6px;"></textarea>
+            <div class="flex gap-3 mt-4">
+                <button onclick="closeRejectModal()" class="flex-1 py-2.5 border border-secondary dark:border-gray-600 text-gray-600 dark:text-gray-400 font-medium text-sm" style="border-radius:6px;">Atšaukti</button>
+                <button id="confirm-reject-btn" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium text-sm" style="border-radius:6px;">Atmesti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentry error tracking (disabled until DSN is configured) -->
+    <script src="https://browser.sentry-cdn.com/8.55.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+    <script src="js/sentry-init.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

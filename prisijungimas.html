@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisijungimas - Artifex</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFC50F',
+                        'primary-hover': '#E6B00F',
+                        secondary: '#DBDBDB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 197, 15, 0.15);
+        }
+
+        .auth-tab.active {
+            color: #FFC50F;
+            border-bottom-color: #FFC50F;
+        }
+
+        .role-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .role-card.selected {
+            border-color: #FFC50F;
+            background-color: rgba(255, 197, 15, 0.05);
+        }
+        .dark .role-card.selected {
+            background-color: rgba(255, 197, 15, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center gap-3">
+                        <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
+                            <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                        </div>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-gray-900 dark:text-white">ARTIFEX</span>
+                    </a>
+                </div>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kūrėjai</a>
+                    <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
+                    <a href="index.html#how-it-works" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kaip Veikia</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800" style="border-radius: 4px;">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </button>
+                    <div class="auth-nav-buttons flex items-center space-x-4">
+                        <a href="prisijungimas.html" class="hidden sm:block text-primary font-semibold">
+                            Prisijungti
+                        </a>
+                    </div>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800" style="border-radius: 4px;">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            <path id="menu-icon-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-secondary dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div class="px-6 py-4 space-y-3">
+                <a href="kurejai.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Kūrėjai</a>
+                <a href="kylancios-zvaigzdes.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Naujokai</a>
+                <a href="planai.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Planai</a>
+                <a href="index.html#how-it-works" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Kaip Veikia</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Card -->
+    <main class="pt-28 pb-20 px-4">
+        <div class="max-w-md mx-auto">
+            <!-- Card -->
+            <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+                <!-- Tabs -->
+                <div class="flex border-b border-secondary dark:border-gray-700">
+                    <button id="tab-login" class="auth-tab active flex-1 py-4 text-center font-semibold text-sm border-b-2 border-primary text-primary" onclick="switchTab('login')">
+                        Prisijungti
+                    </button>
+                    <button id="tab-register" class="auth-tab flex-1 py-4 text-center font-semibold text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" onclick="switchTab('register')">
+                        Registruotis
+                    </button>
+                </div>
+
+                <div class="p-8">
+                    <!-- Global error/success messages -->
+                    <div id="auth-message" class="hidden mb-6 p-4 text-sm" style="border-radius: 6px;"></div>
+
+                    <!-- ============ LOGIN FORM ============ -->
+                    <div id="form-login">
+                        <!-- Google OAuth -->
+                        <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 py-3 border border-secondary dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 font-medium text-gray-700 dark:text-gray-200 text-sm" style="border-radius: 6px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                            Prisijungti su Google
+                        </button>
+
+                        <!-- Divider -->
+                        <div class="flex items-center gap-4 my-6">
+                            <div class="flex-1 h-px bg-secondary dark:bg-gray-600"></div>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase">arba</span>
+                            <div class="flex-1 h-px bg-secondary dark:bg-gray-600"></div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">El. paštas</label>
+                            <input id="login-email" type="email" placeholder="jusu@email.lt" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="login-email-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Slaptažodis</label>
+                            <input id="login-password" type="password" placeholder="••••••••" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="login-password-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Forgot password link -->
+                        <div class="text-right mb-6">
+                            <button type="button" class="text-sm text-primary hover:underline font-medium" onclick="switchTab('reset')">
+                                Pamiršote slaptažodį?
+                            </button>
+                        </div>
+
+                        <!-- Submit -->
+                        <button id="login-submit" class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold text-sm" style="border-radius: 6px;" onclick="handleLogin()">
+                            Prisijungti
+                        </button>
+                    </div>
+
+                    <!-- ============ REGISTER FORM ============ -->
+                    <div id="form-register" class="hidden">
+                        <!-- Google OAuth -->
+                        <button id="google-register-btn" class="w-full flex items-center justify-center gap-3 py-3 border border-secondary dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 font-medium text-gray-700 dark:text-gray-200 text-sm" style="border-radius: 6px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                            Registruotis su Google
+                        </button>
+
+                        <!-- Divider -->
+                        <div class="flex items-center gap-4 my-6">
+                            <div class="flex-1 h-px bg-secondary dark:bg-gray-600"></div>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase">arba</span>
+                            <div class="flex-1 h-px bg-secondary dark:bg-gray-600"></div>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="mb-4">
+                            <label for="reg-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Vardas</label>
+                            <input id="reg-name" type="text" placeholder="Jūsų vardas" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="reg-name-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label for="reg-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">El. paštas</label>
+                            <input id="reg-email" type="email" placeholder="jusu@email.lt" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="reg-email-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label for="reg-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Slaptažodis</label>
+                            <input id="reg-password" type="password" placeholder="Mažiausiai 6 simboliai" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="reg-password-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Password Confirm -->
+                        <div class="mb-6">
+                            <label for="reg-password2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Pakartokite slaptažodį</label>
+                            <input id="reg-password2" type="password" placeholder="Pakartokite slaptažodį" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="reg-password2-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Role Selector -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Aš esu:</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="role-card selected bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 p-4 text-center" style="border-radius: 8px;" data-role="klientas" onclick="selectRole(this)">
+                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">Ieškau kūrėjo</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Klientas</div>
+                                </div>
+                                <div class="role-card bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 p-4 text-center" style="border-radius: 8px;" data-role="kurejas" onclick="selectRole(this)">
+                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/></svg>
+                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">Esu kūrėjas</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Kūrėjas</div>
+                                </div>
+                            </div>
+                            <p id="reg-role-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Submit -->
+                        <button id="register-submit" class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold text-sm" style="border-radius: 6px;" onclick="handleRegister()">
+                            Registruotis
+                        </button>
+                    </div>
+
+                    <!-- ============ PASSWORD RESET FORM ============ -->
+                    <div id="form-reset" class="hidden">
+                        <div class="text-center mb-6">
+                            <svg class="w-12 h-12 mx-auto text-primary mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Slaptažodžio atkūrimas</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Įveskite savo el. paštą ir mes atsiųsime atkūrimo nuorodą.</p>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-6">
+                            <label for="reset-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">El. paštas</label>
+                            <input id="reset-email" type="email" placeholder="jusu@email.lt" class="w-full h-11 px-4 bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus-ring text-sm" style="border-radius: 6px;">
+                            <p id="reset-email-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Submit -->
+                        <button id="reset-submit" class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold text-sm mb-4" style="border-radius: 6px;" onclick="handleReset()">
+                            Siųsti nuorodą
+                        </button>
+
+                        <!-- Back -->
+                        <button type="button" class="w-full text-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium" onclick="switchTab('login')">
+                            ← Grįžti prie prisijungimo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom link -->
+            <p id="bottom-switch" class="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
+                Neturite paskyros?
+                <button class="text-primary hover:underline font-semibold" onclick="switchTab('register')">Registruotis</button>
+            </p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 dark:bg-black text-gray-400 py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <span style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                    <span style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                </div>
+                <p class="text-sm">&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <div class="flex gap-6 text-sm">
+                    <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
+                    <a href="#" class="hover:text-primary">Naudojimo sąlygos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        if (localStorage.getItem('darkMode') === 'true' ||
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('darkMode', html.classList.contains('dark'));
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIconOpen = document.getElementById('menu-icon-open');
+        const menuIconClose = document.getElementById('menu-icon-close');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuIconOpen.classList.toggle('hidden');
+            menuIconClose.classList.toggle('hidden');
+        });
+
+        // ========== Tab Switching ==========
+
+        let currentTab = 'login';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            clearErrors();
+            hideMessage();
+
+            document.getElementById('form-login').classList.add('hidden');
+            document.getElementById('form-register').classList.add('hidden');
+            document.getElementById('form-reset').classList.add('hidden');
+
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            document.getElementById('tab-login').classList.remove('border-primary', 'text-primary');
+            document.getElementById('tab-register').classList.remove('border-primary', 'text-primary');
+            document.getElementById('tab-login').classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+            document.getElementById('tab-register').classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+
+            const bottomSwitch = document.getElementById('bottom-switch');
+
+            if (tab === 'login') {
+                document.getElementById('form-login').classList.remove('hidden');
+                activateTab('tab-login');
+                bottomSwitch.innerHTML = 'Neturite paskyros? <button class="text-primary hover:underline font-semibold" onclick="switchTab(\'register\')">Registruotis</button>';
+                bottomSwitch.classList.remove('hidden');
+            } else if (tab === 'register') {
+                document.getElementById('form-register').classList.remove('hidden');
+                activateTab('tab-register');
+                bottomSwitch.innerHTML = 'Jau turite paskyrą? <button class="text-primary hover:underline font-semibold" onclick="switchTab(\'login\')">Prisijungti</button>';
+                bottomSwitch.classList.remove('hidden');
+            } else if (tab === 'reset') {
+                document.getElementById('form-reset').classList.remove('hidden');
+                bottomSwitch.classList.add('hidden');
+            }
+        }
+
+        function activateTab(tabId) {
+            const el = document.getElementById(tabId);
+            el.classList.add('active', 'border-primary', 'text-primary');
+            el.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+        }
+
+        // Check URL params for initial tab
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'register') {
+            switchTab('register');
+        }
+
+        // If already logged in (e.g. after OAuth return), redirect to ?redirect=... or index
+        const redirectParam = urlParams.get('redirect') || sessionStorage.getItem('postLoginRedirect');
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                sessionStorage.removeItem('postLoginRedirect');
+                window.location.href = redirectParam || 'index.html';
+            }
+        })();
+
+        // Persist redirect target across OAuth round-trip
+        if (redirectParam) {
+            sessionStorage.setItem('postLoginRedirect', redirectParam);
+        }
+
+        // ========== Role Selector ==========
+
+        let selectedRole = 'klientas';
+
+        // Auto-select role from URL param (e.g. ?role=kurejas from "Tapti Kūrėju" button)
+        const roleParam = urlParams.get('role');
+        if (roleParam === 'kurejas' || roleParam === 'klientas') {
+            selectedRole = roleParam;
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            const target = document.querySelector(`.role-card[data-role="${roleParam}"]`);
+            if (target) target.classList.add('selected');
+        }
+
+        function selectRole(el) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedRole = el.dataset.role;
+        }
+
+        // ========== Validation Helpers ==========
+
+        function showFieldError(id, msg) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = msg;
+                el.classList.remove('hidden');
+            }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('[id$="-error"]').forEach(el => {
+                el.classList.add('hidden');
+                el.textContent = '';
+            });
+        }
+
+        function showMessage(text, type) {
+            const el = document.getElementById('auth-message');
+            el.textContent = text;
+            el.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-700',
+                'dark:bg-red-900/30', 'dark:text-red-400', 'dark:bg-green-900/30', 'dark:text-green-400');
+            if (type === 'error') {
+                el.classList.add('bg-red-50', 'text-red-700', 'dark:bg-red-900/30', 'dark:text-red-400');
+            } else {
+                el.classList.add('bg-green-50', 'text-green-700', 'dark:bg-green-900/30', 'dark:text-green-400');
+            }
+        }
+
+        function hideMessage() {
+            document.getElementById('auth-message').classList.add('hidden');
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.disabled = loading;
+            if (loading) {
+                btn.dataset.origText = btn.textContent;
+                btn.textContent = 'Palaukite...';
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+            } else {
+                btn.textContent = btn.dataset.origText || btn.textContent;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
+        // ========== Handlers ==========
+
+        async function handleLogin() {
+            clearErrors();
+            hideMessage();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            let valid = true;
+
+            if (!email) { showFieldError('login-email-error', 'Įveskite el. paštą'); valid = false; }
+            else if (!isValidEmail(email)) { showFieldError('login-email-error', 'Neteisingas el. pašto formatas'); valid = false; }
+            if (!password) { showFieldError('login-password-error', 'Įveskite slaptažodį'); valid = false; }
+
+            if (!valid) return;
+
+            setLoading('login-submit', true);
+
+            try {
+                await window.artifexAuth.signInWithEmail(email, password);
+                showMessage('Sėkmingai prisijungėte! Nukreipiame...', 'success');
+                const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+                setTimeout(() => { window.location.href = redirectTo || 'index.html'; }, 1000);
+            } catch (err) {
+                const msg = err.message === 'Invalid login credentials'
+                    ? 'Neteisingas el. paštas arba slaptažodis'
+                    : (err.message || 'Klaida prisijungiant');
+                showMessage(msg, 'error');
+            } finally {
+                setLoading('login-submit', false);
+            }
+        }
+
+        async function handleRegister() {
+            clearErrors();
+            hideMessage();
+
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const password2 = document.getElementById('reg-password2').value;
+            let valid = true;
+
+            if (!name) { showFieldError('reg-name-error', 'Įveskite vardą'); valid = false; }
+            if (!email) { showFieldError('reg-email-error', 'Įveskite el. paštą'); valid = false; }
+            else if (!isValidEmail(email)) { showFieldError('reg-email-error', 'Neteisingas el. pašto formatas'); valid = false; }
+            if (!password) { showFieldError('reg-password-error', 'Įveskite slaptažodį'); valid = false; }
+            else if (password.length < 6) { showFieldError('reg-password-error', 'Slaptažodis turi būti bent 6 simbolių'); valid = false; }
+            if (!password2) { showFieldError('reg-password2-error', 'Pakartokite slaptažodį'); valid = false; }
+            else if (password !== password2) { showFieldError('reg-password2-error', 'Slaptažodžiai nesutampa'); valid = false; }
+
+            if (!valid) return;
+
+            setLoading('register-submit', true);
+
+            try {
+                await window.artifexAuth.signUpWithEmail(email, password, name, selectedRole);
+                showMessage('Registracija sėkminga! Patikrinkite el. paštą patvirtinimui.', 'success');
+            } catch (err) {
+                const msg = err.message?.includes('already registered')
+                    ? 'Šis el. paštas jau užregistruotas'
+                    : (err.message || 'Klaida registruojantis');
+                showMessage(msg, 'error');
+            } finally {
+                setLoading('register-submit', false);
+            }
+        }
+
+        async function handleReset() {
+            clearErrors();
+            hideMessage();
+
+            const email = document.getElementById('reset-email').value.trim();
+            let valid = true;
+
+            if (!email) { showFieldError('reset-email-error', 'Įveskite el. paštą'); valid = false; }
+            else if (!isValidEmail(email)) { showFieldError('reset-email-error', 'Neteisingas el. pašto formatas'); valid = false; }
+
+            if (!valid) return;
+
+            setLoading('reset-submit', true);
+
+            try {
+                await window.artifexAuth.resetPassword(email);
+                showMessage('Atkūrimo nuoroda išsiųsta! Patikrinkite el. paštą.', 'success');
+            } catch (err) {
+                showMessage(err.message || 'Klaida siunčiant nuorodą', 'error');
+            } finally {
+                setLoading('reset-submit', false);
+            }
+        }
+
+        // ========== Google OAuth Buttons ==========
+
+        document.getElementById('google-login-btn').addEventListener('click', async () => {
+            try { await window.artifexAuth.signInWithGoogle(); }
+            catch (err) { showMessage(err.message || 'Klaida jungiantis su Google', 'error'); }
+        });
+
+        document.getElementById('google-register-btn').addEventListener('click', async () => {
+            try { await window.artifexAuth.signInWithGoogle(); }
+            catch (err) { showMessage(err.message || 'Klaida jungiantis su Google', 'error'); }
+        });
+
+        // ========== Enter key submit ==========
+
+        document.getElementById('login-password').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('reg-password2').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleRegister();
+        });
+        document.getElementById('reset-email').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleReset();
+        });
+    </script>
+</body>
+</html>

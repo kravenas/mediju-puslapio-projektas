@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Kūrėjo Profilis - Artifex</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFC50F',
+                        'primary-hover': '#E6B00F',
+                        secondary: '#DBDBDB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+        h1,h2,h3,h4,h5,h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+
+        .profile-hero {
+            position: relative;
+            height: 320px;
+            overflow: hidden;
+        }
+        .profile-hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-hero-gradient {
+            width: 100%;
+            height: 100%;
+        }
+        .profile-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+        }
+        .profile-hero-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+        }
+
+        .star-icon { width: 16px; height: 16px; display: inline-block; fill: #FFC50F; }
+
+        .service-card {
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: border-color 0.15s, background-color 0.15s;
+        }
+        .service-card:hover { border-color: #FFC50F; }
+        .service-card.selected { border-color: #FFC50F; background-color: rgba(255,197,15,0.06); }
+
+        .section-card {
+            background: white;
+            border: 1px solid #DBDBDB;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .dark .section-card {
+            background: #111827;
+            border-color: #374151;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            background: rgba(255,197,15,0.12);
+            color: #92720a;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .dark .category-badge { color: #FFC50F; background: rgba(255,197,15,0.15); }
+
+        .review-card {
+            padding: 1rem 0;
+            border-bottom: 1px solid #DBDBDB;
+        }
+        .dark .review-card { border-color: #374151; }
+        .review-card:last-child { border-bottom: none; }
+
+        #sticky-order {
+            position: sticky;
+            top: 80px;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 4px;
+        }
+        .dark .skeleton {
+            background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="flex items-center gap-3">
+                        <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
+                            <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                        </div>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-gray-900 dark:text-white">ARTIFEX</span>
+                    </a>
+                    <a href="kurejai.html" class="hidden sm:flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                        Kūrėjai
+                    </a>
+                </div>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="kurejai.html" class="text-primary font-semibold">Kūrėjai</a>
+                    <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
+                    <a href="index.html#how-it-works" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kaip Veikia</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800" style="border-radius:4px;">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </button>
+                    <div class="auth-nav-buttons flex items-center space-x-4">
+                        <a href="prisijungimas.html" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Prisijungti</a>
+                        <a href="prisijungimas.html?tab=register" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 font-medium" style="border-radius:4px;">Registruotis</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Loading state -->
+    <div id="profile-loading" class="pt-16">
+        <div class="skeleton w-full" style="height:320px;border-radius:0;"></div>
+        <div class="max-w-5xl mx-auto px-4 py-8">
+            <div class="skeleton h-8 w-64 mb-3"></div>
+            <div class="skeleton h-5 w-40 mb-2"></div>
+            <div class="skeleton h-5 w-32"></div>
+        </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="profile-error" class="hidden pt-32 text-center">
+        <p class="text-gray-500 dark:text-gray-400 text-lg mb-4">Kūrėjas nerastas.</p>
+        <a href="kurejai.html" class="inline-block bg-primary hover:bg-primary-hover text-white px-6 py-2.5 font-medium" style="border-radius:4px;">Grįžti į kūrėjų sąrašą</a>
+    </div>
+
+    <!-- Profile content -->
+    <div id="profile-content" class="hidden pt-16">
+
+        <!-- Hero -->
+        <div class="profile-hero" id="profile-hero">
+            <div class="profile-hero-overlay"></div>
+            <div class="profile-hero-content max-w-5xl mx-auto">
+                <div class="flex items-end justify-between flex-wrap gap-4">
+                    <div>
+                        <h1 id="creator-name" class="text-3xl font-bold text-white mb-1"></h1>
+                        <p id="creator-role" class="text-lg text-gray-200 mb-2"></p>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <div class="flex items-center gap-1.5" id="creator-rating-row"></div>
+                            <div class="flex items-center gap-1.5 text-gray-300 text-sm" id="creator-location-row"></div>
+                        </div>
+                    </div>
+                    <div id="creator-price-badge" class="text-white text-right"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="max-w-5xl mx-auto px-4 py-8">
+            <div class="lg:flex gap-8">
+
+                <!-- Left column -->
+                <div class="flex-1 min-w-0">
+
+                    <!-- Bio -->
+                    <div id="bio-section" class="section-card hidden">
+                        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-3">Apie kūrėją</h2>
+                        <p id="creator-bio" class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm"></p>
+                    </div>
+
+                    <!-- Categories -->
+                    <div id="categories-section" class="section-card hidden">
+                        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-3">Specializacija</h2>
+                        <div id="creator-categories" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Profile info table -->
+                    <div class="section-card">
+                        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-3">Informacija</h2>
+                        <div id="profile-info-panel"></div>
+                    </div>
+
+                    <!-- Reviews -->
+                    <div class="section-card">
+                        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Atsiliepimai</h2>
+                        <div id="creator-reviews">
+                            <div class="text-sm text-gray-400">Kraunama...</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right column: order card -->
+                <div class="lg:w-[420px] mt-6 lg:mt-0">
+                    <div id="sticky-order">
+                        <div class="section-card" style="margin-bottom:0;">
+                            <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Paslaugos ir kainos</h2>
+                            <div id="services-list">
+                                <div class="text-sm text-gray-400">Kraunama...</div>
+                            </div>
+                            <div id="order-action" class="mt-4"></div>
+                        </div>
+
+                        <!-- Message button -->
+                        <div class="section-card" style="margin-bottom:0; margin-top:1.25rem;">
+                            <button id="msg-creator-btn" class="w-full flex items-center justify-center gap-2 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200 text-white font-semibold py-3 text-sm" style="border-radius:6px;">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                                </svg>
+                                Parašyti žinutę
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase config + auth + theme -->
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/subscription.js"></script>
+    <script>
+        // Theme toggle
+        const saved = localStorage.getItem('artifex-theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            const dark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('artifex-theme', dark ? 'dark' : 'light');
+        });
+    </script>
+    <script src="js/kurejas.js"></script>
+</body>
+</html>

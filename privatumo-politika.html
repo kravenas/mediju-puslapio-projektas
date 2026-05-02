@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privatumo politika - Artifex</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Sexsmith';
+            src: url('fonts/Sexsmith.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFC50F',
+                        'primary-hover': '#E6B00F',
+                        secondary: '#DBDBDB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+        * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+        .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(255, 197, 15, 0.1); }
+        .policy-section { margin-bottom: 2rem; }
+        .policy-section h2 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+        .policy-section h3 { font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .policy-section p, .policy-section li { line-height: 1.7; }
+        .policy-section ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
+        .policy-section ul li { margin-bottom: 0.35rem; }
+    </style>
+</head>
+<body class="min-h-screen bg-white dark:bg-gray-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="index.html" class="flex items-center gap-2">
+                    <span style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                    <span style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; letter-spacing: 0.1em;" class="text-gray-900 dark:text-white">ARTIFEX</span>
+                </a>
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kurejai</a>
+                    <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
+                </div>
+                <div id="auth-buttons"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="max-w-4xl mx-auto px-6 lg:px-8 py-12">
+
+        <div class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Privatumo politika</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paskutinis atnaujinimas: 2026 m. balandzio 4 d.</p>
+        </div>
+
+        <div class="text-gray-700 dark:text-gray-300 text-sm">
+
+            <div class="policy-section">
+                <p>Sveiki atvyke i ARTIFEX (toliau - "Platforma", "mes", "musu"). Mes gerbiame jusu privatuma ir isipareigojame saugoti jusu asmens duomenis. Si privatumo politika paaiškina, kokius duomenis renkame, kaip juos naudojame, saugome ir kokias teises turite.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">1. Duomenu valdytojas</h2>
+                <p>Jusu asmens duomenu valdytojas yra ARTIFEX platforma, registruota Lietuvoje.</p>
+                <ul>
+                    <li>El. pastas: <strong>info@artifex.lt</strong></li>
+                    <li>Adresas: Vilnius, Lietuva</li>
+                    <li>Telefonas: +370 600 12345</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">2. Kokie duomenys renkami</h2>
+
+                <h3 class="text-gray-900 dark:text-white">2.1. Registracijos duomenys</h3>
+                <p>Kai registruojates platformoje, renkame:</p>
+                <ul>
+                    <li>Vardas ir pavarde</li>
+                    <li>El. pasto adresas</li>
+                    <li>Slaptazodis (saugomas uzkoduotoje formoje)</li>
+                    <li>Paskyros tipas (kurejas arba klientas)</li>
+                </ul>
+
+                <h3 class="text-gray-900 dark:text-white">2.2. Profilio duomenys</h3>
+                <p>Papildomai galite pateikti:</p>
+                <ul>
+                    <li>Profilio nuotrauka (avatara)</li>
+                    <li>Biografija / aprasymas</li>
+                    <li>Miestas / lokacija</li>
+                    <li>Telefono numeris</li>
+                    <li>Interneto svetaine</li>
+                    <li>Socialiniai tinklai (Instagram, Facebook, LinkedIn, YouTube)</li>
+                </ul>
+
+                <h3 class="text-gray-900 dark:text-white">2.3. Kureju duomenys</h3>
+                <p>Jei registruojates kaip kurejas, papildomai renkame:</p>
+                <ul>
+                    <li>Profesija / specializacija</li>
+                    <li>Teikiamu paslaugu aprasymas ir kainos</li>
+                    <li>Paketu informacija (bazinis, standartinis, premium)</li>
+                    <li>Portfolio nuotraukos ir medziaga</li>
+                    <li>Kategorijos, kuriose dirbate</li>
+                </ul>
+
+                <h3 class="text-gray-900 dark:text-white">2.4. Uzsakymu ir mokejimo duomenys</h3>
+                <ul>
+                    <li>Uzsakymu istorija (paslauga, suma, data)</li>
+                    <li>Mokejimo statusas</li>
+                    <li>Paysera mokejimo identifikatorius</li>
+                </ul>
+                <p>Pastaba: Mokejimo korteliu duomenu mes tiesiogiai nerenkame ir nesaugome. Mokejimai apdorojami per Paysera mokejimu sistema, kuri turi savo privatumo politika.</p>
+
+                <h3 class="text-gray-900 dark:text-white">2.5. Automatiskai renkami duomenys</h3>
+                <ul>
+                    <li>IP adresas</li>
+                    <li>Narsykles tipas ir versija</li>
+                    <li>Puslapiu perziuru statistika</li>
+                    <li>Prisijungimo data ir laikas</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">3. Duomenu tvarkymo tikslai</h2>
+                <p>Jusu asmens duomenis tvarkome siais tikslais:</p>
+                <ul>
+                    <li><strong>Paskyros administravimas</strong> - registracija, prisijungimas, profilio valdymas</li>
+                    <li><strong>Paslaugu teikimas</strong> - kureju ir klientu sujungimas, uzsakymu apdorojimas, mokejimo procesai</li>
+                    <li><strong>Komunikacija</strong> - pranesimai apie uzsakymus, paskyros sauguma, platformos naujienas</li>
+                    <li><strong>Platformos tobulinimas</strong> - statistikos analize, naudotoju patirties gerinimas</li>
+                    <li><strong>Teisiniu isipareigojumu vykdymas</strong> - apskaita, gincu sprendimas</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">4. Teisinis duomenu tvarkymo pagrindas</h2>
+                <p>Duomenis tvarkome remiantis:</p>
+                <ul>
+                    <li><strong>Sutartis</strong> - duomenys butini paskyros sukurimui ir paslaugu teikimui (BDAR 6 str. 1 d. b punktas)</li>
+                    <li><strong>Sutikimas</strong> - rinkodaros pranesimai, neprivalomi profilio duomenys (BDAR 6 str. 1 d. a punktas)</li>
+                    <li><strong>Teisetas interesas</strong> - platformos saugumas, sukciavimo prevencija, statistika (BDAR 6 str. 1 d. f punktas)</li>
+                    <li><strong>Teisine prievole</strong> - apskaitos ir mokesciu reikalavimai (BDAR 6 str. 1 d. c punktas)</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">5. Duomenu saugojimo laikotarpis</h2>
+                <ul>
+                    <li><strong>Paskyros duomenys</strong> - saugomi kol paskyra aktyvi. Istrynus paskyra, duomenys pasalinami per 30 dienu.</li>
+                    <li><strong>Uzsakymu duomenys</strong> - saugomi 5 metus nuo uzsakymo datos (pagal apskaitos reikalavimus).</li>
+                    <li><strong>Mokejimo duomenys</strong> - saugomi pagal Paysera privatumo politika.</li>
+                    <li><strong>Statistiniai duomenys</strong> - saugomi anonimizuota forma neribota laika.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">6. Duomenu dalijimasis su treciomis salimis</h2>
+                <p>Jusu duomenis galime dalintis su:</p>
+                <ul>
+                    <li><strong>Supabase Inc.</strong> - debesijos infrastruktura, duomenu baze ir autentifikacija (JAV, ES standartines sutarciu salygos)</li>
+                    <li><strong>Paysera LT, UAB</strong> - mokejimo apdorojimas (Lietuva, ES)</li>
+                    <li><strong>Google LLC</strong> - prisijungimas per Google OAuth (JAV, ES standartines sutarciu salygos)</li>
+                </ul>
+                <p>Mes neparduodame ir nenuomojame jusu asmens duomenu trecziosioms salims rinkodaros tikslais.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">7. Duomenu saugumas</h2>
+                <p>Taikome sias apsaugos priemones:</p>
+                <ul>
+                    <li>SSL/TLS sifravimas duomenu perdavimui</li>
+                    <li>Slaptazodziu hasavimas (bcrypt algoritmas)</li>
+                    <li>Eiluciu lygio saugumo politikos (Row Level Security - RLS) duomenu bazeje</li>
+                    <li>Prieigos kontrole pagal vartotojo role (kurejas / klientas)</li>
+                    <li>Reguliarios saugumo perziuros</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">8. Slapukai (Cookies)</h2>
+                <p>Platforma naudoja slapukus:</p>
+                <ul>
+                    <li><strong>Butini slapukai</strong> - autentifikacijos sesija, tamsaus rezimu nustatymas. Sie slapukai butini platformos veikimui.</li>
+                    <li><strong>Analitiniai slapukai</strong> - anonimizuota naudojimo statistika platformos tobulinimui.</li>
+                </ul>
+                <p>Galite valdyti slapukus per savo narsykles nustatymus. Isungus butinius slapukus, kai kurios platformos funkcijos gali neveikti.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">9. Jusu teises</h2>
+                <p>Pagal Bendraji duomenu apsaugos reglamenta (BDAR) turite siias teises:</p>
+                <ul>
+                    <li><strong>Teise susipazinti</strong> - gauti informacija apie tvarkomus jusu duomenis</li>
+                    <li><strong>Teise istaisyti</strong> - pakeisti netikslius ar neissamius duomenis</li>
+                    <li><strong>Teise istrinti</strong> ("teise buti pamirstam") - prasyti pasalinti jusu duomenis</li>
+                    <li><strong>Teise apriboti tvarkym</strong> - prasyti sustabdyti duomenu tvarkym</li>
+                    <li><strong>Teise i duomenu perkeliamum</strong> - gauti duomenis strukturuotu formatu</li>
+                    <li><strong>Teise nesutikti</strong> - nesutikti su duomenu tvarkymu tam tikrais tikslais</li>
+                    <li><strong>Teise atsaukti sutikima</strong> - bet kuriuo metu atsaukti ankszciau duota sutikima</li>
+                </ul>
+                <p>Norédami pasinaudoti siomis teisémis, kreipkités el. pastu: <strong>info@artifex.lt</strong></p>
+                <p>Atsakyma pateiksime per 30 kalendoriniu dienu.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">10. Nepilnameciu duomenys</h2>
+                <p>Platforma skirta asmenims nuo 18 metu. Mes samoningai nerenkame nepilnameciu asmens duomenu. Jei suzinome, kad vartotojas yra jaunesnis nei 18 metu, jo paskyra bus uzdaryta ir duomenys pasalinti.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">11. Tarptautinis duomenu perdavimas</h2>
+                <p>Jusu duomenys gali buti tvarkomi uz Europos ekonomines erdves (EEE) ribu (pvz., Supabase serveriai JAV). Tokiais atvejais uztikrinamas tinkamas apsaugos lygis taikant:</p>
+                <ul>
+                    <li>ES standartines sutarciu salygas</li>
+                    <li>Atitinkamus sertifikavimo mechanizmus</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">12. Privatumo politikos pakeitimai</h2>
+                <p>Galime atnaujinti sia privatumo politika. Apie esminius pakeitimus informuosime per platformos pranesimu sistema arba el. pastu. Rekomenduojame reguliariai perziureti si puslapi.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">13. Skundai</h2>
+                <p>Jei manote, kad jusu duomenu apsaugos teises buvo pazeistos, turite teise pateikti skunda:</p>
+                <ul>
+                    <li>Mums tiesiogiai: <strong>info@artifex.lt</strong></li>
+                    <li>Valstybinei duomenu apsaugos inspekcijai (VDAI): <strong>ada.lt</strong></li>
+                </ul>
+            </div>
+
+            <div class="policy-section border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h2 class="text-gray-900 dark:text-white">14. Kontaktine informacija</h2>
+                <p>Visais privatumo klausimais kreipkites:</p>
+                <div class="bg-gray-50 dark:bg-gray-800 p-4 mt-3" style="border-radius:8px;">
+                    <p><strong class="text-gray-900 dark:text-white">ARTIFEX</strong></p>
+                    <p>El. pastas: info@artifex.lt</p>
+                    <p>Telefonas: +370 600 12345</p>
+                    <p>Adresas: Vilnius, Lietuva</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a href="index.html" class="text-primary hover:text-primary-hover font-medium text-sm">&larr; Grizti i pagrindini puslapi</a>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 dark:bg-black text-gray-400 py-16 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
+                            <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                        </div>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                    </div>
+                    <p class="text-sm mb-4">Viena platforma - visos mediju paslaugos. Jungiame kurejus ir klientus Lietuvoje.</p>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Rask Kureja</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="kurejai.html" class="hover:text-primary">Profesionalai</a></li>
+                        <li><a href="kylancios-zvaigzdes.html" class="hover:text-primary">Kylanzios Zvaigzdes</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kurejams</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="planai.html" class="hover:text-primary">Kainos</a></li>
+                        <li><a href="prisijungimas.html" class="hover:text-primary">Registracija</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li>info@artifex.lt</li>
+                        <li>+370 600 12345</li>
+                        <li>Vilnius, Lietuva</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">&copy; 2026 Artifex. Visos teises saugomos.</p>
+                <div class="flex gap-6 text-sm">
+                    <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
+                    <a href="#" class="hover:text-primary">Naudojimo salygos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
