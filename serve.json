@@ -1,0 +1,55 @@
+{
+  "cleanUrls": true,
+  "directoryListing": false,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/auth/callback", "destination": "/prisijungimas.html" }
+  ],
+  "redirects": [
+    { "source": "/.git/**", "destination": "/", "type": 301 },
+    { "source": "/.claude/**", "destination": "/", "type": 301 },
+    { "source": "/.playwright-mcp/**", "destination": "/", "type": 301 },
+    { "source": "/node_modules/**", "destination": "/", "type": 301 },
+    { "source": "/mediahub/**", "destination": "/", "type": 301 },
+    { "source": "/supabase/**", "destination": "/", "type": 301 },
+    { "source": "/**/*.mjs", "destination": "/", "type": 301 },
+    { "source": "/**/*.sql", "destination": "/", "type": 301 },
+    { "source": "/**/*.ps1", "destination": "/", "type": 301 },
+    { "source": "/package.json", "destination": "/", "type": 301 },
+    { "source": "/package-lock.json", "destination": "/", "type": 301 },
+    { "source": "/serve.json", "destination": "/", "type": 301 },
+    { "source": "/.mcp.json", "destination": "/", "type": 301 },
+    { "source": "/.gitignore", "destination": "/", "type": 301 },
+    { "source": "/.env", "destination": "/", "type": 301 },
+    { "source": "/**/.env*", "destination": "/", "type": 301 }
+  ],
+  "unlisted": [
+    ".claude",
+    ".mcp.json",
+    ".gitignore",
+    ".playwright-mcp",
+    "node_modules",
+    "mediahub",
+    "supabase",
+    "package.json",
+    "package-lock.json",
+    "*.sql",
+    "*.mjs",
+    "*.ps1",
+    "*.png"
+  ],
+  "headers": [
+    {
+      "source": "**/*",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=(), payment=()" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://huqnfqagjsjgotxnecfk.supabase.co wss://huqnfqagjsjgotxnecfk.supabase.co https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'" }
+      ]
+    }
+  ]
+}

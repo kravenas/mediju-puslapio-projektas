@@ -5,3 +5,18 @@ node_modules/
 build/
 .env
 .env.local
+
+# Dev artefacts
+*-check.png
+artifex-sidebar*.png
+
+# Font source archives (only the actively-referenced files are committed)
+fonts/*.zip
+fonts/*.pdf
+fonts/*.jpg
+fonts/*.txt
+fonts/*.rtf
+
+# Supabase CLI cache
+supabase/.temp/
+supabase/.branches/

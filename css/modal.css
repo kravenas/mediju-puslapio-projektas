@@ -1,0 +1,511 @@
+/* ============================================
+   Creator Profile Modal
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.25s ease;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+}
+
+.modal-overlay.visible .modal-card {
+  transform: scale(1) translateY(0);
+}
+
+.dark .modal-card {
+  background: #111827;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Header image */
+.modal-header-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header-gradient {
+  width: 100%;
+  height: 200px;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Content */
+.modal-body {
+  padding: 24px;
+}
+
+.modal-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.dark .modal-name {
+  color: white;
+}
+
+.modal-role {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.dark .modal-role {
+  color: #9ca3af;
+}
+
+.modal-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.modal-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.modal-rating svg {
+  width: 18px;
+  height: 18px;
+  color: #FFC50F;
+  fill: #FFC50F;
+}
+
+.modal-rating-value {
+  font-weight: 700;
+  color: #111827;
+}
+
+.dark .modal-rating-value {
+  color: white;
+}
+
+.modal-rating-count {
+  color: #9ca3af;
+}
+
+.modal-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dark .modal-location {
+  color: #9ca3af;
+}
+
+.modal-location svg {
+  width: 14px;
+  height: 14px;
+}
+
+.modal-divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+}
+
+.dark .modal-divider {
+  border-top-color: #1f2937;
+}
+
+.modal-price {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.dark .modal-price {
+  color: #9ca3af;
+}
+
+.modal-price strong {
+  font-size: 20px;
+  color: #111827;
+}
+
+.dark .modal-price strong {
+  color: white;
+}
+
+/* Bio section */
+.modal-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.dark .modal-section-title {
+  color: #d1d5db;
+}
+
+.modal-bio {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.dark .modal-bio {
+  color: #9ca3af;
+}
+
+/* Reviews */
+.modal-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-review {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.dark .modal-review {
+  border-color: #1f2937;
+  background: #0a0a0a;
+}
+
+.modal-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.modal-review-author {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .modal-review-author {
+  color: #f3f4f6;
+}
+
+.modal-review-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.modal-review-stars svg {
+  width: 14px;
+  height: 14px;
+  fill: #FFC50F;
+  color: #FFC50F;
+}
+
+.modal-review-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.dark .modal-review-text {
+  color: #9ca3af;
+}
+
+.modal-review-location {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.modal-no-reviews {
+  font-size: 13px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* CTA button */
+.modal-cta {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #FFC50F;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-top: 8px;
+}
+
+.modal-cta:hover {
+  background: #E6B00F;
+}
+
+/* Loading spinner */
+.modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.modal-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #FFC50F;
+  border-radius: 50%;
+  animation: modal-spin 0.6s linear infinite;
+}
+
+@keyframes modal-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Service select hint */
+.modal-select-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+/* Order section */
+.modal-order-section {
+  margin-top: 4px;
+}
+
+.modal-order-hint {
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+  padding: 12px 0 4px;
+  font-style: italic;
+}
+
+.modal-order-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.dark .modal-order-summary {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+.modal-order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modal-order-name {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dark .modal-order-name {
+  color: #9ca3af;
+}
+
+.modal-order-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.dark .modal-order-price {
+  color: white;
+}
+
+.modal-order-error {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Services list */
+.modal-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.modal-service {
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.modal-service:hover {
+  border-color: #FFC50F;
+  background: #fffdf0;
+}
+
+.dark .modal-service:hover {
+  background: #1a1600;
+}
+
+.modal-service.selected {
+  border-color: #FFC50F;
+  background: #fff9e0;
+  box-shadow: 0 0 0 2px rgba(255, 197, 15, 0.2);
+}
+
+.dark .modal-service.selected {
+  background: #1f1800;
+}
+
+.dark .modal-service {
+  border-color: #1f2937;
+  background: #0f172a;
+}
+
+.modal-service-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-service-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .modal-service-name {
+  color: #f3f4f6;
+}
+
+.modal-service-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #FFC50F;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.modal-service-duration {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+.modal-service-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.dark .modal-service-desc {
+  color: #9ca3af;
+}
+
+/* Scrollbar */
+.modal-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-card::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.dark .modal-card::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 8px;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    max-height: 95vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .modal-header-img,
+  .modal-header-gradient {
+    height: 160px;
+  }
+}
