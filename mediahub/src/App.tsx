@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Camera, Video, Scissors, Palette, ArrowRight, Star, MapPin, Sun, Moon } from 'lucide-react';
+import Layout from './components/Layout';
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState('Visi');
@@ -80,6 +81,7 @@ function App() {
         </div>
       </nav>
 
+      <Layout>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-[#0A0A0A] dark:to-[#171717] overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
@@ -340,6 +342,7 @@ function App() {
           </div>
         </div>
       </footer>
+      </Layout>
     </div>
   );
 }
