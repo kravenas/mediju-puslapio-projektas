@@ -20,3 +20,7 @@ fonts/*.rtf
 # Supabase CLI cache
 supabase/.temp/
 supabase/.branches/
+
+# Tailwind standalone CLI binary (download via build script if needed)
+tailwindcss.exe
+tailwindcss
