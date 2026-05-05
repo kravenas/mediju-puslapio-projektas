@@ -77,7 +77,7 @@
                 <a href="prisijungimas.html" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">
                     Prisijungti
                 </a>
-                <a href="prisijungimas.html?tab=register" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 font-medium" style="border-radius: 4px;">
+                <a href="prisijungimas.html?tab=register" class="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 text-sm sm:px-6 sm:py-2.5 sm:text-base font-medium" style="border-radius: 4px;">
                     Registruotis
                 </a>
             `;
