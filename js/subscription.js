@@ -6,7 +6,7 @@
     'use strict';
 
     const PLAN_PRICE = 10; // €10/month
-    const REVIEW_DISCOUNT_PERCENT = 50; // 50% off for leaving a review
+    const REVIEW_DISCOUNT_PERCENT = 10; // 10% off for leaving a review
     const TRIAL_DAYS = 14;
     const MAX_TRIALS_PER_IP = 2; // max trial accounts from same IP
 
@@ -271,7 +271,7 @@
                 </button>
 
                 <p style="font-size:12px;color:#9ca3af;margin-top:12px;">
-                    Po 14 dienų — tik €10/mėn. Palikite atsiliepimą ir gaukite 50% nuolaidą!
+                    Po 14 dienų — tik €10/mėn. Palikite atsiliepimą ir gaukite 10% nuolaidą!
                 </p>
             </div>
         `;
