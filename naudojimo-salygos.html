@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naudojimo sąlygos - Artifex</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Sexsmith';
+            src: url('fonts/Sexsmith.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
+    <style>
+        :root {
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+        * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+        .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(255, 197, 15, 0.1); }
+        .policy-section { margin-bottom: 2rem; }
+        .policy-section h2 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+        .policy-section h3 { font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .policy-section p, .policy-section li { line-height: 1.7; }
+        .policy-section ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
+        .policy-section ul li { margin-bottom: 0.35rem; }
+    </style>
+</head>
+<body class="min-h-screen bg-white dark:bg-gray-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="index.html" class="flex items-center gap-2">
+                    <span style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                    <span style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                </a>
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kūrėjai</a>
+                    <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
+                </div>
+                <div id="auth-buttons"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="max-w-4xl mx-auto px-6 lg:px-8 py-12">
+
+        <div class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Naudojimo sąlygos</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paskutinis atnaujinimas: 2026 m. gegužės 6 d.</p>
+        </div>
+
+        <div class="text-gray-700 dark:text-gray-300 text-sm">
+
+            <div class="policy-section">
+                <p>Sveiki atvykę į ARTIFEX (toliau — „Platforma", „mes", „mūsų"). Šios naudojimo sąlygos (toliau — „Sąlygos") nustato taisykles, kurių privalo laikytis visi Platformos naudotojai. Naudodamiesi Platforma sutinkate su šiomis Sąlygomis. Jei nesutinkate, prašome nesinaudoti Platforma.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">1. Sąvokos</h2>
+                <ul>
+                    <li><strong>Platforma</strong> — interneto svetainė ARTIFEX, jungianti klientus ir kūrėjus.</li>
+                    <li><strong>Klientas</strong> — fizinis ar juridinis asmuo, ieškantis kūrybinių paslaugų.</li>
+                    <li><strong>Kūrėjas</strong> — fotografas, videografas, montažuotojas, dizaineris ar kitas paslaugų teikėjas, registruotas Platformoje.</li>
+                    <li><strong>Naujokas</strong> (kylanti žvaigždė) — naujas kūrėjas, kuriantis portfolio, siūlantis nemokamas ar simbolinės kainos paslaugas mainais į patirtį ir atsiliepimus.</li>
+                    <li><strong>Paslauga</strong> — Kūrėjo Klientui teikiama kūrybinė paslauga, susitarta per Platformą.</li>
+                    <li><strong>Pro planas</strong> — mokama Kliento prenumerata, suteikianti pilną prieigą prie Platformos funkcijų.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">2. Paskyros registracija</h2>
+                <p>Norėdami naudotis Platformos funkcijomis, turite susikurti paskyrą. Registracijos metu sutinkate:</p>
+                <ul>
+                    <li>Pateikti tikslius ir teisingus duomenis (vardas, el. paštas, telefono numeris).</li>
+                    <li>Saugoti savo prisijungimo duomenis ir nedalinti jų su trečiosiomis šalimis.</li>
+                    <li>Nedelsiant pranešti mums apie bet kokį neteisėtą paskyros naudojimą.</li>
+                    <li>Būti ne jaunesniems kaip 18 metų arba turėti tėvų / globėjų sutikimą.</li>
+                </ul>
+                <p>Kiekvienas asmuo gali turėti tik vieną aktyvią paskyrą. Iš to paties IP adreso galima sukurti ne daugiau kaip 2 bandomąsias paskyras — sistema automatiškai blokuoja piktnaudžiavimą.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">3. Klientų prenumerata</h2>
+                <h3 class="text-gray-900 dark:text-white">3.1 Bandomasis laikotarpis</h3>
+                <p>Kiekvienas naujas klientas automatiškai gauna <strong>14 dienų nemokamą bandomąjį laikotarpį</strong>. Šio laikotarpio metu galima naudotis visomis Platformos funkcijomis be jokio mokėjimo.</p>
+
+                <h3 class="text-gray-900 dark:text-white">3.2 Pro planas</h3>
+                <p>Po bandomojo laikotarpio galite tęsti naudojimąsi įsigydami Pro planą — <strong>€10 per mėnesį</strong>. Pro planas suteikia pilną prieigą prie kūrėjų, naujokų, žinučių ir užsakymų funkcijų.</p>
+
+                <h3 class="text-gray-900 dark:text-white">3.3 Nuolaida už atsiliepimą</h3>
+                <p>Klientai, kurie po užsakymo paliko atsiliepimą apie kūrėją, kitam mėnesiui gauna <strong>10% nuolaidą</strong> Pro planui (kaina — €9 vietoj €10). Nuolaida gali būti pritaikyta iki 2 kartų per metus vienai paskyrai.</p>
+
+                <h3 class="text-gray-900 dark:text-white">3.4 Atšaukimas</h3>
+                <p>Pro planą galite atšaukti bet kuriuo metu. Atšaukimas įsigalioja kito apmokestinimo ciklo pradžioje — sumokėtas mokestis už einamąjį mėnesį negrąžinamas.</p>
+
+                <h3 class="text-gray-900 dark:text-white">3.5 Kūrėjams — nemokama</h3>
+                <p>Kūrėjams Platforma yra <strong>nemokama</strong>. Mes neimame komisinio mokesčio iš kūrėjų užsakymo vertės. Kūrėjai gali pateikti paraišką gauti kokybės ženkliuką (Quality Badge) — patvirtinimo procesas yra nemokamas.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">4. Užsakymai ir mokėjimai</h2>
+                <p>Klientai ir kūrėjai bendrauja per Platformos žinučių sistemą. Konkrečios paslaugos kaina, terminai ir specifikacijos yra suderinami tiesiogiai tarp šalių.</p>
+                <ul>
+                    <li>Mokėjimai už Pro planą atliekami per <strong>Paysera</strong> sistemą.</li>
+                    <li>Užsakymo mokėjimai tarp Kliento ir Kūrėjo gali vykti per Platformą arba kitu šalių sutartu būdu.</li>
+                    <li>Visos kainos pateiktos eurais (€) ir gali būti pakeistos su išankstiniu pranešimu.</li>
+                    <li>Šiuo metu mokėjimo sistema veikia testavimo režimu — apie pereitą į gyvąjį režimą bus pranešta atskirai.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">5. Kūrėjo įsipareigojimai</h2>
+                <p>Registruodamasis kaip Kūrėjas, sutinkate:</p>
+                <ul>
+                    <li>Pateikti tikslią informaciją apie save, savo įgūdžius ir patirtį.</li>
+                    <li>Įkelti tik savo paties sukurtus darbus į portfolio. Svetimo turinio naudojimas griežtai draudžiamas.</li>
+                    <li>Atvykti į suderintą fotosesiją, filmavimą ar konsultaciją sutartu laiku.</li>
+                    <li>Pristatyti darbus sutartais terminais ir sutarta kokybe.</li>
+                    <li>Bendrauti su Klientais profesionaliai ir mandagiai.</li>
+                    <li>Gerbti Klientų privatumą — neviešinti Kliento informacijos ar darbų be jo sutikimo.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">6. Kliento įsipareigojimai</h2>
+                <ul>
+                    <li>Aiškiai aprašyti projekto poreikius, terminus ir biudžetą.</li>
+                    <li>Mokėti už paslaugas sutartu būdu ir terminais.</li>
+                    <li>Bendrauti su Kūrėjais profesionaliai ir mandagiai.</li>
+                    <li>Pateikti reikalingą medžiagą (briefingą, nuorodas, prieigas) laiku.</li>
+                    <li>Nepiktnaudžiauti atšaukimo / pinigų grąžinimo procesais.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">7. Atsiliepimai ir vertinimai</h2>
+                <p>Po įvykdyto užsakymo Klientas gali palikti atsiliepimą ir įvertinimą Kūrėjui. Atsiliepimai turi būti:</p>
+                <ul>
+                    <li>Sąžiningi ir paremti realia patirtimi.</li>
+                    <li>Be įžeidžiančių, šmeižiančių ar nepadorių žodžių.</li>
+                    <li>Be asmens duomenų ar konfidencialios informacijos.</li>
+                </ul>
+                <p>Mes pasiliekame teisę šalinti atsiliepimus, kurie pažeidžia šias taisykles. Sąmoningai melaginga arba apmokama recenzijų rašymo veikla yra draudžiama ir gali baigtis paskyros uždarymu.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">8. Draudžiamas elgesys</h2>
+                <p>Naudojantis Platforma draudžiama:</p>
+                <ul>
+                    <li>Pažeidinėti Lietuvos Respublikos ar Europos Sąjungos įstatymus.</li>
+                    <li>Talpinti neteisėtą, įžeidžiantį, šmeižiantį, pornografinį ar kitokį žalingą turinį.</li>
+                    <li>Apgaudinėti, vagiliauti ar kitaip kenkti kitiems naudotojams.</li>
+                    <li>Pažeisti autorių teises, prekių ženklus ar kitas intelektinės nuosavybės teises.</li>
+                    <li>Naudoti automatines priemones (botus, scrappers) be raštiško mūsų leidimo.</li>
+                    <li>Bandyti apeiti mokėjimo sistemą, naudoti svetimas mokėjimo korteles ar daryti kitas piktnaudžiavimo veikas.</li>
+                    <li>Dauginti kelias paskyras siekiant apeiti bandomojo laikotarpio ribojimus ar nuolaidas.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">9. Intelektinė nuosavybė</h2>
+                <p>Visos teisės į Platformos turinį (logotipus, dizainą, kodą, tekstus) priklauso ARTIFEX, išskyrus Naudotojų įkeltą turinį. Kūrėjų portfolio darbai lieka jų autorių nuosavybe — Platforma turi tik teisę juos rodyti svetainėje.</p>
+                <p>Konkrečių užsakymų metu sukurti darbai pereina Klientui pagal šalių susitarimą — rekomenduojame iš anksto aptarti autorių teisių perdavimo sąlygas.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">10. Atsakomybės ribojimas</h2>
+                <p>ARTIFEX yra <strong>tarpininkavimo platforma</strong> — mes nesame paslaugos teikėjas tiesiogine prasme. Mes:</p>
+                <ul>
+                    <li>Nesame atsakingi už Kūrėjo ir Kliento susitarimų vykdymą ar nevykdymą.</li>
+                    <li>Negarantuojame konkrečios paslaugų kokybės — atsakingas yra Kūrėjas.</li>
+                    <li>Neprisiimame atsakomybės už netiesioginius nuostolius, prarastą pelną ar duomenų praradimą.</li>
+                    <li>Stengiamės užtikrinti Platformos veikimą, bet negalime garantuoti 100% prieinamumo (galimas planuojamas ar avarinis aptarnavimas).</li>
+                </ul>
+                <p>Maksimali mūsų atsakomybė bet kuriuo atveju neviršija sumos, kurią Naudotojas sumokėjo Platformai per paskutinius 12 mėnesių.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">11. Asmens duomenys</h2>
+                <p>Mes tvarkome asmens duomenis pagal <a href="privatumo-politika.html" class="text-primary hover:underline">Privatumo politiką</a>. Naudodamiesi Platforma sutinkate su mūsų duomenų tvarkymo praktikomis.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">12. Paskyros sustabdymas ir uždarymas</h2>
+                <p>Mes pasiliekame teisę be išankstinio įspėjimo sustabdyti arba uždaryti paskyrą, jei Naudotojas:</p>
+                <ul>
+                    <li>Pažeidinėja šias Sąlygas ar įstatymus.</li>
+                    <li>Pateikia melagingus duomenis ar piktnaudžiauja sistema.</li>
+                    <li>Kelia grėsmę kitiems Naudotojams ar Platformai.</li>
+                </ul>
+                <p>Naudotojas gali bet kuriuo metu pats uždaryti savo paskyrą. Po paskyros uždarymo asmens duomenys yra šalinami pagal Privatumo politikoje numatytus terminus.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">13. Sąlygų pakeitimai</h2>
+                <p>Mes galime keisti šias Sąlygas. Apie esminius pakeitimus pranešime el. paštu arba pranešimu Platformoje ne vėliau kaip prieš 14 dienų iki įsigaliojimo. Tęsdami naudojimąsi po pakeitimų įsigaliojimo, sutinkate su atnaujintomis Sąlygomis.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">14. Taikoma teisė ir ginčai</h2>
+                <p>Šioms Sąlygoms taikoma Lietuvos Respublikos teisė. Visi ginčai, kilę dėl Sąlygų ar naudojimosi Platforma, pirmiausia sprendžiami derybų būdu. Nepavykus susitarti, ginčas perduodamas spręsti kompetentingam Lietuvos Respublikos teismui pagal mūsų buveinės vietą.</p>
+                <p>Vartotojai (fiziniai asmenys, naudojantis platformą asmeniniais tikslais) taip pat gali kreiptis į Valstybinę vartotojų teisių apsaugos tarnybą arba elektroninę ginčų sprendimo platformą <a href="https://ec.europa.eu/consumers/odr" class="text-primary hover:underline" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2 class="text-gray-900 dark:text-white">15. Kontaktai</h2>
+                <p>Jei turite klausimų ar pastabų dėl šių Sąlygų, susisiekite su mumis:</p>
+                <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mt-3">
+                    <p>El. paštas: <strong>info@artifex.lt</strong></p>
+                    <p>Telefonas: +370 600 12345</p>
+                    <p>Adresas: Vilnius, Lietuva</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a href="index.html" class="text-primary hover:text-primary-hover font-medium text-sm">&larr; Grįžti į pagrindinį puslapį</a>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 dark:bg-black text-gray-400 py-16 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
+                            <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
+                        </div>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                    </div>
+                    <p class="text-sm mb-4">Viena platforma — visos medijų paslaugos. Jungiame kūrėjus ir klientus Lietuvoje.</p>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Rask Kūrėją</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="kurejai.html" class="hover:text-primary">Profesionalai</a></li>
+                        <li><a href="kylancios-zvaigzdes.html" class="hover:text-primary">Kylančios Žvaigždės</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kūrėjams</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="planai.html" class="hover:text-primary">Kainos</a></li>
+                        <li><a href="prisijungimas.html" class="hover:text-primary">Registracija</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li>info@artifex.lt</li>
+                        <li>+370 600 12345</li>
+                        <li>Vilnius, Lietuva</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <div class="flex gap-6 text-sm">
+                    <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
+                    <a href="naudojimo-salygos.html" class="hover:text-primary">Naudojimo sąlygos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
