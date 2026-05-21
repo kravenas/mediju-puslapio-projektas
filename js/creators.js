@@ -221,19 +221,55 @@ async function loadCreators(replace) {
         }
     }
 
+    // Pre-process search: tokenize, stem (4-char prefix to handle Lithuanian declensions),
+    // and resolve which creators match via their categories.
+    let searchStems = [];
+    const stemCategoryCreatorIds = {};
+    if (currentSearch) {
+        const words = currentSearch.toLowerCase().split(/\s+/).filter(w => w.length >= 2);
+        searchStems = words
+            .map(w => w.replace(/[,()%_:*]/g, ''))
+            .filter(Boolean)
+            .map(w => w.length > 4 ? w.slice(0, 4) : w);
+
+        if (searchStems.length > 0) {
+            const [{ data: allCats }, { data: allLinks }] = await Promise.all([
+                supabase.from('categories').select('id, name, slug'),
+                supabase.from('creator_categories').select('creator_id, category_id'),
+            ]);
+            const linksByCat = {};
+            (allLinks || []).forEach(l => {
+                (linksByCat[l.category_id] = linksByCat[l.category_id] || []).push(l.creator_id);
+            });
+            for (const stem of searchStems) {
+                const matchedCats = (allCats || []).filter(c =>
+                    (c.name || '').toLowerCase().includes(stem) ||
+                    (c.slug || '').toLowerCase().includes(stem)
+                );
+                stemCategoryCreatorIds[stem] = [...new Set(
+                    matchedCats.flatMap(c => linksByCat[c.id] || [])
+                )];
+            }
+        }
+    }
+
     // Build base filter helper
     function applyBaseFilters(q) {
         q = q.eq('status', 'approved');
         q = q.eq('is_rising_star', false);
         if (filteredCreatorIds !== null) q = q.in('id', filteredCreatorIds);
-        if (currentSearch) {
-            // Split search into words and match each against name, role, location, bio
-            const words = currentSearch.split(/\s+/).filter(w => w.length >= 2);
-            if (words.length > 0) {
-                for (const word of words) {
-                    q = q.or(`name.ilike.%${word}%,role.ilike.%${word}%,location.ilike.%${word}%,bio.ilike.%${word}%`);
-                }
+        for (const stem of searchStems) {
+            const conditions = [
+                `name.ilike.%${stem}%`,
+                `role.ilike.%${stem}%`,
+                `location.ilike.%${stem}%`,
+                `bio.ilike.%${stem}%`,
+            ];
+            const catIds = stemCategoryCreatorIds[stem];
+            if (catIds && catIds.length > 0) {
+                conditions.push(`id.in.(${catIds.join(',')})`);
             }
+            q = q.or(conditions.join(','));
         }
         if (selectedCity) q = q.eq('location', selectedCity);
         if (maxPrice < 500) q = q.lte('price_from', maxPrice);
