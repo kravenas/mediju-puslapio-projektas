@@ -8,6 +8,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://js-de.sentry-cdn.com/e65b09ebdc7e2b3188cdae22b00067cc.min.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
@@ -234,6 +235,17 @@
                                 </div>
                             </div>
                             <p id="reg-role-error" class="hidden mt-1 text-xs text-red-500"></p>
+                        </div>
+
+                        <!-- Terms & Privacy Acceptance -->
+                        <div class="mb-6">
+                            <label class="flex items-start gap-2 cursor-pointer">
+                                <input id="reg-terms" type="checkbox" class="mt-0.5 w-4 h-4 accent-primary cursor-pointer flex-shrink-0">
+                                <span class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    Sutinku su <a href="naudojimo-salygos.html" target="_blank" class="text-primary hover:underline">Naudojimo sąlygomis</a> ir <a href="privatumo-politika.html" target="_blank" class="text-primary hover:underline">Privatumo politika</a>.
+                                </span>
+                            </label>
+                            <p id="reg-terms-error" class="hidden mt-1 text-xs text-red-500"></p>
                         </div>
 
                         <!-- Submit -->
@@ -509,6 +521,10 @@
             else if (password.length < 6) { showFieldError('reg-password-error', 'Slaptažodis turi būti bent 6 simbolių'); valid = false; }
             if (!password2) { showFieldError('reg-password2-error', 'Pakartokite slaptažodį'); valid = false; }
             else if (password !== password2) { showFieldError('reg-password2-error', 'Slaptažodžiai nesutampa'); valid = false; }
+            if (!document.getElementById('reg-terms').checked) {
+                showFieldError('reg-terms-error', 'Turite sutikti su naudojimo sąlygomis ir privatumo politika');
+                valid = false;
+            }
 
             if (!valid) return;
 
@@ -575,5 +591,6 @@
             if (e.key === 'Enter') handleReset();
         });
     </script>
+    <script src="js/cookie-consent.js"></script>
 </body>
 </html>

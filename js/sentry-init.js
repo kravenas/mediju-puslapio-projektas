@@ -4,7 +4,7 @@
 // Replace SENTRY_DSN with the DSN from your Sentry project.
 // (Sentry → Settings → Projects → your project → Client Keys (DSN))
 
-const SENTRY_DSN = 'REPLACE_WITH_YOUR_SENTRY_DSN';
+const SENTRY_DSN = 'https://e65b09ebdc7e2b3188cdae22b00067cc@o4511219475611648.ingest.de.sentry.io/4511378188075088';
 
 if (typeof Sentry !== 'undefined' && SENTRY_DSN && !SENTRY_DSN.startsWith('REPLACE')) {
     Sentry.init({

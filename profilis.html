@@ -8,6 +8,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://js-de.sentry-cdn.com/e65b09ebdc7e2b3188cdae22b00067cc.min.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
@@ -395,18 +396,53 @@
                         </div>
                     </div>
 
-                    <!-- Danger Zone -->
+                    <!-- User Data -->
                     <div>
-                        <h4 class="text-sm font-semibold text-red-600 dark:text-red-400 mb-3">Pavojinga zona</h4>
-                        <div class="border border-red-200 dark:border-red-800 p-5" style="border-radius: 8px;">
+                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Vartotojo duomenys</h4>
+                        <div class="border border-secondary dark:border-gray-700 p-5 space-y-4" style="border-radius: 8px;">
                             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Atsisiųsti savo duomenis</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Gauk visą savo profilio, skelbimo ir žinučių istorijos kopiją JSON formatu (RGPR Art. 15).</p>
+                                </div>
+                                <button id="data-export-btn" class="px-5 py-2 text-sm font-medium border border-secondary dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex-shrink-0" style="border-radius: 4px;">
+                                    Atsisiųsti
+                                </button>
+                            </div>
+                            <div class="border-t border-secondary dark:border-gray-700 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                                 <div>
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">Atsijungti iš visų įrenginių</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tai atjungs visas aktyvias sesijas, įskaitant šią.</p>
                                 </div>
-                                <button id="signout-all-btn" class="px-5 py-2 text-sm font-medium border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0" style="border-radius: 4px;">
+                                <button id="signout-all-btn" class="px-5 py-2 text-sm font-medium border border-secondary dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex-shrink-0" style="border-radius: 4px;">
                                     Atsijungti visur
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Account deletion (separate, red-bordered for destructive emphasis) -->
+                        <div class="mt-4 border border-red-200 dark:border-red-800 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="border-radius: 8px;">
+                            <div>
+                                <p class="text-sm font-medium text-red-600 dark:text-red-400">Ištrinti paskyrą</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Visi tavo duomenys bus negrįžtamai pašalinti (RGPR Art. 17). Šio veiksmo atšaukti negalima.</p>
+                            </div>
+                            <button id="delete-account-btn" class="px-5 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white flex-shrink-0" style="border-radius: 4px;">
+                                Ištrinti paskyrą
+                            </button>
+                        </div>
+
+                        <!-- Delete Account Confirmation Modal -->
+                        <div id="delete-account-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60">
+                            <div class="bg-white dark:bg-gray-800 max-w-md w-full p-6 shadow-xl" style="border-radius: 12px;">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Ištrinti paskyrą negrįžtamai?</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Visa tavo informacija — profilis, skelbimas, paslaugos, žinutės — bus pašalinta iš mūsų duomenų bazės. Šio veiksmo atšaukti negalima.</p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">Įvesk <strong>IŠTRINTI</strong>, kad patvirtintum:</p>
+                                <input id="delete-confirm-input" type="text" placeholder="IŠTRINTI" class="w-full h-10 px-3 mb-4 border border-secondary dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus-ring" style="border-radius: 4px;">
+                                <p id="delete-account-msg" class="hidden text-xs text-red-500 mb-3"></p>
+                                <div class="flex gap-3 justify-end">
+                                    <button id="delete-cancel-btn" class="px-4 py-2 text-sm font-medium border border-secondary dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" style="border-radius: 4px;">Atšaukti</button>
+                                    <button id="delete-confirm-btn" disabled class="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed text-white" style="border-radius: 4px;">Patvirtinti ištrynimą</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -741,7 +777,7 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="#" class="hover:text-primary">Kaip pradėti</a></li>
                         <li><a href="planai.html" class="hover:text-primary">Kainos</a></li>
-                        <li><a href="#" class="hover:text-primary">DUK</a></li>
+                        <li><a href="planai.html#duk" class="hover:text-primary">DUK</a></li>
                     </ul>
                 </div>
                 <div>
@@ -793,5 +829,6 @@
             menuIconClose.classList.toggle('hidden');
         });
     </script>
+    <script src="js/cookie-consent.js"></script>
 </body>
 </html>

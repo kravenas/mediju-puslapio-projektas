@@ -569,6 +569,102 @@
         }
     }
 
+    // --- GDPR: Data Export (Art. 15) ---
+
+    async function exportMyData(btn) {
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Renku duomenis...';
+        try {
+            const uid = currentUser.id;
+            const queries = await Promise.all([
+                supabase.from('profiles').select('*').eq('id', uid).maybeSingle(),
+                supabase.from('creators').select('*').eq('user_id', uid),
+                supabase.from('creator_services').select('*, creators!inner(user_id)').eq('creators.user_id', uid),
+                supabase.from('creator_categories').select('*, creators!inner(user_id)').eq('creators.user_id', uid),
+                supabase.from('creator_badges').select('*, creators!inner(user_id)').eq('creators.user_id', uid),
+                supabase.from('messages').select('*').eq('sender_id', uid),
+                supabase.from('orders').select('*').or(`client_id.eq.${uid},creator_id.eq.${uid}`),
+            ]);
+            const bundle = {
+                exportedAt: new Date().toISOString(),
+                user: { id: uid, email: currentUser.email },
+                profile: queries[0].data ?? null,
+                creator: queries[1].data ?? [],
+                creator_services: queries[2].data ?? [],
+                creator_categories: queries[3].data ?? [],
+                creator_badges: queries[4].data ?? [],
+                messages: queries[5].data ?? [],
+                orders: queries[6].data ?? [],
+            };
+            const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `artifex-mano-duomenys-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            showMessage('#settings-msg', 'Tavo duomenys atsisiųsti.', 'success');
+        } catch (err) {
+            showMessage('#settings-msg', 'Klaida eksportuojant: ' + err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = original;
+        }
+    }
+
+    // --- GDPR: Account Deletion (Art. 17) ---
+
+    function openDeleteAccountModal() {
+        const modal = qs('#delete-account-modal');
+        const input = qs('#delete-confirm-input');
+        const confirmBtn = qs('#delete-confirm-btn');
+        const msg = qs('#delete-account-msg');
+        if (input) input.value = '';
+        if (confirmBtn) confirmBtn.disabled = true;
+        if (msg) msg.classList.add('hidden');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDeleteAccountModal() {
+        const modal = qs('#delete-account-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    async function confirmDeleteAccount() {
+        const msg = qs('#delete-account-msg');
+        const btn = qs('#delete-confirm-btn');
+        if (msg) msg.classList.add('hidden');
+        btn.disabled = true;
+        btn.textContent = 'Trinama...';
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session?.access_token) throw new Error('Nepavyko gauti sesijos.');
+            const resp = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
+            });
+            const body = await resp.json();
+            if (!resp.ok || !body.success) {
+                throw new Error(body.error || 'Nežinoma klaida');
+            }
+            await supabase.auth.signOut().catch(() => {});
+            window.location.href = 'index.html?deleted=1';
+        } catch (err) {
+            if (msg) {
+                msg.textContent = 'Klaida: ' + err.message;
+                msg.classList.remove('hidden');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Patvirtinti ištrynimą';
+        }
+    }
+
     // --- Services Management ---
 
     function escHtml(str) {
@@ -1258,6 +1354,24 @@
         // Sign out all button
         const signOutAllBtn = qs('#signout-all-btn');
         if (signOutAllBtn) signOutAllBtn.addEventListener('click', signOutAll);
+
+        // GDPR: Data export
+        const exportBtn = qs('#data-export-btn');
+        if (exportBtn) exportBtn.addEventListener('click', () => exportMyData(exportBtn));
+
+        // GDPR: Account deletion
+        const deleteBtn = qs('#delete-account-btn');
+        if (deleteBtn) deleteBtn.addEventListener('click', openDeleteAccountModal);
+        const deleteCancelBtn = qs('#delete-cancel-btn');
+        if (deleteCancelBtn) deleteCancelBtn.addEventListener('click', closeDeleteAccountModal);
+        const deleteConfirmBtn = qs('#delete-confirm-btn');
+        if (deleteConfirmBtn) deleteConfirmBtn.addEventListener('click', confirmDeleteAccount);
+        const deleteConfirmInput = qs('#delete-confirm-input');
+        if (deleteConfirmInput && deleteConfirmBtn) {
+            deleteConfirmInput.addEventListener('input', () => {
+                deleteConfirmBtn.disabled = deleteConfirmInput.value.trim() !== 'IŠTRINTI';
+            });
+        }
 
         // Settings: detect Google OAuth user
         const provider = currentUser.app_metadata?.provider;
