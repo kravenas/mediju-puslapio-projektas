@@ -17,9 +17,9 @@ function setupHeroSearch() {
     function doSearch() {
         const q = input.value.trim();
         if (q) {
-            window.location.href = `kurejai.html?q=${encodeURIComponent(q)}`;
+            window.location.href = `kurejai?q=${encodeURIComponent(q)}`;
         } else {
-            window.location.href = 'kurejai.html';
+            window.location.href = 'kurejai';
         }
     }
 
@@ -32,7 +32,7 @@ function setupHeroSearch() {
     document.querySelectorAll('.popular-search-tag').forEach(tag => {
         tag.style.cursor = 'pointer';
         tag.addEventListener('click', () => {
-            window.location.href = `kurejai.html?q=${encodeURIComponent(tag.textContent.trim())}`;
+            window.location.href = `kurejai?q=${encodeURIComponent(tag.textContent.trim())}`;
         });
     });
 }
@@ -82,7 +82,7 @@ async function loadCategories() {
         const count = cat.creator_categories?.[0]?.count || 0;
         const bg = bgColors[cat.slug] || 'bg-gray-500';
         return `
-            <a href="kurejai.html?category=${cat.slug}" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
+            <a href="kurejai?category=${cat.slug}" class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-6 hover:border-primary" style="border-radius: 6px;">
                 <div class="w-12 h-12 ${bg} flex items-center justify-center mb-4" style="border-radius: 6px;">
                     ${categoryIcons[cat.slug] || '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>'}
                 </div>

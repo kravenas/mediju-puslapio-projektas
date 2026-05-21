@@ -24,3 +24,5 @@ supabase/.branches/
 # Tailwind standalone CLI binary (download via build script if needed)
 tailwindcss.exe
 tailwindcss
+.vercel
+.env*.local
