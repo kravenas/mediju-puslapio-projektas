@@ -882,6 +882,8 @@
     async function setupPackagesTab() {
         await loadPackages();
         renderPackageEditor();
+        renderStripeConnectSection();
+        wireStripeConnectButton();
 
         // Toggle listeners
         TIERS.forEach(tier => {
@@ -901,6 +903,87 @@
 
         const saveBtn = qs('#save-packages-btn');
         if (saveBtn) saveBtn.addEventListener('click', savePackages);
+    }
+
+    function renderStripeConnectSection() {
+        const section = qs('#stripe-connect-section');
+        const title = qs('#stripe-connect-title');
+        const desc = qs('#stripe-connect-desc');
+        const status = qs('#stripe-connect-status');
+        const btn = qs('#stripe-connect-btn');
+        if (!section || !creatorData) return;
+
+        section.classList.remove('hidden');
+
+        const charges = creatorData.stripe_charges_enabled;
+        const payouts = creatorData.stripe_payouts_enabled;
+        const submitted = creatorData.stripe_details_submitted;
+
+        if (charges && payouts) {
+            title.textContent = 'Mokėjimai aktyvūs';
+            desc.textContent = 'Klientai gali tau apmokėti kortele. 10% komisijos eina platformai, 90% pervedama tau.';
+            status.textContent = 'Aktyvūs';
+            status.className = 'inline-block px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
+            status.classList.remove('hidden');
+            btn.textContent = 'Atnaujinti duomenis';
+        } else if (creatorData.stripe_account_id && submitted) {
+            title.textContent = 'Stripe peržiūri tavo duomenis';
+            desc.textContent = 'Mokėjimai įsijungs po patikrinimo (paprastai per kelias valandas).';
+            status.textContent = 'Laukiama';
+            status.className = 'inline-block px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
+            status.classList.remove('hidden');
+            btn.textContent = 'Patikrinti statusą';
+        } else if (creatorData.stripe_account_id) {
+            title.textContent = 'Užbaik Stripe registraciją';
+            desc.textContent = 'Pradėjai, bet dar neužpildei visų laukų. Tęsk registraciją, kad galėtum gauti mokėjimus.';
+            btn.textContent = 'Tęsti registraciją';
+        } else {
+            title.textContent = 'Prisijunk mokėjimų priėmimą';
+            desc.textContent = 'Kad klientai galėtų tau apmokėti kortele, prisijunk Stripe paskyrą. Stripe tvarko KYC ir saugiai siunčia tau pinigus į IBAN.';
+            btn.textContent = 'Prisijungti Stripe';
+        }
+    }
+
+    function wireStripeConnectButton() {
+        const btn = qs('#stripe-connect-btn');
+        if (!btn || btn.dataset.wired) return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', startStripeConnect);
+    }
+
+    async function startStripeConnect() {
+        const btn = qs('#stripe-connect-btn');
+        const msg = qs('#stripe-connect-msg');
+        if (msg) msg.classList.add('hidden');
+        btn.disabled = true;
+        const original = btn.textContent;
+        btn.textContent = 'Kraunama...';
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'prisijungimas.html';
+                return;
+            }
+            const resp = await fetch(`${SUPABASE_URL}/functions/v1/stripe-connect-onboard`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+            });
+            const result = await resp.json();
+            if (!resp.ok || result.error) throw new Error(result.error || 'Nepavyko gauti registracijos nuorodos');
+            window.location.href = result.url;
+        } catch (err) {
+            btn.disabled = false;
+            btn.textContent = original;
+            if (msg) {
+                msg.textContent = 'Klaida: ' + err.message;
+                msg.className = 'mt-3 text-xs text-red-500';
+                msg.classList.remove('hidden');
+            }
+        }
     }
 
     // --- Skelbimas (Creator Listing) ---

@@ -417,7 +417,7 @@ function renderOrderButton(service, actionEl, creatorId) {
                 <span class="font-bold text-gray-900 dark:text-white">€${escapeHtml(service.price)}</span>
             </div>
             <button id="pay-btn" class="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 text-sm" style="border-radius:6px;">
-                Apmokėti per Paysera
+                Apmokėti kortele
             </button>
             <p id="pay-error" class="text-xs text-red-500 mt-2 hidden"></p>
         </div>
@@ -452,13 +452,13 @@ async function initiatePayment(service, creatorId) {
 
         if (orderError) throw orderError;
 
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/paysera-payment`, {
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/stripe-payment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session.access_token}`,
             },
-            body: JSON.stringify({ order_id: order.id, amount: service.price, service_name: service.name }),
+            body: JSON.stringify({ order_id: order.id }),
         });
 
         const result = await resp.json();
@@ -466,7 +466,7 @@ async function initiatePayment(service, creatorId) {
         window.location.href = result.url;
     } catch (err) {
         btn.disabled = false;
-        btn.textContent = 'Apmokėti per Paysera';
+        btn.textContent = 'Apmokėti kortele';
         if (errEl) { errEl.textContent = 'Klaida: ' + err.message; errEl.classList.remove('hidden'); }
     }
 }

@@ -11,30 +11,71 @@
     <link rel="stylesheet" href="css/tailwind.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { animation: spin 0.8s linear infinite; }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
 
     <div class="max-w-md w-full text-center">
-        <!-- Icon -->
-        <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-            </svg>
+
+        <div id="state-loading">
+            <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                <svg class="w-10 h-10 spinner text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Tikriname mokėjimą...</h1>
+            <p class="text-gray-500 dark:text-gray-400">Tai užtruks porą sekundžių.</p>
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Mokėjimas sėkmingas!</h1>
-        <p class="text-gray-500 dark:text-gray-400 mb-2">Jūsų užsakymas priimtas.</p>
-        <p id="order-info" class="text-sm text-gray-400 dark:text-gray-500 mb-8"></p>
+        <div id="state-success" class="hidden">
+            <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Mokėjimas sėkmingas!</h1>
+            <p class="text-gray-500 dark:text-gray-400 mb-2">Tavo užsakymas priimtas. Kūrėjas su tavimi susisieks.</p>
+            <p id="order-info" class="text-sm text-gray-400 dark:text-gray-500 mb-8"></p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="zinutes.html" class="bg-primary hover:bg-primary-hover text-white px-6 py-3 font-semibold rounded-md">
+                    Atidaryti pokalbį
+                </a>
+                <a href="profilis.html" class="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 px-6 py-3 font-semibold rounded-md">
+                    Mano profilis
+                </a>
+            </div>
+        </div>
 
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="kurejai.html"
-               class="bg-primary hover:bg-primary-hover text-white px-6 py-3 font-semibold rounded-md">
-                Grįžti į kūrėjus
-            </a>
-            <a href="profilis.html"
-               class="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 px-6 py-3 font-semibold rounded-md">
-                Mano profilis
+        <div id="state-pending" class="hidden">
+            <div class="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Mokėjimas tvarkomas</h1>
+            <p class="text-gray-500 dark:text-gray-400 mb-8">Tavo mokėjimas dar tikrinamas. Tai gali užtrukti iki minutės.</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="refresh-btn" class="bg-primary hover:bg-primary-hover text-white px-6 py-3 font-semibold rounded-md">
+                    Atnaujinti
+                </button>
+                <a href="profilis.html" class="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 px-6 py-3 font-semibold rounded-md">
+                    Mano profilis
+                </a>
+            </div>
+        </div>
+
+        <div id="state-error" class="hidden">
+            <div class="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Nepavyko patikrinti</h1>
+            <p id="error-msg" class="text-gray-500 dark:text-gray-400 mb-8">Bandyk dar kartą po kelių sekundžių.</p>
+            <a href="profilis.html" class="bg-primary hover:bg-primary-hover text-white px-6 py-3 font-semibold rounded-md">
+                Eiti į profilį
             </a>
         </div>
     </div>
@@ -42,17 +83,62 @@
     <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const orderId = params.get('order');
-        if (orderId) {
-            document.getElementById('order-info').textContent = 'Užsakymo nr.: ' + orderId;
-        }
-
-        // Apply saved dark mode
         if (localStorage.getItem('darkMode') === 'true' ||
             (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         }
+
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('order');
+
+        function showState(name) {
+            ['loading', 'success', 'pending', 'error'].forEach(s => {
+                const el = document.getElementById('state-' + s);
+                if (el) el.classList.toggle('hidden', s !== name);
+            });
+        }
+
+        async function checkOrderStatus() {
+            if (!orderId) {
+                showState('error');
+                document.getElementById('error-msg').textContent = 'Užsakymo nuoroda nerasta.';
+                return;
+            }
+
+            const { data: order, error } = await supabase
+                .from('orders')
+                .select('id, stripe_status, paid_at, service_name, amount')
+                .eq('id', orderId)
+                .single();
+
+            if (error || !order) {
+                showState('error');
+                document.getElementById('error-msg').textContent = 'Užsakymas nerastas.';
+                return;
+            }
+
+            if (order.paid_at || order.stripe_status === 'paid') {
+                const info = document.getElementById('order-info');
+                info.textContent = `${order.service_name || 'Paslauga'} · €${Number(order.amount).toFixed(2)} · #${order.id.slice(0, 8)}`;
+                showState('success');
+            } else if (order.stripe_status === 'failed') {
+                showState('error');
+                document.getElementById('error-msg').textContent = 'Mokėjimas nepavyko. Pabandyk dar kartą.';
+            } else {
+                showState('pending');
+            }
+        }
+
+        document.getElementById('refresh-btn')?.addEventListener('click', () => {
+            showState('loading');
+            checkOrderStatus();
+        });
+
+        checkOrderStatus();
+        setTimeout(() => {
+            const pending = document.getElementById('state-pending');
+            if (pending && !pending.classList.contains('hidden')) checkOrderStatus();
+        }, 4000);
     </script>
     <script src="js/cookie-consent.js"></script>
 </body>

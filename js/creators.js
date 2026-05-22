@@ -706,8 +706,8 @@ function selectModalService(id, name, price) {
                 <span class="modal-order-name">${escapeHtml(name)}</span>
                 <span class="modal-order-price">€${escapeHtml(price)}</span>
             </div>
-            <button class="modal-cta" id="paysera-pay-btn" onclick="initiatePayment()">
-                Apmokėti per Paysera
+            <button class="modal-cta" id="stripe-pay-btn" onclick="initiatePayment()">
+                Apmokėti kortele
             </button>
         </div>
     `;
@@ -723,7 +723,7 @@ async function initiatePayment() {
         return;
     }
 
-    const btn = document.getElementById('paysera-pay-btn');
+    const btn = document.getElementById('stripe-pay-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Kraunama...'; }
 
     try {
@@ -742,18 +742,14 @@ async function initiatePayment() {
 
         if (orderError) throw orderError;
 
-        // Call Paysera Edge Function
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/paysera-payment`, {
+        // Call Stripe Checkout Edge Function
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/stripe-payment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session.access_token}`,
             },
-            body: JSON.stringify({
-                order_id: order.id,
-                amount: selectedModalService.price,
-                service_name: selectedModalService.name,
-            }),
+            body: JSON.stringify({ order_id: order.id }),
         });
 
         const result = await resp.json();
@@ -761,7 +757,7 @@ async function initiatePayment() {
 
         window.location.href = result.url;
     } catch (err) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Apmokėti per Paysera'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Apmokėti kortele'; }
         const section = document.getElementById('modal-order-section');
         if (section) {
             const errEl = document.createElement('p');
