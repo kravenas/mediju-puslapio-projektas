@@ -12,7 +12,7 @@ a.bg-primary,
 button.bg-primary,
 input.bg-primary {
   position: relative;
-  border-radius: 6px !important;                 /* crisp, professional corners */
+  border-radius: 8px !important;                 /* crisp, professional corners */
   background-color: rgba(31, 41, 55, 0.58) !important;
   background-image: linear-gradient(180deg,
                       rgba(55, 65, 81, 0.60) 0%,
@@ -41,7 +41,7 @@ input.bg-primary {
 /* Cookie-accept lives on the dark banner -> keep a gold glass accent */
 #cookie-accept {
   position: relative;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   background-color: rgba(212, 160, 23, 0.92) !important;
   background-image: linear-gradient(180deg,
                       rgba(224, 175, 40, 0.95) 0%,
@@ -61,7 +61,7 @@ input.bg-primary::before {
   content: "";
   position: absolute;
   inset: 1px 1px 55% 1px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
   pointer-events: none;
 }
@@ -89,7 +89,7 @@ button.bg-primary > * {
 
 /* ---- Hero search field: matching frosted glass (crisp corners) ---- */
 #hero-search {
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   background-color: rgba(255, 255, 255, 0.55) !important;
   border: 1px solid rgba(255, 255, 255, 0.55) !important;
   -webkit-backdrop-filter: blur(14px) saturate(140%);
@@ -145,4 +145,18 @@ nav.fixed {
 .dark .modal-card {
   background: rgba(31, 41, 55, 0.70) !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+/* ---- Hero search pair: slimmer, a touch longer, thin even strokes ---- */
+#hero-search,
+#hero-search-btn {
+  height: 3rem !important;              /* 56px -> 48px: a bit smaller */
+}
+#hero-search-btn {
+  padding-left: 2.75rem !important;     /* a touch longer */
+  padding-right: 2.75rem !important;
+  font-size: 0.95rem !important;
+}
+#hero-search {
+  border: 1px solid rgba(17, 24, 39, 0.12) !important;  /* thin, even with the button */
 }
