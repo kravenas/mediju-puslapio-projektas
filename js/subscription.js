@@ -266,7 +266,7 @@
                     </div>
                 </div>
 
-                <button onclick="document.getElementById('welcome-popup').remove()" style="width:100%;padding:12px;background:#FFC50F;color:white;font-weight:700;font-size:15px;border:none;border-radius:6px;cursor:pointer;">
+                <button class="bg-primary" onclick="document.getElementById('welcome-popup').remove()" style="width:100%;padding:12px;background:#FFC50F;color:white;font-weight:700;font-size:15px;border:none;border-radius:6px;cursor:pointer;">
                     Pradėti naršyti
                 </button>
 
