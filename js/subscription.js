@@ -242,13 +242,13 @@
                     <svg width="20" height="20" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12"/></svg>
                 </button>
 
-                <div style="width:64px;height:64px;background:linear-gradient(135deg,#FFC50F,#E6B00F);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                <div style="width:64px;height:64px;background:linear-gradient(135deg,#D4A017,#B8860B);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
                     <svg width="32" height="32" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
 
                 <h2 style="font-size:24px;font-weight:800;color:#111827;margin-bottom:8px;" class="dark:text-white">Sveiki atvykę!</h2>
                 <p style="font-size:15px;color:#6b7280;margin-bottom:1.5rem;line-height:1.6;">
-                    Jūsų <strong style="color:#FFC50F;">nemokamas 14 dienų planas</strong> aktyvuotas! Naudokitės visomis paslaugomis — naujokų paieška, žinutės, užsakymai.
+                    Jūsų <strong style="color:#D4A017;">nemokamas 14 dienų planas</strong> aktyvuotas! Naudokitės visomis paslaugomis — naujokų paieška, žinutės, užsakymai.
                 </p>
 
                 <div style="background:#f9fafb;border-radius:8px;padding:1rem;margin-bottom:1.5rem;text-align:left;" class="dark:bg-gray-800">
@@ -266,7 +266,7 @@
                     </div>
                 </div>
 
-                <button class="bg-primary" onclick="document.getElementById('welcome-popup').remove()" style="width:100%;padding:12px;background:#FFC50F;color:white;font-weight:700;font-size:15px;border:none;border-radius:6px;cursor:pointer;">
+                <button class="bg-primary" onclick="document.getElementById('welcome-popup').remove()" style="width:100%;padding:12px;background:#D4A017;color:white;font-weight:700;font-size:15px;border:none;border-radius:6px;cursor:pointer;">
                     Pradėti naršyti
                 </button>
 

@@ -322,7 +322,7 @@ async function openRSModal(creatorId) {
                 <div style="position:relative;">
                     ${headerHtml}
                     <div style="position:absolute; top:12px; left:12px;">
-                        <span style="padding:4px 12px; background:#FFC50F; color:white; font-size:11px; font-weight:700; border-radius:6px;">KYLANTI ŽVAIGŽDĖ</span>
+                        <span style="padding:4px 12px; background:#D4A017; color:white; font-size:11px; font-weight:700; border-radius:6px;">KYLANTI ŽVAIGŽDĖ</span>
                     </div>
                 </div>
 
@@ -353,10 +353,10 @@ async function openRSModal(creatorId) {
                     <div style="margin-bottom:8px;">
                         <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;">
                             <span style="color:#6b7280;">Projektai</span>
-                            <span style="font-weight:600; color:#FFC50F;">${escapeHtml(creator.portfolio_current)}/${escapeHtml(creator.portfolio_target)}</span>
+                            <span style="font-weight:600; color:#D4A017;">${escapeHtml(creator.portfolio_current)}/${escapeHtml(creator.portfolio_target)}</span>
                         </div>
                         <div style="width:100%; height:8px; background:#e5e7eb; border-radius:4px;">
-                            <div style="width:${progressPct}%; height:8px; background:#FFC50F; border-radius:4px;"></div>
+                            <div style="width:${progressPct}%; height:8px; background:#D4A017; border-radius:4px;"></div>
                         </div>
                     </div>
 

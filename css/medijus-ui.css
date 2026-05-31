@@ -13,10 +13,10 @@ input.bg-primary,
   position: relative;
   border-radius: 9999px !important;                 /* capsule */
   /* flatter, semi-transparent gold so it reads as a material, not a glow */
-  background-color: rgba(255, 197, 15, 0.58) !important;
+  background-color: rgba(212, 160, 23, 0.58) !important;
   background-image: linear-gradient(180deg,
-                      rgba(255, 199, 28, 0.62) 0%,
-                      rgba(255, 189, 12, 0.56) 100%) !important;
+                      rgba(215, 165, 30, 0.62) 0%,
+                      rgba(198, 148, 12, 0.56) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.22) !important;
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   backdrop-filter: blur(14px) saturate(140%);

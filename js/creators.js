@@ -593,7 +593,7 @@ function renderModalPackages(packages, container) {
             <button class="modal-pkg-tab flex-1 text-center py-2.5 px-1 text-xs font-semibold transition-colors relative
                 ${isActive ? 'text-primary border-b-2 border-primary' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600'}"
                 data-pkg-idx="${i}">
-                ${highlighted ? '<span style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:8px;background:#FFC50F;color:#fff;padding:0 4px;border-radius:4px;">TOP</span>' : ''}
+                ${highlighted ? '<span style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:8px;background:#D4A017;color:#fff;padding:0 4px;border-radius:4px;">TOP</span>' : ''}
                 ${MODAL_TIER_LABELS[p.tier]}<br><span class="font-bold text-sm">€${p.price}</span>
             </button>
         `;

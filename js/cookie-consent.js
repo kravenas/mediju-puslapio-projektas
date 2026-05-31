@@ -14,12 +14,12 @@
             <strong style="display:block;margin-bottom:0.25rem;font-size:0.95rem;">Slapukai</strong>
             <span style="color:#d1d5db;">
                 Naudojame būtinuosius slapukus svetainės veikimui (prisijungimui, nuostatoms) ir analitinius — klaidų stebėsenai per Sentry.
-                Plačiau — <a href="privatumo-politika.html" style="color:#FFC50F;text-decoration:underline;">Privatumo politika</a>.
+                Plačiau — <a href="privatumo-politika.html" style="color:#D4A017;text-decoration:underline;">Privatumo politika</a>.
             </span>
         </div>
         <div style="display:flex;gap:0.5rem;justify-content:flex-end;flex-wrap:wrap;">
             <button id="cookie-reject" type="button" style="padding:0.5rem 1rem;background:transparent;color:#d1d5db;border:1px solid #374151;border-radius:6px;cursor:pointer;font-size:0.875rem;font-weight:500;">Tik būtinieji</button>
-            <button id="cookie-accept" type="button" style="padding:0.5rem 1.25rem;background:#FFC50F;color:#111827;border:none;border-radius:6px;cursor:pointer;font-size:0.875rem;font-weight:600;">Sutinku su visais</button>
+            <button id="cookie-accept" type="button" style="padding:0.5rem 1.25rem;background:#D4A017;color:#111827;border:none;border-radius:6px;cursor:pointer;font-size:0.875rem;font-weight:600;">Sutinku su visais</button>
         </div>
     `;
 
