@@ -12,7 +12,7 @@ a.bg-primary,
 button.bg-primary,
 input.bg-primary {
   position: relative;
-  border-radius: 9999px !important;                 /* capsule */
+  border-radius: 6px !important;                 /* crisp, professional corners */
   background-color: rgba(31, 41, 55, 0.90) !important;
   background-image: linear-gradient(180deg,
                       rgba(55, 65, 81, 0.92) 0%,
@@ -40,7 +40,7 @@ input.bg-primary {
 /* Cookie-accept lives on the dark banner -> keep a gold glass accent */
 #cookie-accept {
   position: relative;
-  border-radius: 9999px !important;
+  border-radius: 6px !important;
   background-color: rgba(212, 160, 23, 0.92) !important;
   background-image: linear-gradient(180deg,
                       rgba(224, 175, 40, 0.95) 0%,
@@ -60,7 +60,7 @@ input.bg-primary::before {
   content: "";
   position: absolute;
   inset: 1px 1px 55% 1px;
-  border-radius: 9999px;
+  border-radius: 6px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
   pointer-events: none;
 }
@@ -86,9 +86,9 @@ button.bg-primary > * {
   z-index: 1;
 }
 
-/* ---- Hero search field: matching frosted glass capsule ---- */
+/* ---- Hero search field: matching frosted glass (crisp corners) ---- */
 #hero-search {
-  border-radius: 9999px !important;
+  border-radius: 6px !important;
   background-color: rgba(255, 255, 255, 0.55) !important;
   border: 1px solid rgba(255, 255, 255, 0.55) !important;
   -webkit-backdrop-filter: blur(14px) saturate(140%);
