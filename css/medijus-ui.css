@@ -1,0 +1,64 @@
+/* ============================================================
+   Medijus UI — rounded "liquid glass" buttons
+   Loaded on every page after tailwind.css so it can override
+   utility + inline styles. Scoped to primary (gold) action
+   buttons; tabs/filters/accordions are intentionally excluded.
+   ============================================================ */
+
+a.bg-primary,
+button.bg-primary,
+input.bg-primary {
+  position: relative;
+  border-radius: 9999px !important;                 /* capsule */
+  /* translucent gold so the glass/blur reads as a material */
+  background-color: rgba(255, 197, 15, 0.86) !important;
+  background-image: linear-gradient(180deg,
+                      rgba(255, 213, 74, 0.95) 0%,
+                      rgba(255, 186, 8, 0.90) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+  /* top specular highlight + soft inner base + diffuse glow */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -2px 4px rgba(168, 112, 0, 0.22),
+    0 8px 22px rgba(255, 184, 10, 0.38) !important;
+  transition: transform .2s ease, box-shadow .25s ease, filter .2s ease !important;
+}
+
+/* glossy sheen across the top half */
+a.bg-primary::before,
+button.bg-primary::before,
+input.bg-primary::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px 45% 1px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+a.bg-primary:hover,
+button.bg-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(168, 112, 0, 0.20),
+    0 12px 30px rgba(255, 184, 10, 0.5) !important;
+}
+
+a.bg-primary:active,
+button.bg-primary:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow:
+    inset 0 2px 6px rgba(168, 112, 0, 0.35),
+    0 4px 12px rgba(255, 184, 10, 0.30) !important;
+}
+
+/* buttons may have a text/icon span; keep it above the sheen */
+a.bg-primary > *,
+button.bg-primary > * {
+  position: relative;
+  z-index: 1;
+}
