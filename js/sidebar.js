@@ -1,11 +1,11 @@
 /**
- * Artifex Collapsible Sidebar
+ * Medijus Collapsible Sidebar
  * Vanilla JS implementation with localStorage persistence,
  * hover-expand, mobile drawer, and filter controls.
  */
 
 (function () {
-  const STORAGE_KEY = 'artifex-sidebar-collapsed';
+  const STORAGE_KEY = 'medijus-sidebar-collapsed';
   let collapsed = false;
   let hoverExpanded = false;
   let mobileOpen = false;
@@ -212,8 +212,8 @@
   }
 
   function render() {
-    var sidebar = document.getElementById('artifex-sidebar');
-    var mobileDrawer = document.getElementById('artifex-sidebar-mobile');
+    var sidebar = document.getElementById('medijus-sidebar');
+    var mobileDrawer = document.getElementById('medijus-sidebar-mobile');
     var mainContent = document.querySelector('.main-content');
     var mainFooter = document.querySelector('.main-footer');
 
@@ -227,7 +227,7 @@
       mobileDrawer.className = 'sidebar-mobile-drawer' + (mobileOpen ? ' open' : '');
     }
 
-    var overlay = document.getElementById('artifex-sidebar-overlay');
+    var overlay = document.getElementById('medijus-sidebar-overlay');
     if (overlay) {
       overlay.className = 'sidebar-overlay' + (mobileOpen ? ' visible' : '');
     }
@@ -401,17 +401,17 @@
 
     // Create new sidebar element
     var sidebar = document.createElement('aside');
-    sidebar.id = 'artifex-sidebar';
+    sidebar.id = 'medijus-sidebar';
     document.body.appendChild(sidebar);
 
     // Create mobile drawer
     var mobileDrawer = document.createElement('aside');
-    mobileDrawer.id = 'artifex-sidebar-mobile';
+    mobileDrawer.id = 'medijus-sidebar-mobile';
     document.body.appendChild(mobileDrawer);
 
     // Create overlay
     var overlay = document.createElement('div');
-    overlay.id = 'artifex-sidebar-overlay';
+    overlay.id = 'medijus-sidebar-overlay';
     document.body.appendChild(overlay);
     overlay.addEventListener('click', function () {
       mobileOpen = false;

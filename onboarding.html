@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pradėk čia – Medijus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
+    <style>
+        body { font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+        .step-dot { transition: all 0.3s ease; }
+        .step-dot.done { background: #FFC50F; color: white; }
+        .step-dot.current { background: #FFC50F; color: white; box-shadow: 0 0 0 4px rgba(255,197,15,0.2); }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <span style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 600; font-style: italic; color: #FFC50F;">A</span>
+            <span style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; letter-spacing: 0.1em;" class="ml-1 text-gray-900 dark:text-white">MEDIJUS</span>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-6 sm:p-10" style="border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.08);">
+            <!-- Progress -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="step-dot current w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" data-step="1">1</div>
+                <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700 mx-2"><div id="progress-1-2" class="h-full bg-primary transition-all" style="width:0;"></div></div>
+                <div class="step-dot w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 flex items-center justify-center text-sm font-bold" data-step="2">2</div>
+                <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700 mx-2"><div id="progress-2-3" class="h-full bg-primary transition-all" style="width:0;"></div></div>
+                <div class="step-dot w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 flex items-center justify-center text-sm font-bold" data-step="3">3</div>
+            </div>
+
+            <!-- Step 1: Basics -->
+            <div data-panel="1">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Pasakyk apie save</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Pradėk nuo pagrindinės informacijos. Tai užtruks ~2 min.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Vardas <span class="text-red-500">*</span></label>
+                        <input type="text" id="ob-name" placeholder="pvz. Jonas"
+                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary"
+                            style="border-radius:6px;">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Miestas <span class="text-red-500">*</span></label>
+                        <select id="ob-location" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary" style="border-radius:6px;">
+                            <option value="">Pasirink miestą...</option>
+                            <option>Vilnius</option>
+                            <option>Kaunas</option>
+                            <option>Klaipėda</option>
+                            <option>Šiauliai</option>
+                            <option>Panevėžys</option>
+                            <option>Kitas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Kas esi? <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" data-role-pick="klientas" class="ob-role-btn p-4 border-2 border-secondary dark:border-gray-600 hover:border-primary text-center transition-colors" style="border-radius:8px;">
+                                <div class="text-2xl mb-1">🔍</div>
+                                <div class="font-semibold text-gray-900 dark:text-white text-sm">Klientas</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Ieškau kūrėjo</div>
+                            </button>
+                            <button type="button" data-role-pick="kurejas" class="ob-role-btn p-4 border-2 border-secondary dark:border-gray-600 hover:border-primary text-center transition-colors" style="border-radius:8px;">
+                                <div class="text-2xl mb-1">📷</div>
+                                <div class="font-semibold text-gray-900 dark:text-white text-sm">Kūrėjas</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Siūlau paslaugas</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <p id="step1-error" class="hidden text-sm text-red-500 mt-4"></p>
+                <div class="mt-6 flex justify-end">
+                    <button id="step1-next" class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-sm cursor-pointer" style="border-radius:6px;">Toliau →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Role-specific -->
+            <div data-panel="2" class="hidden">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><span id="step2-title">Apie tave</span></h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mb-6" id="step2-subtitle">Šis žingsnis priklauso nuo tavo rolės.</p>
+
+                <!-- Creator-specific -->
+                <div id="step2-creator" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Profesija <span class="text-red-500">*</span></label>
+                        <select id="ob-role"
+                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary"
+                            style="border-radius:6px;">
+                            <option value="">Pasirink...</option>
+                            <optgroup label="Video Gamyba">
+                                <option value="Fotografas">Fotografas</option>
+                                <option value="Videografas">Videografas</option>
+                                <option value="Dronų Pilotas">Dronų Pilotas</option>
+                            </optgroup>
+                            <optgroup label="Post-Produkcija">
+                                <option value="Video Montuotojas">Video Montuotojas</option>
+                                <option value="Color Grader">Color Grader</option>
+                            </optgroup>
+                            <optgroup label="Grafika/Dizainas">
+                                <option value="Grafikos Dizaineris">Grafikos Dizaineris</option>
+                                <option value="UI/UX Dizaineris">UI/UX Dizaineris</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Minimali kaina (€)</label>
+                        <input type="number" id="ob-price" min="0" placeholder="pvz. 100"
+                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary"
+                            style="border-radius:6px;">
+                        <p class="text-xs text-gray-500 mt-1">Galėsi tikslinti vėliau.</p>
+                    </div>
+                </div>
+
+                <!-- Client-specific -->
+                <div id="step2-client" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Ko ieškai dažniausiai?</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="ob-interests">
+                            <button type="button" data-tag="Fotografija" class="ob-tag-btn px-3 py-2 border border-secondary dark:border-gray-600 hover:border-primary text-xs text-gray-700 dark:text-gray-300" style="border-radius:6px;">Fotografija</button>
+                            <button type="button" data-tag="Video" class="ob-tag-btn px-3 py-2 border border-secondary dark:border-gray-600 hover:border-primary text-xs text-gray-700 dark:text-gray-300" style="border-radius:6px;">Video</button>
+                            <button type="button" data-tag="Dizainas" class="ob-tag-btn px-3 py-2 border border-secondary dark:border-gray-600 hover:border-primary text-xs text-gray-700 dark:text-gray-300" style="border-radius:6px;">Dizainas</button>
+                            <button type="button" data-tag="Vestuvės" class="ob-tag-btn px-3 py-2 border border-secondary dark:border-gray-600 hover:border-primary text-xs text-gray-700 dark:text-gray-300" style="border-radius:6px;">Vestuvės</button>
+                            <button type="button" data-tag="Verslas" class="ob-tag-btn px-3 py-2 border border-secondary dark:border-gray-600 hover:border-primary text-xs text-gray-700 dark:text-gray-300" style="border-radius:6px;">Verslas</button>
+                            <button type="button" data-tag="Renginiai" class="ob-tag-btn px-3 py-2 border border-secondary dark:border-gray-600 hover:border-primary text-xs text-gray-700 dark:text-gray-300" style="border-radius:6px;">Renginiai</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tipinis biudžetas vienam projektui (€)</label>
+                        <select id="ob-budget" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary" style="border-radius:6px;">
+                            <option value="">Pasirink...</option>
+                            <option value="0-100">€0 – €100</option>
+                            <option value="100-300">€100 – €300</option>
+                            <option value="300-1000">€300 – €1000</option>
+                            <option value="1000+">€1000+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <p id="step2-error" class="hidden text-sm text-red-500 mt-4"></p>
+                <div class="mt-6 flex justify-between">
+                    <button id="step2-back" class="px-6 py-2.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white">← Atgal</button>
+                    <button id="step2-next" class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-sm cursor-pointer" style="border-radius:6px;">Toliau →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Photo + Bio -->
+            <div data-panel="3" class="hidden">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Paskutinis žingsnis</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Trumpas bio + nuotrauka (neprivaloma, bet padės tave atpažinti).</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Apie save</label>
+                        <textarea id="ob-bio" rows="4" maxlength="500" placeholder="Trumpai apibūdink save — patirtį, stilių, kuo gali padėti..."
+                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary resize-none"
+                            style="border-radius:6px;"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Profilio nuotrauka <span class="text-xs text-gray-400 font-normal">(neprivaloma)</span></label>
+                        <input type="file" id="ob-avatar" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:border-0 file:bg-primary file:text-white file:font-semibold file:cursor-pointer hover:file:bg-primary-hover" style="border-radius:6px;">
+                        <p id="ob-avatar-preview" class="text-xs text-green-600 mt-1 hidden">✓ Paveikslėlis pasirinktas</p>
+                    </div>
+                </div>
+
+                <p id="step3-error" class="hidden text-sm text-red-500 mt-4"></p>
+                <div class="mt-6 flex justify-between">
+                    <button id="step3-back" class="px-6 py-2.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white">← Atgal</button>
+                    <button id="step3-finish" class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-sm cursor-pointer" style="border-radius:6px;">Užbaigti ✓</button>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-gray-400 mt-6">Negali apeiti šio žingsnio. Tai užtikrina kokybišką platformą visiems.</p>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/onboarding.js"></script>
+</body>
+</html>

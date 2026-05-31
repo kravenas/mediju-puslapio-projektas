@@ -73,7 +73,7 @@ Deno.serve(async (req: Request) => {
                     transfers: { requested: true },
                 },
                 business_type: "individual",
-                metadata: { artifex_creator_id: creator.id, artifex_user_id: userId },
+                metadata: { medijus_creator_id: creator.id, medijus_user_id: userId },
             });
             accountId = account.id;
 
@@ -81,6 +81,26 @@ Deno.serve(async (req: Request) => {
                 stripe_account_id: accountId,
                 stripe_onboarding_started_at: new Date().toISOString(),
             }).eq("id", creator.id);
+        } else {
+            // Sync DB with latest Stripe state on every call. The webhook is the
+            // primary source but this catches missed events (e.g. webhook not yet
+            // subscribed to account.updated, or events lost in test).
+            const account = await stripe.accounts.retrieve(accountId);
+            await admin.from("creators").update({
+                stripe_charges_enabled: account.charges_enabled,
+                stripe_payouts_enabled: account.payouts_enabled,
+                stripe_details_submitted: account.details_submitted,
+                stripe_updated_at: new Date().toISOString(),
+            }).eq("id", creator.id);
+
+            if (account.charges_enabled && account.details_submitted) {
+                return json({
+                    already_complete: true,
+                    charges_enabled: account.charges_enabled,
+                    details_submitted: account.details_submitted,
+                    payouts_enabled: account.payouts_enabled,
+                });
+            }
         }
 
         const link = await stripe.accountLinks.create({

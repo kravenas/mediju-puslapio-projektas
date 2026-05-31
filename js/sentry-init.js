@@ -1,5 +1,5 @@
 // =============================================
-// Sentry Error Tracking - Artifex
+// Sentry Error Tracking - Medijus
 // =============================================
 // Replace SENTRY_DSN with the DSN from your Sentry project.
 // (Sentry → Settings → Projects → your project → Client Keys (DSN))
@@ -11,7 +11,7 @@ if (typeof Sentry !== 'undefined' && SENTRY_DSN && !SENTRY_DSN.startsWith('REPLA
         dsn: SENTRY_DSN,
 
         // Release tag - update when shipping a new version
-        release: 'artifex@0.1.0',
+        release: 'medijus@0.1.0',
 
         environment: window.location.hostname === 'localhost' ? 'development' : 'production',
 

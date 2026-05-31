@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kūrėjai - Artifex | Profesionalai Lietuvoje</title>
+    <title>Kūrėjai - Medijus | Profesionalai Lietuvoje</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,7 +71,6 @@
             scrollbar-width: none;
         }
     </style>
-    <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/modal.css">
 </head>
 <body class="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -84,7 +83,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">MEDIJUS</span>
                     </a>
                 </div>
 
@@ -133,133 +132,149 @@
         </div>
     </nav>
 
-    <div class="flex pt-16">
-        <!-- Filter Sidebar -->
-        <aside class="hidden lg:block w-64 fixed left-0 top-16 h-screen overflow-y-auto border-r border-secondary dark:border-gray-800 bg-white dark:bg-gray-900">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Filtrai</h2>
-                    <button id="clear-filters-btn" class="text-xs text-primary hover:underline font-medium">Išvalyti filtrus</button>
+    <!-- Login Gate (shown while checking / when not logged in) -->
+    <div id="kr-gate" class="pt-32 pb-16 bg-white dark:bg-gray-900 min-h-[80vh] flex items-center justify-center">
+        <div class="max-w-2xl mx-auto px-6 text-center">
+            <div id="kr-gate-loading">
+                <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-400 dark:text-gray-500">Tikrinama prieiga...</p>
+            </div>
+            <div id="kr-gate-login" class="hidden">
+                <div class="w-20 h-20 bg-primary/10 flex items-center justify-center mx-auto mb-6" style="border-radius:50%;">
+                    <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                 </div>
-
-                <!-- Kategorijos -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kategorijos</h3>
-                    <div class="space-y-4" id="sidebar-categories"></div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Prisijunkite, kad pamatytumėte kūrėjus</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-8 text-lg">Registracija nemokama. Pasirinkite ar esate klientas, ar kūrėjas — ir pradėkite!</p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a href="prisijungimas.html?tab=register&redirect=kurejai.html" class="inline-block bg-primary hover:bg-primary-hover text-white px-8 py-3 font-semibold" style="border-radius:6px;">
+                        Registruotis nemokamai
+                    </a>
+                    <a href="prisijungimas.html?redirect=kurejai.html" class="inline-block border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 font-semibold" style="border-radius:6px;">
+                        Prisijungti
+                    </a>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Miestas -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Miestas</h3>
-                    <select id="filter-city" class="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white" style="border-radius: 6px;">
-                        <option value="">Visi miestai</option>
-                        <option value="Vilnius">Vilnius</option>
-                        <option value="Kaunas">Kaunas</option>
-                        <option value="Klaipėda">Klaipėda</option>
-                        <option value="Šiauliai">Šiauliai</option>
-                        <option value="Panevėžys">Panevėžys</option>
-                    </select>
+    <main id="kr-gated-content" class="pt-16 hidden">
+        <!-- Page Header -->
+        <section class="py-8 bg-white dark:bg-gray-900 border-b border-secondary dark:border-gray-800">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    Rask Kūrėją
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    Fotografai, videografai, montuotojai ir dizaineriai vienoje platformoje
+                </p>
+
+                <!-- Search Bar -->
+                <div class="relative">
+                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input id="creator-search" type="text" placeholder="Ieškoti kūrėjo ar paslaugos..." class="w-full h-12 pl-12 pr-4 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring" style="border-radius: 8px;">
                 </div>
+            </div>
+        </section>
 
-                <!-- Kaina -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kaina</h3>
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">€0</span>
-                        <input id="filter-price" type="range" min="0" max="500" value="500" step="10" class="flex-1 accent-yellow-400">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">€<span id="filter-price-val">500</span></span>
-                    </div>
-                </div>
+        <!-- Filters + Results -->
+        <section class="py-8 bg-gray-50 dark:bg-gray-800">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8">
+                    <!-- Sidebar -->
+                    <aside class="mb-6 lg:mb-0">
+                        <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-5" style="border-radius:8px;">
+                            <div class="flex items-center justify-between mb-5">
+                                <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Filtrai</h2>
+                                <button id="clear-filters-btn" class="text-xs text-primary hover:underline font-medium">Išvalyti</button>
+                            </div>
 
-                <!-- Min. reitingas -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Min. reitingas</h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="filter-rating" class="accent-yellow-400" value="0" checked>
-                            <span class="text-sm text-gray-700 dark:text-gray-300">Visi</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="filter-rating" class="accent-yellow-400" value="3">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">3+</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="filter-rating" class="accent-yellow-400" value="3.5">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">3.5+</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="filter-rating" class="accent-yellow-400" value="4">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">4+</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="filter-rating" class="accent-yellow-400" value="4.5">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">4.5+</span>
-                        </label>
+                            <div class="mb-6">
+                                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kategorijos</h3>
+                                <div class="space-y-4" id="sidebar-categories"></div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Miestas</h3>
+                                <select id="filter-city" class="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white" style="border-radius:6px;">
+                                    <option value="">Visi miestai</option>
+                                    <option value="Vilnius">Vilnius</option>
+                                    <option value="Kaunas">Kaunas</option>
+                                    <option value="Klaipėda">Klaipėda</option>
+                                    <option value="Šiauliai">Šiauliai</option>
+                                    <option value="Panevėžys">Panevėžys</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kaina</h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">€0</span>
+                                    <input id="filter-price" type="range" min="0" max="500" value="500" step="10" class="flex-1 accent-yellow-400">
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">€<span id="filter-price-val">500</span></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Min. reitingas</h3>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="filter-rating" class="accent-yellow-400" value="0" checked>
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Visi</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="filter-rating" class="accent-yellow-400" value="3">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">3+</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="filter-rating" class="accent-yellow-400" value="3.5">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">3.5+</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="filter-rating" class="accent-yellow-400" value="4">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">4+</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="filter-rating" class="accent-yellow-400" value="4.5">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">4.5+</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Main content -->
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <p class="text-gray-600 dark:text-gray-400">
+                                Rodoma <span id="creators-count" class="font-semibold text-gray-900 dark:text-white">...</span> kūrėjų
+                            </p>
+                            <select id="creator-sort" class="px-4 py-2 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white text-sm focus-ring" style="border-radius:6px;">
+                                <option value="rating">Pagal įvertinimą</option>
+                                <option value="reviews">Pagal atsiliepimus</option>
+                                <option value="price-low">Kaina: mažiausia</option>
+                                <option value="price-high">Kaina: didžiausia</option>
+                            </select>
+                        </div>
+
+                        <div id="creators-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Loaded dynamically from Supabase -->
+                        </div>
+
+                        <div class="text-center mt-12">
+                            <button id="load-more-btn" class="px-8 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold" style="border-radius:6px;">
+                                Rodyti daugiau
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="lg:pl-64 flex-1">
-            <!-- Page Header -->
-            <section class="py-8 bg-white dark:bg-gray-900 border-b border-secondary dark:border-gray-800">
-                <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                        Rask Kūrėją
-                    </h1>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6">
-                        Fotografai, videografai, montuotojai ir dizaineriai vienoje platformoje
-                    </p>
-
-                    <!-- Search Bar -->
-                    <div class="relative">
-                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input id="creator-search" type="text" placeholder="Ieškoti kūrėjo ar paslaugos..." class="w-full h-12 pl-12 pr-4 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring" style="border-radius: 8px;">
-                    </div>
-                </div>
-            </section>
-
-
-            <!-- Results Section -->
-            <section class="py-4 bg-gray-50 dark:bg-gray-800 border-b border-secondary dark:border-gray-800">
-                <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                    <div class="flex items-center justify-between">
-                        <p class="text-gray-600 dark:text-gray-400">
-                            Rodoma <span id="creators-count" class="font-semibold text-gray-900 dark:text-white">...</span> kūrėjų
-                        </p>
-                        <select id="creator-sort" class="px-4 py-2 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white text-sm focus-ring" style="border-radius: 6px;">
-                            <option value="rating">Pagal įvertinimą</option>
-                            <option value="reviews">Pagal atsiliepimus</option>
-                            <option value="price-low">Kaina: mažiausia</option>
-                            <option value="price-high">Kaina: didžiausia</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Behance-inspired Creator Grid -->
-            <section class="py-8">
-                <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                    <div id="creators-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Loaded dynamically from Supabase -->
-                    </div>
-
-                    <!-- Load More Button -->
-                    <div class="text-center mt-12">
-                        <button id="load-more-btn" class="px-8 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold" style="border-radius: 6px;">
-                            Rodyti daugiau
-                        </button>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 dark:bg-black text-gray-400 py-16 border-t border-gray-800 lg:pl-64">
+    <footer class="bg-gray-900 dark:bg-black text-gray-400 py-16 border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                 <div class="col-span-2 md:col-span-1">
@@ -267,7 +282,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">MEDIJUS</span>
                     </div>
                     <p class="text-sm">
                         Viena platforma - visos medijų paslaugos.
@@ -293,14 +308,14 @@
                 <div>
                     <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
                     <ul class="space-y-2 text-sm">
-                        <li>info@artifex.lt</li>
+                        <li>info@medijus.lt</li>
                         <li>+370 600 12345</li>
                         <li>Vilnius, Lietuva</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-8 text-center text-sm">
-                <p>&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <p>&copy; 2026 Medijus. Visos teisės saugomos.</p>
             </div>
         </div>
     </footer>
@@ -310,9 +325,43 @@
     <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/creators.js"></script>
     <script>
+        // --- Login Gate ---
+        (async function checkAccess() {
+            const gate = document.getElementById('kr-gate');
+            const gated = document.getElementById('kr-gated-content');
+            const loading = document.getElementById('kr-gate-loading');
+            const login = document.getElementById('kr-gate-login');
+
+            function showLogin() {
+                loading.classList.add('hidden');
+                login.classList.remove('hidden');
+            }
+            function showContent() {
+                gate.classList.add('hidden');
+                gated.classList.remove('hidden');
+            }
+
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    showContent();
+                } else {
+                    showLogin();
+                }
+            } catch (e) {
+                console.error('Gate check failed:', e);
+                showLogin();
+            }
+
+            // Re-check on auth state changes (e.g. user logs in via another tab)
+            supabase.auth.onAuthStateChange((_event, session) => {
+                if (session?.user) showContent();
+            });
+        })();
+
         // Theme Toggle
         const themeToggle = document.getElementById('theme-toggle');
         const html = document.documentElement;

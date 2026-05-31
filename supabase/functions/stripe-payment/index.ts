@@ -6,14 +6,12 @@
 //   SITE_URL            — e.g. https://mediju-puslapio-projektas.vercel.app
 //
 // Flow: client posts { order_id }, server re-reads price + creator from DB
-// (never trusts client amount), creates Checkout Session with destination
-// charge → 10 % platform fee, 90 % auto-transferred to creator's Connect
-// account when the payment succeeds.
+// (never trusts client amount), creates Checkout Session. Funds land in the
+// platform's Stripe balance (escrow). Transfer to creator happens later in
+// order-approve once the client confirms (or auto-approves after 7 days).
 
 import Stripe from "https://esm.sh/stripe@17.5.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const PLATFORM_FEE_PERCENT = 10;
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
     httpClient: Stripe.createFetchHttpClient(),
@@ -89,8 +87,9 @@ Deno.serve(async (req: Request) => {
         if (!Number.isFinite(amountCents) || amountCents < 50) {
             return json({ error: "Invalid amount" }, 400);
         }
-        const feeCents = Math.round((amountCents * PLATFORM_FEE_PERCENT) / 100);
 
+        // No transfer_data / application_fee_amount: funds land in platform balance.
+        // The 90% transfer to the creator is initiated in order-approve.
         const session = await stripe.checkout.sessions.create({
             mode: "payment",
             payment_method_types: ["card"],
@@ -99,12 +98,10 @@ Deno.serve(async (req: Request) => {
                 price_data: {
                     currency: "eur",
                     unit_amount: amountCents,
-                    product_data: { name: order.service_name ?? "Artifex paslauga" },
+                    product_data: { name: order.service_name ?? "Medijus paslauga" },
                 },
             }],
             payment_intent_data: {
-                application_fee_amount: feeCents,
-                transfer_data: { destination: creator.stripe_account_id },
                 metadata: { order_id: order.id, creator_id: creator.id, user_id: userId },
             },
             metadata: { order_id: order.id },
@@ -114,6 +111,9 @@ Deno.serve(async (req: Request) => {
         }, {
             idempotencyKey: `checkout_session_${order.id}`,
         });
+
+        const PLATFORM_FEE_PERCENT = 10;
+        const feeCents = Math.round((amountCents * PLATFORM_FEE_PERCENT) / 100);
 
         await admin.from("orders").update({
             stripe_checkout_session_id: session.id,

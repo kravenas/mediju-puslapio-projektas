@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Kūrėjo Profilis - Artifex</title>
+    <title id="page-title">Kūrėjo Profilis - Medijus</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,7 +118,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">MEDIJUS</span>
                     </a>
                     <a href="kurejai.html" class="hidden sm:flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
@@ -209,6 +209,14 @@
                         <div id="profile-info-panel"></div>
                     </div>
 
+                    <!-- Portfolio -->
+                    <div id="portfolio-section" class="section-card hidden">
+                        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Portfolio</h2>
+                        <div id="creator-portfolio" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <div class="text-sm text-gray-400 col-span-full">Kraunama...</div>
+                        </div>
+                    </div>
+
                     <!-- Reviews -->
                     <div class="section-card">
                         <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Atsiliepimai</h2>
@@ -217,6 +225,18 @@
                         </div>
                     </div>
 
+                </div>
+
+                <!-- Lightbox overlay (hidden by default) -->
+                <div id="portfolio-lightbox" class="hidden fixed inset-0 z-50 bg-black/90 cursor-pointer" style="display:none;">
+                    <div class="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
+                        <img id="portfolio-lightbox-img" src="" alt=""
+                            class="object-contain"
+                            style="max-width:calc(100vw - 2rem); max-height:calc(100vh - 2rem); width:auto; height:auto;">
+                    </div>
+                    <button id="portfolio-lightbox-close" class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-10" style="border-radius:50%;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
                 <!-- Right column: order card -->
@@ -250,16 +270,17 @@
     <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/subscription.js"></script>
     <script>
         // Theme toggle
-        const saved = localStorage.getItem('artifex-theme');
+        const saved = localStorage.getItem('medijus-theme');
         if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         }
         document.getElementById('theme-toggle')?.addEventListener('click', () => {
             const dark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('artifex-theme', dark ? 'dark' : 'light');
+            localStorage.setItem('medijus-theme', dark ? 'dark' : 'light');
         });
     </script>
     <script src="js/kurejas.js"></script>

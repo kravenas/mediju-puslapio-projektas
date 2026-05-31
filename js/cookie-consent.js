@@ -1,5 +1,5 @@
 (function () {
-    const KEY = 'artifex-cookie-consent-v1';
+    const KEY = 'medijus-cookie-consent-v1';
 
     if (localStorage.getItem(KEY)) return;
 

@@ -65,6 +65,7 @@ Deno.serve(async (req: Request) => {
                             ? session.payment_intent
                             : session.payment_intent?.id ?? null,
                         stripe_status: "paid",
+                        status: "paid",
                         paid_at: new Date().toISOString(),
                     }).eq("id", orderId);
                 }

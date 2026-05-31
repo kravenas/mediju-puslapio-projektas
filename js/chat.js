@@ -1,5 +1,5 @@
 // =============================================
-// Artifex Chat / Messaging Module
+// Medijus Chat / Messaging Module
 // =============================================
 
 (function () {
@@ -311,10 +311,42 @@
 
     // --- Send message ---
 
+    const BYPASS_PATTERNS = [
+        { re: /(^|[\s!,.;:?()\[\]"])@[A-Za-z0-9_.]{2,}/u, msg: '@ paminėjimas (Instagram/TikTok/X handle)' },
+        { re: /(instagram\.com|instagr\.am|youtube\.com|youtu\.be|tiktok\.com|facebook\.com|fb\.me|fb\.com|twitter\.com|(^|[^a-z])x\.com|t\.co|snapchat\.com|pinterest\.com|wa\.me|whatsapp\.com|(^|[^a-z])t\.me|telegram\.org|telegram\.me|messenger\.com|signal\.org|viber\.com|skype\.com|linkedin\.com)/i, msg: 'soc. tinklų ar žinučių nuoroda' },
+        { re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, msg: 'el. pašto adresas' },
+        { re: /(\+370[\s\-.]?\d{3}[\s\-.]?\d{2}[\s\-.]?\d{3}|(^|[^0-9])8[\s\-.]?\d{3}[\s\-.]?\d{2}[\s\-.]?\d{3})/, msg: 'telefono numeris' },
+    ];
+
+    function detectBypassContent(text) {
+        for (const { re, msg } of BYPASS_PATTERNS) {
+            if (re.test(text)) return msg;
+        }
+        return null;
+    }
+
+    function showChatError(text) {
+        const container = document.getElementById('chat-messages');
+        if (!container) { alert(text); return; }
+        const el = document.createElement('div');
+        el.className = 'chat-system-error';
+        el.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin:8px 16px;';
+        el.textContent = text;
+        container.appendChild(el);
+        container.scrollTop = container.scrollHeight;
+        setTimeout(() => el.remove(), 6000);
+    }
+
     async function sendMessage() {
         const input = document.getElementById('chat-input');
         const content = input.value.trim();
         if (!content || !currentConversationId) return;
+
+        const bypass = detectBypassContent(content);
+        if (bypass) {
+            showChatError(`Žinutė neišsiųsta: aptiktas ${bypass}. Medijus draudžia keistis kontaktais — bendraukite tik per platformą.`);
+            return;
+        }
 
         input.value = '';
         autoResizeInput(input);
@@ -330,6 +362,10 @@
         if (error) {
             console.error('Error sending message:', error);
             input.value = content;
+            // Surface DB trigger rejection message (in case user bypassed client check)
+            if (/check_violation|Žinutė atmesta|sistemos apėjimas/i.test(error.message || '')) {
+                showChatError(error.message);
+            }
             return;
         }
 
@@ -499,7 +535,7 @@
 
     // --- Expose globally ---
 
-    window.artifexChat = {
+    window.medijusChat = {
         initChat,
         openOrCreateConversation,
     };

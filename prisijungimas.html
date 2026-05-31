@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prisijungimas - Artifex</title>
+    <title>Prisijungimas - Medijus</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
+    <!-- Cloudflare Turnstile (CAPTCHA). Using always-pass test sitekey; replace with real for production. -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <link rel="stylesheet" href="css/tailwind.css">
     <style>
         :root {
@@ -68,7 +70,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">MEDIJUS</span>
                     </a>
                 </div>
 
@@ -238,7 +240,7 @@
                         </div>
 
                         <!-- Terms & Privacy Acceptance -->
-                        <div class="mb-6">
+                        <div class="mb-4">
                             <label class="flex items-start gap-2 cursor-pointer">
                                 <input id="reg-terms" type="checkbox" class="mt-0.5 w-4 h-4 accent-primary cursor-pointer flex-shrink-0">
                                 <span class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -248,10 +250,37 @@
                             <p id="reg-terms-error" class="hidden mt-1 text-xs text-red-500"></p>
                         </div>
 
+                        <!-- Cloudflare Turnstile CAPTCHA -->
+                        <div class="mb-4 flex justify-center">
+                            <div id="reg-turnstile" class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="auto"></div>
+                        </div>
+                        <p id="reg-captcha-error" class="hidden mb-2 text-xs text-red-500 text-center"></p>
+
                         <!-- Submit -->
                         <button id="register-submit" class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold text-sm" style="border-radius: 6px;" onclick="handleRegister()">
-                            Registruotis
+                            Gauti patvirtinimo kodą
                         </button>
+                    </div>
+
+                    <!-- ============ OTP VERIFICATION FORM ============ -->
+                    <div id="form-otp" class="hidden">
+                        <div class="text-center mb-6">
+                            <div class="w-12 h-12 mx-auto bg-primary/10 flex items-center justify-center mb-3" style="border-radius:50%;">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Patikrink el. paštą</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Atsiuntėme 6 skaitmenų kodą į <span id="otp-email-display" class="font-semibold"></span></p>
+                        </div>
+                        <div class="mb-4">
+                            <input type="text" id="otp-code" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code"
+                                class="w-full h-14 px-4 text-center text-2xl tracking-widest font-bold bg-white dark:bg-gray-700 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary"
+                                style="border-radius: 6px; letter-spacing: 0.5rem;">
+                            <p id="otp-error" class="hidden mt-1 text-xs text-red-500 text-center"></p>
+                        </div>
+                        <button id="otp-verify" class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold text-sm" style="border-radius: 6px;">
+                            Patvirtinti
+                        </button>
+                        <p class="text-center text-xs text-gray-500 mt-3">Neatėjo? <button id="otp-resend" class="text-primary hover:underline cursor-pointer">Siųsti iš naujo</button></p>
                     </div>
 
                     <!-- ============ PASSWORD RESET FORM ============ -->
@@ -296,9 +325,9 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <span style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
-                    <span style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                    <span style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">MEDIJUS</span>
                 </div>
-                <p class="text-sm">&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <p class="text-sm">&copy; 2026 Medijus. Visos teisės saugomos.</p>
                 <div class="flex gap-6 text-sm">
                     <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
                     <a href="naudojimo-salygos.html" class="hover:text-primary">Naudojimo sąlygos</a>
@@ -490,7 +519,7 @@
             setLoading('login-submit', true);
 
             try {
-                await window.artifexAuth.signInWithEmail(email, password);
+                await window.medijusAuth.signInWithEmail(email, password);
                 showMessage('Sėkmingai prisijungėte! Nukreipiame...', 'success');
                 const redirectTo = new URLSearchParams(window.location.search).get('redirect');
                 setTimeout(() => { window.location.href = redirectTo || 'index.html'; }, 1000);
@@ -503,6 +532,8 @@
                 setLoading('login-submit', false);
             }
         }
+
+        let pendingRegistration = null; // { email, password, name, role }
 
         async function handleRegister() {
             clearErrors();
@@ -526,13 +557,39 @@
                 valid = false;
             }
 
+            // CAPTCHA check (Cloudflare Turnstile)
+            // Test sitekey passes automatically; only block if real production key is in use AND no token.
+            const turnstileEl = document.getElementById('reg-turnstile');
+            const sitekey = turnstileEl?.dataset?.sitekey || '';
+            const isTestKey = sitekey.startsWith('1x') || sitekey.startsWith('2x') || sitekey.startsWith('3x');
+            let captchaToken = '';
+            if (typeof turnstile !== 'undefined') {
+                try { captchaToken = turnstile.getResponse(turnstileEl) || ''; } catch {}
+            }
+            if (!captchaToken && !isTestKey) {
+                document.getElementById('reg-captcha-error').textContent = 'Patvirtinkite, kad nesate robotas (palaukite kol pasirodys patikra).';
+                document.getElementById('reg-captcha-error').classList.remove('hidden');
+                valid = false;
+            }
+
             if (!valid) return;
 
             setLoading('register-submit', true);
 
             try {
-                await window.artifexAuth.signUpWithEmail(email, password, name, selectedRole);
-                showMessage('Registracija sėkminga! Patikrinkite el. paštą patvirtinimui.', 'success');
+                const signUpOptions = { data: { name, role: selectedRole } };
+                if (captchaToken) signUpOptions.captchaToken = captchaToken;
+                const { error } = await supabase.auth.signUp({ email, password, options: signUpOptions });
+                if (error) throw error;
+
+                pendingRegistration = { email, password, name, role: selectedRole };
+
+                // Switch to OTP form
+                document.getElementById('form-register').classList.add('hidden');
+                document.getElementById('form-otp').classList.remove('hidden');
+                document.getElementById('otp-email-display').textContent = email;
+                document.getElementById('otp-code').focus();
+                showMessage('Patikrinkite el. paštą — atsiuntėme 6 skaitmenų kodą.', 'success');
             } catch (err) {
                 const msg = err.message?.includes('already registered')
                     ? 'Šis el. paštas jau užregistruotas'
@@ -542,6 +599,61 @@
                 setLoading('register-submit', false);
             }
         }
+
+        async function handleOtpVerify() {
+            const codeEl = document.getElementById('otp-code');
+            const errEl = document.getElementById('otp-error');
+            errEl.classList.add('hidden');
+
+            const code = codeEl.value.trim().replace(/\s/g, '');
+            if (!/^\d{6}$/.test(code)) {
+                errEl.textContent = 'Kodas turi būti 6 skaitmenys';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (!pendingRegistration) {
+                errEl.textContent = 'Sesija pasibaigė. Pradėk registraciją iš naujo.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('otp-verify');
+            btn.disabled = true;
+            btn.textContent = 'Tikrinama...';
+            try {
+                const { error } = await supabase.auth.verifyOtp({
+                    email: pendingRegistration.email,
+                    token: code,
+                    type: 'signup',
+                });
+                if (error) throw error;
+                showMessage('El. paštas patvirtintas! Pereinam į profilio užpildymą...', 'success');
+                setTimeout(() => { window.location.href = 'onboarding.html'; }, 800);
+            } catch (err) {
+                errEl.textContent = err.message || 'Neteisingas kodas';
+                errEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = 'Patvirtinti';
+            }
+        }
+
+        async function handleOtpResend() {
+            if (!pendingRegistration?.email) return;
+            try {
+                await supabase.auth.resend({ type: 'signup', email: pendingRegistration.email });
+                showMessage('Kodas išsiųstas iš naujo.', 'success');
+            } catch (err) {
+                showMessage('Klaida: ' + (err.message || ''), 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('otp-verify')?.addEventListener('click', handleOtpVerify);
+            document.getElementById('otp-resend')?.addEventListener('click', handleOtpResend);
+            document.getElementById('otp-code')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleOtpVerify();
+            });
+        });
 
         async function handleReset() {
             clearErrors();
@@ -558,7 +670,7 @@
             setLoading('reset-submit', true);
 
             try {
-                await window.artifexAuth.resetPassword(email);
+                await window.medijusAuth.resetPassword(email);
                 showMessage('Atkūrimo nuoroda išsiųsta! Patikrinkite el. paštą.', 'success');
             } catch (err) {
                 showMessage(err.message || 'Klaida siunčiant nuorodą', 'error');
@@ -570,12 +682,12 @@
         // ========== Google OAuth Buttons ==========
 
         document.getElementById('google-login-btn').addEventListener('click', async () => {
-            try { await window.artifexAuth.signInWithGoogle(); }
+            try { await window.medijusAuth.signInWithGoogle(); }
             catch (err) { showMessage(err.message || 'Klaida jungiantis su Google', 'error'); }
         });
 
         document.getElementById('google-register-btn').addEventListener('click', async () => {
-            try { await window.artifexAuth.signInWithGoogle(); }
+            try { await window.medijusAuth.signInWithGoogle(); }
             catch (err) { showMessage(err.message || 'Klaida jungiantis su Google', 'error'); }
         });
 

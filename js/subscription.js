@@ -1,5 +1,5 @@
 // =============================================
-// Artifex Subscription Module
+// Medijus Subscription Module
 // =============================================
 
 (function () {
@@ -230,7 +230,7 @@
 
     function showWelcomePopup() {
         // Check if already shown
-        if (localStorage.getItem('artifex-welcome-shown')) return;
+        if (localStorage.getItem('medijus-welcome-shown')) return;
 
         const overlay = document.createElement('div');
         overlay.id = 'welcome-popup';
@@ -281,7 +281,7 @@
             if (e.target === overlay) overlay.remove();
         });
 
-        localStorage.setItem('artifex-welcome-shown', 'true');
+        localStorage.setItem('medijus-welcome-shown', 'true');
     }
 
     // --- Show trial expiry banner ---
@@ -375,7 +375,7 @@
 
     // --- Expose globally ---
 
-    window.artifexSubscription = {
+    window.medijusSubscription = {
         getSubscription,
         hasActiveSubscription,
         getDaysRemaining,

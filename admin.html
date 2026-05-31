@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artifex - Admin</title>
+    <title>Medijus - Admin</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,7 @@
             <div class="flex items-center gap-3">
                 <a href="index.html" class="flex items-center gap-3">
                     <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
-                    <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                    <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">MEDIJUS</span>
                 </a>
                 <span class="ml-4 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold uppercase" style="border-radius:4px;">Admin</span>
             </div>
@@ -68,6 +68,14 @@
             </button>
             <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="subscriptions">
                 Prenumeratos
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="disputes">
+                Ginčai
+                <span id="disputes-count" class="ml-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold" style="border-radius:10px;"></span>
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="portfolio-links">
+                Portfolio nuorodos
+                <span id="portfolio-links-count" class="ml-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-bold" style="border-radius:10px;"></span>
             </button>
             <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="analytics">
                 Analitika
@@ -121,6 +129,75 @@
                 </div>
             </div>
             <div id="subscriptions-list" class="space-y-3">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Disputes Tab -->
+        <div id="tab-disputes" class="hidden">
+            <!-- Platform earnings (10% fee) -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Platformos uždarbis (10% komisinis)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-green-700 dark:text-green-300">Uždirbta (užbaigti užsakymai)</p>
+                        <p id="fee-earned" class="text-2xl font-bold text-green-800 dark:text-green-200 mt-1">—</p>
+                        <p id="fee-earned-count" class="text-xs text-green-600 dark:text-green-400 mt-1">— užsakymų</p>
+                    </div>
+                    <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-amber-700 dark:text-amber-300">Laukia (escrow'e)</p>
+                        <p id="fee-pending" class="text-2xl font-bold text-amber-800 dark:text-amber-200 mt-1">—</p>
+                        <p id="fee-pending-count" class="text-xs text-amber-600 dark:text-amber-400 mt-1">— užsakymų</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-800 border border-secondary dark:border-gray-700 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-gray-600 dark:text-gray-400">Iš viso (uždirbta + laukia)</p>
+                        <p id="fee-total" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                        <p id="fee-total-count" class="text-xs text-gray-500 dark:text-gray-400 mt-1">— užsakymų</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Escrow summary -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Platformoje užšaldyti pinigai</h3>
+                <div id="escrow-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Iš viso (EUR)</p>
+                        <p id="escrow-total" class="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
+                        <p id="escrow-total-count" class="text-xs text-gray-400 mt-1">— užsakymų</p>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-blue-700 dark:text-blue-300">Apmokėta, laukia atlikimo</p>
+                        <p id="escrow-paid" class="text-2xl font-bold text-blue-800 dark:text-blue-200 mt-1">—</p>
+                        <p id="escrow-paid-count" class="text-xs text-blue-600 dark:text-blue-400 mt-1">— užsakymų</p>
+                    </div>
+                    <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-amber-700 dark:text-amber-300">Pristatyta, laukia patvirtinimo</p>
+                        <p id="escrow-delivered" class="text-2xl font-bold text-amber-800 dark:text-amber-200 mt-1">—</p>
+                        <p id="escrow-delivered-count" class="text-xs text-amber-600 dark:text-amber-400 mt-1">— užsakymų</p>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" style="border-radius:8px;">
+                        <p class="text-xs text-red-700 dark:text-red-300">Ginčuose / atmesta</p>
+                        <p id="escrow-disputed" class="text-2xl font-bold text-red-800 dark:text-red-200 mt-1">—</p>
+                        <p id="escrow-disputed-count" class="text-xs text-red-600 dark:text-red-400 mt-1">— užsakymų</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Aktyvūs ginčai</h3>
+            <div id="disputes-list" class="space-y-4">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Portfolio Links Tab -->
+        <div id="tab-portfolio-links" class="hidden">
+            <div class="flex items-center gap-3 mb-6">
+                <button class="portfolio-link-filter active px-4 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" style="border-radius:6px;" data-status="pending">Laukia</button>
+                <button class="portfolio-link-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="approved">Patvirtintos</button>
+                <button class="portfolio-link-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="rejected">Atmestos</button>
+            </div>
+            <div id="portfolio-links-list" class="space-y-3">
                 <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
             </div>
         </div>

@@ -82,7 +82,7 @@ async function loadProfile(creatorId) {
     }
 
     // Update page title
-    document.getElementById('page-title').textContent = `${creator.name} - Artifex`;
+    document.getElementById('page-title').textContent = `${creator.name} - Medijus`;
 
     // Hero background
     const hero = document.getElementById('profile-hero');
@@ -179,9 +179,118 @@ async function loadProfile(creatorId) {
         });
     }
 
-    // Load services and reviews in parallel
+    // Load services, reviews, and portfolio in parallel
     loadServices(creatorId, creator);
     loadReviews(creatorId);
+    loadPortfolio(creatorId);
+}
+
+async function loadPortfolio(creatorId) {
+    const section = document.getElementById('portfolio-section');
+    const grid = document.getElementById('creator-portfolio');
+    if (!section || !grid) return;
+
+    // Fetch items + creator's approved external link in parallel
+    const [itemsRes, creatorRes] = await Promise.all([
+        supabase
+            .from('portfolio_items')
+            .select('id, image_url, title, description')
+            .eq('creator_id', creatorId)
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: false }),
+        supabase
+            .from('creators')
+            .select('external_portfolio_url, external_portfolio_status')
+            .eq('id', creatorId)
+            .single(),
+    ]);
+
+    const items = itemsRes.data || [];
+    const extUrl = creatorRes.data?.external_portfolio_status === 'approved'
+        ? creatorRes.data.external_portfolio_url
+        : null;
+
+    if (!items.length && !extUrl) {
+        section.classList.add('hidden');
+        return;
+    }
+
+    section.classList.remove('hidden');
+
+    let html = '';
+    if (items.length) {
+        html += items.map(item => `
+            <button data-portfolio-img="${escapeAttr(item.image_url)}" data-portfolio-title="${escapeAttr(item.title || '')}"
+                class="block bg-gray-100 dark:bg-gray-800 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                style="border-radius:6px; aspect-ratio:1; border:none; padding:0;">
+                <img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.title || '')}" loading="lazy" class="w-full h-full object-cover">
+            </button>
+        `).join('');
+    }
+    grid.innerHTML = html;
+
+    // External link button (if approved)
+    let extBtnContainer = document.getElementById('portfolio-ext-link');
+    if (extUrl) {
+        if (!extBtnContainer) {
+            extBtnContainer = document.createElement('div');
+            extBtnContainer.id = 'portfolio-ext-link';
+            extBtnContainer.className = 'mt-4';
+            grid.parentNode.insertBefore(extBtnContainer, grid.nextSibling);
+        }
+        extBtnContainer.innerHTML = `
+            <a href="${escapeAttr(extUrl)}" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200 text-sm font-semibold"
+                style="border-radius:6px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                Daugiau darbų išorinėje galerijoje
+            </a>
+        `;
+    } else if (extBtnContainer) {
+        extBtnContainer.remove();
+    }
+
+    grid.querySelectorAll('[data-portfolio-img]').forEach(btn => {
+        btn.addEventListener('click', () => openLightbox(btn.dataset.portfolioImg, btn.dataset.portfolioTitle));
+    });
+
+    setupLightbox();
+}
+
+let lightboxWired = false;
+function setupLightbox() {
+    if (lightboxWired) return;
+    lightboxWired = true;
+    const overlay = document.getElementById('portfolio-lightbox');
+    const closeBtn = document.getElementById('portfolio-lightbox-close');
+    if (!overlay) return;
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeLightbox();
+    });
+    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closeLightbox();
+    });
+}
+
+function openLightbox(src, title) {
+    const overlay = document.getElementById('portfolio-lightbox');
+    const img = document.getElementById('portfolio-lightbox-img');
+    if (!overlay || !img) return;
+    img.src = src;
+    img.alt = title || '';
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const overlay = document.getElementById('portfolio-lightbox');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
 }
 
 function renderProfileInfoPanel(creator, profile) {
@@ -198,26 +307,6 @@ function renderProfileInfoPanel(creator, profile) {
     if (creator.price_from) {
         rows.push(['Kaina nuo', `€${escapeHtml(creator.price_from)}${creator.price_label ? ' — ' + escapeHtml(creator.price_label) : ''}`]);
     }
-    if (profile?.phone) rows.push(['Telefonas', escapeHtml(profile.phone)]);
-    if (profile?.website) {
-        rows.push(['Svetainė', `<a href="${safeUrl(profile.website)}" target="_blank" rel="noopener" class="text-primary hover:underline break-all">${escapeHtml(profile.website)}</a>`]);
-    }
-    if (profile?.social_instagram) {
-        const handle = String(profile.social_instagram).replace('@', '').replace(/[^A-Za-z0-9._]/g, '');
-        if (handle) {
-            rows.push(['Instagram', `<a href="https://instagram.com/${escapeAttr(handle)}" target="_blank" rel="noopener" class="text-primary hover:underline">@${escapeHtml(handle)}</a>`]);
-        }
-    }
-    if (profile?.social_facebook) {
-        rows.push(['Facebook', `<a href="${safeUrl(profile.social_facebook)}" target="_blank" rel="noopener" class="text-primary hover:underline break-all">${escapeHtml(profile.social_facebook)}</a>`]);
-    }
-    if (profile?.social_linkedin) {
-        rows.push(['LinkedIn', `<a href="${safeUrl(profile.social_linkedin)}" target="_blank" rel="noopener" class="text-primary hover:underline break-all">${escapeHtml(profile.social_linkedin)}</a>`]);
-    }
-    if (profile?.social_youtube) {
-        rows.push(['YouTube', `<a href="${safeUrl(profile.social_youtube)}" target="_blank" rel="noopener" class="text-primary hover:underline break-all">${escapeHtml(profile.social_youtube)}</a>`]);
-    }
-
     if (rows.length === 0) {
         container.closest('.section-card')?.classList.add('hidden');
         return;
@@ -351,9 +440,9 @@ function renderPackageComparison(packages, actionEl, creatorId) {
         btn.addEventListener('click', () => {
             const card = btn.closest('.pkg-card');
             const service = {
-                id: parseInt(card.dataset.serviceId),
+                id: Number(card.dataset.serviceId),
                 name: card.dataset.serviceName,
-                price: parseInt(card.dataset.servicePrice),
+                price: Number(card.dataset.servicePrice),
             };
             // Highlight selected
             container.querySelectorAll('.pkg-select-btn').forEach(b => {
@@ -394,9 +483,9 @@ function renderLegacyServices(services, container, actionEl, creatorId) {
             container.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedService = {
-                id: parseInt(card.dataset.serviceId),
+                id: Number(card.dataset.serviceId),
                 name: card.dataset.serviceName,
-                price: parseInt(card.dataset.servicePrice),
+                price: Number(card.dataset.servicePrice),
             };
             renderOrderButton(selectedService, actionEl, creatorId);
         });
@@ -485,10 +574,12 @@ async function loadReviews(creatorId) {
         return;
     }
 
+    const firstNameOnly = (s) => (s ? String(s).trim().split(/\s+/)[0] : 'Vartotojas');
+
     container.innerHTML = reviews.map(r => `
         <div class="review-card">
             <div class="flex items-center justify-between mb-1">
-                <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(r.author_name)}</span>
+                <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(firstNameOnly(r.author_name))}</span>
                 <span class="flex">${renderStars(r.rating)}</span>
             </div>
             ${r.content ? `<p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">${escapeHtml(r.content)}</p>` : ''}

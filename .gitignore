@@ -8,7 +8,7 @@ build/
 
 # Dev artefacts
 *-check.png
-artifex-sidebar*.png
+medijus-sidebar*.png
 
 # Font source archives (only the actively-referenced files are committed)
 fonts/*.zip

@@ -92,11 +92,11 @@ function buildSidebarCategories() {
         <div>
             <button class="sidebar-group-toggle flex items-center justify-between w-full mb-1.5 text-left" data-group="${group}">
                 <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">${group}</span>
-                <svg class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transform:rotate(-90deg);">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
             </button>
-            <div class="sidebar-group-cats space-y-1 pl-1">
+            <div class="sidebar-group-cats hidden space-y-1 pl-1">
                 ${slugs.map((slug, i) => `
                     <label class="flex items-center gap-2 cursor-pointer py-0.5">
                         <input type="checkbox" class="cat-filter accent-yellow-400" value="${slug}">
@@ -107,7 +107,6 @@ function buildSidebarCategories() {
         </div>
     `).join('');
 
-    // Toggle collapse
     container.querySelectorAll('.sidebar-group-toggle').forEach(btn => {
         btn.addEventListener('click', () => {
             const cats = btn.nextElementSibling;
@@ -116,7 +115,6 @@ function buildSidebarCategories() {
         });
     });
 
-    // Filter on checkbox change
     container.querySelectorAll('.cat-filter').forEach(cb => {
         cb.addEventListener('change', () => {
             selectedCategorySlugs = [...container.querySelectorAll('.cat-filter:checked')].map(c => c.value);
@@ -128,14 +126,12 @@ function buildSidebarCategories() {
 function setupFilters() {
     buildSidebarCategories();
 
-    // City
     const cityEl = document.getElementById('filter-city');
     if (cityEl) cityEl.addEventListener('change', () => {
         selectedCity = cityEl.value;
         currentPage = 0; allLoaded = false; loadCreators(true);
     });
 
-    // Price range
     const priceEl = document.getElementById('filter-price');
     const priceVal = document.getElementById('filter-price-val');
     if (priceEl) priceEl.addEventListener('input', () => {
@@ -144,7 +140,6 @@ function setupFilters() {
         currentPage = 0; allLoaded = false; loadCreators(true);
     });
 
-    // Rating
     document.querySelectorAll('input[name="filter-rating"]').forEach(radio => {
         radio.addEventListener('change', () => {
             minRating = parseFloat(radio.value);
@@ -152,7 +147,6 @@ function setupFilters() {
         });
     });
 
-    // Clear filters
     const clearBtn = document.getElementById('clear-filters-btn');
     if (clearBtn) clearBtn.addEventListener('click', () => {
         selectedCategorySlugs = []; selectedCity = ''; maxPrice = 500; minRating = 0;
@@ -679,9 +673,9 @@ function renderModalLegacyServices(services, container) {
     container.querySelectorAll('.modal-service').forEach(el => {
         el.addEventListener('click', () => {
             selectModalService(
-                parseInt(el.dataset.serviceId),
+                Number(el.dataset.serviceId),
                 el.dataset.serviceName,
-                parseInt(el.dataset.servicePrice)
+                Number(el.dataset.servicePrice)
             );
         });
     });

@@ -1,5 +1,5 @@
 // =============================================
-// Artifex Profile Page Module
+// Medijus Profile Page Module
 // =============================================
 
 (function () {
@@ -164,12 +164,6 @@
             'profile-form-name': profile.name || user.user_metadata?.name || '',
             'profile-form-bio': profile.bio || '',
             'profile-form-location': profile.location || '',
-            'profile-form-phone': profile.phone || '',
-            'profile-form-website': profile.website || '',
-            'profile-form-instagram': profile.social_instagram || '',
-            'profile-form-facebook': profile.social_facebook || '',
-            'profile-form-linkedin': profile.social_linkedin || '',
-            'profile-form-youtube': profile.social_youtube || ''
         };
 
         for (const [id, val] of Object.entries(fields)) {
@@ -184,7 +178,6 @@
         const name = qs('#profile-form-name')?.value || 'Vardas';
         const bio = qs('#profile-form-bio')?.value || '';
         const location = qs('#profile-form-location')?.value || '';
-        const website = qs('#profile-form-website')?.value || '';
         const initial = name.charAt(0).toUpperCase();
         const role = currentProfile?.role || currentUser?.user_metadata?.role || 'klientas';
         const roleLt = isCreatorRole(role) ? 'Kūrėjas' : 'Klientas';
@@ -193,7 +186,6 @@
         const previewEl = qs('#profile-preview');
         if (!previewEl) return;
 
-        const websiteUrl = website ? (website.startsWith('http') ? website : 'https://' + website) : '';
         previewEl.innerHTML = `
             <div class="text-center">
                 <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center mx-auto mb-3 overflow-hidden">
@@ -214,9 +206,6 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         ${escapeHtml(location)}
                     </p>
-                ` : ''}
-                ${website ? `
-                    <a href="${safeUrl(websiteUrl)}" target="_blank" class="text-sm text-primary hover:underline mt-1 inline-block">${escapeHtml(website.replace(/^https?:\/\//, ''))}</a>
                 ` : ''}
             </div>
         `;
@@ -239,8 +228,13 @@
         if (skelbimasTabBtn && isCreator) {
             skelbimasTabBtn.classList.remove('hidden');
         }
+        const portfolioTabBtn = qs('#portfolio-tab-btn');
+        if (portfolioTabBtn && isCreator) {
+            portfolioTabBtn.classList.remove('hidden');
+        }
 
         let servicesInitialized = false;
+        let portfolioInitialized = false;
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -268,6 +262,15 @@
                     skelbimasInitialized = true;
                     initSkelbimas();
                 }
+                if (target === 'uzsakymai') {
+                    loadOrders(isCreator);
+                }
+                if (target === 'portfolio' && !portfolioInitialized) {
+                    portfolioInitialized = true;
+                    initPortfolio();
+                } else if (target === 'portfolio') {
+                    loadPortfolio();
+                }
             });
         });
 
@@ -281,6 +284,612 @@
             if (creatorStats) creatorStats.classList.add('hidden');
             if (clientStats) clientStats.classList.remove('hidden');
         }
+    }
+
+    // --- Orders (escrow flow) ---
+
+    const STATUS_LABEL = {
+        pending_payment: { label: 'Laukia mokėjimo', cls: 'bg-gray-100 text-gray-700' },
+        paid: { label: 'Apmokėta', cls: 'bg-blue-100 text-blue-700' },
+        delivered: { label: 'Pristatyta', cls: 'bg-amber-100 text-amber-700' },
+        approved: { label: 'Patvirtinta', cls: 'bg-green-100 text-green-700' },
+        rejected: { label: 'Atmesta', cls: 'bg-orange-100 text-orange-700' },
+        disputed: { label: 'Ginčas', cls: 'bg-red-100 text-red-700' },
+        refunded: { label: 'Grąžinta klientui', cls: 'bg-purple-100 text-purple-700' },
+        released: { label: 'Atiduota kūrėjui', cls: 'bg-green-100 text-green-700' },
+    };
+
+    function escHtml(s) {
+        return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
+    }
+
+    function daysLeft(deadlineIso) {
+        if (!deadlineIso) return 0;
+        const ms = new Date(deadlineIso).getTime() - Date.now();
+        return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+    }
+
+    async function loadOrders(isCreator) {
+        const container = qs('#orders-panel-content');
+        if (!container) return;
+        container.innerHTML = '<p class="text-sm text-gray-400">Kraunama...</p>';
+
+        let query;
+        if (isCreator) {
+            const creatorId = creatorData?.id;
+            if (!creatorId) {
+                container.innerHTML = '<p class="text-sm text-gray-400">Pirmiausia užpildykite kūrėjo profilį.</p>';
+                return;
+            }
+            query = supabase.from('orders').select('*').eq('creator_id', creatorId);
+        } else {
+            query = supabase.from('orders').select('*, creators(id, name)').eq('user_id', currentUser.id);
+        }
+
+        const { data: orders, error } = await query.order('created_at', { ascending: false });
+        if (error) {
+            container.innerHTML = `<p class="text-sm text-red-500">Klaida: ${escHtml(error.message)}</p>`;
+            return;
+        }
+
+        // For clients: fetch which orders already have a review (so we can hide the button)
+        let reviewedOrderIds = new Set();
+        if (!isCreator && orders?.length) {
+            const orderIds = orders.map(o => o.id);
+            const { data: existingReviews } = await supabase
+                .from('reviews')
+                .select('order_id')
+                .in('order_id', orderIds);
+            reviewedOrderIds = new Set((existingReviews || []).map(r => r.order_id));
+        }
+        // Stash on a variable accessible by renderOrderCard
+        window.__medijusReviewedOrderIds = reviewedOrderIds;
+
+        const visible = (orders || []).filter(o => o.status !== 'pending_payment');
+
+        // Escrow summary (orders not yet settled)
+        const ESCROW_STATUSES = ['paid', 'delivered', 'rejected', 'disputed'];
+        const escrow = visible.filter(o => ESCROW_STATUSES.includes(o.status));
+        const escrowCents = escrow.reduce((sum, o) => {
+            if (isCreator) {
+                return sum + ((o.amount_cents || 0) - (o.platform_fee_cents || 0));
+            }
+            return sum + (o.amount_cents || 0);
+        }, 0);
+        const escrowEur = (escrowCents / 100).toFixed(2);
+
+        const summaryHtml = `
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4" style="border-radius:8px;">
+                    <p class="text-xs text-amber-700 dark:text-amber-300">${isCreator ? 'Užšaldyta (kol darbas patvirtintas)' : 'Tavo mokėjimai escrow\'e'}</p>
+                    <p class="text-2xl font-bold text-amber-800 dark:text-amber-200 mt-1">€${escrowEur}</p>
+                    <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">${escrow.length} užsakym${escrow.length === 1 ? 'as' : 'ai'}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-700 p-4" style="border-radius:8px;">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">${isCreator ? 'Laukia tavo veiksmų' : 'Laukia tavo patvirtinimo'}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${
+                        visible.filter(o => isCreator ? o.status === 'paid' : o.status === 'delivered').length
+                    }</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">užsakym${visible.filter(o => isCreator ? o.status === 'paid' : o.status === 'delivered').length === 1 ? 'as' : 'ai'}</p>
+                </div>
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4" style="border-radius:8px;">
+                    <p class="text-xs text-green-700 dark:text-green-300">${isCreator ? 'Sėkmingai gauta' : 'Užbaigti užsakymai'}</p>
+                    <p class="text-2xl font-bold text-green-800 dark:text-green-200 mt-1">€${(
+                        visible.filter(o => o.status === 'approved' || o.status === 'released')
+                            .reduce((s, o) => s + (isCreator ? (o.amount_cents || 0) - (o.platform_fee_cents || 0) : (o.amount_cents || 0)), 0) / 100
+                    ).toFixed(2)}</p>
+                    <p class="text-xs text-green-600 dark:text-green-400 mt-1">${
+                        visible.filter(o => o.status === 'approved' || o.status === 'released').length
+                    } užsakym${visible.filter(o => o.status === 'approved' || o.status === 'released').length === 1 ? 'as' : 'ai'}</p>
+                </div>
+            </div>
+        `;
+
+        if (visible.length === 0) {
+            container.innerHTML = `<div class="bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 text-center" style="border-radius:8px;">
+                <p class="text-sm text-gray-500 dark:text-gray-400">${isCreator ? 'Užsakymų dar nėra.' : 'Neturite užsakymų.'}</p>
+            </div>`;
+            return;
+        }
+
+        // Badge — count orders needing action
+        const actionCount = visible.filter(o =>
+            isCreator ? o.status === 'paid' : o.status === 'delivered'
+        ).length;
+        const badge = qs('#orders-badge');
+        if (badge) {
+            badge.textContent = String(actionCount);
+            badge.classList.toggle('hidden', actionCount === 0);
+        }
+
+        container.innerHTML = summaryHtml + visible.map(o => renderOrderCard(o, isCreator)).join('');
+        attachOrderActionListeners(isCreator);
+    }
+
+    function renderOrderCard(o, isCreator) {
+        const meta = STATUS_LABEL[o.status] || { label: o.status, cls: 'bg-gray-100 text-gray-700' };
+        const amount = (o.amount_cents != null) ? (o.amount_cents / 100).toFixed(2) : Number(o.amount || 0).toFixed(2);
+        const partyLabel = isCreator ? 'Klientas' : 'Kūrėjas';
+        const partyName = isCreator ? '(užsakovas)' : escHtml(o.creators?.name || '—');
+
+        let action = '';
+        if (isCreator && o.status === 'paid') {
+            action = `<button data-action="deliver" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Pažymėti kaip atlikta</button>`;
+        } else if (!isCreator && o.status === 'delivered') {
+            const left = daysLeft(o.approval_deadline);
+            action = `
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button data-action="approve" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">✓ Patvirtinu</button>
+                    <button data-action="reject" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Atmesti</button>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Liko ${left}d. auto-patvirtinimui</p>
+            `;
+        } else if (!isCreator && o.status === 'rejected') {
+            const left = daysLeft(o.resolution_deadline);
+            action = `
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button data-action="approve" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">✓ Vis dėlto patvirtinti</button>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Liko ${left}d. iki eskalavimo admin'ui</p>
+            `;
+        } else if (!isCreator && (o.status === 'approved' || o.status === 'released')) {
+            const reviewed = window.__medijusReviewedOrderIds?.has(o.id);
+            if (!reviewed) {
+                action = `<button onclick="openReviewForOrder('${escHtml(o.id)}', '${escHtml(o.creator_id)}', '${escHtml(o.creators?.name || '')}')" class="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200 text-sm font-semibold cursor-pointer flex items-center gap-1.5" style="border-radius:4px;">⭐ Palikti atsiliepimą</button>`;
+            } else {
+                action = '<p class="text-xs text-gray-400">✓ Atsiliepimas paliktas</p>';
+            }
+        }
+
+        const rejectInfo = o.status === 'rejected' && o.rejection_reason ? `
+            <div class="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-sm" style="border-radius:6px;">
+                <strong class="text-orange-700 dark:text-orange-400">Atmetimo priežastis:</strong>
+                <p class="text-gray-700 dark:text-gray-300 mt-1">${escHtml(o.rejection_reason)}</p>
+            </div>` : '';
+
+        return `
+            <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-4 mb-3" style="border-radius:8px;">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                    <div>
+                        <h4 class="font-bold text-gray-900 dark:text-white">${escHtml(o.service_name || 'Paslauga')}</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${partyLabel}: ${partyName} • €${amount} • ${formatDate(o.created_at)}</p>
+                    </div>
+                    <span class="px-2 py-1 text-[11px] font-semibold ${meta.cls} dark:bg-opacity-20" style="border-radius:4px;">${meta.label}</span>
+                </div>
+                ${rejectInfo}
+                <div class="mt-3">${action}</div>
+            </div>
+        `;
+    }
+
+    function attachOrderActionListeners(isCreator) {
+        qsa('[data-action="deliver"]').forEach(btn => {
+            btn.addEventListener('click', () => handleOrderAction('deliver', btn.dataset.orderId, btn, isCreator));
+        });
+        qsa('[data-action="approve"]').forEach(btn => {
+            btn.addEventListener('click', () => handleOrderAction('approve', btn.dataset.orderId, btn, isCreator));
+        });
+        qsa('[data-action="reject"]').forEach(btn => {
+            btn.addEventListener('click', () => handleOrderAction('reject', btn.dataset.orderId, btn, isCreator));
+        });
+    }
+
+    async function handleOrderAction(action, orderId, btn, isCreator) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            alert('Sesija pasibaigė. Prisijunkite iš naujo.');
+            return;
+        }
+
+        let endpoint, body;
+        if (action === 'deliver') {
+            if (!confirm('Pažymėti šį užsakymą kaip atliktą? Klientas turės 7d patvirtinti arba atmesti.')) return;
+            endpoint = 'order-mark-delivered';
+            body = { order_id: orderId };
+        } else if (action === 'approve') {
+            if (!confirm('Patvirtinti darbą? Kūrėjui bus pervedami pinigai.')) return;
+            endpoint = 'order-approve';
+            body = { order_id: orderId };
+        } else if (action === 'reject') {
+            const reason = prompt('Kodėl atmetate darbą? (min 10 simbolių, bus matomas kūrėjui)');
+            if (!reason || reason.trim().length < 10) {
+                alert('Priežastis privaloma (min 10 simbolių).');
+                return;
+            }
+            endpoint = 'order-reject';
+            body = { order_id: orderId, reason };
+        } else {
+            return;
+        }
+
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = 'Vykdoma...';
+
+        try {
+            const resp = await fetch(`${SUPABASE_URL}/functions/v1/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify(body),
+            });
+            const result = await resp.json();
+            if (!resp.ok || result.error) throw new Error(result.error || 'Klaida');
+
+            // After client approves: prompt for review (highest conversion moment)
+            if (action === 'approve' && !isCreator) {
+                const order = (await supabase.from('orders').select('creator_id, creators(id, name)').eq('id', orderId).single()).data;
+                if (order?.creator_id) {
+                    showReviewModal(orderId, order.creator_id, order.creators?.name || 'kūrėjas');
+                }
+            }
+            await loadOrders(isCreator);
+        } catch (err) {
+            alert('Klaida: ' + err.message);
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+
+    // --- Reviews ---
+
+    function firstNameOnly(fullName) {
+        if (!fullName) return 'Vartotojas';
+        // Take only first word — strip surname
+        return String(fullName).trim().split(/\s+/)[0];
+    }
+
+    let reviewModalWired = false;
+    function ensureReviewModal() {
+        if (qs('#review-modal')) return;
+        const modal = document.createElement('div');
+        modal.id = 'review-modal';
+        modal.className = 'fixed inset-0 z-50 bg-black/60 hidden items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-gray-900 max-w-md w-full p-6" style="border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Įvertink kūrėją</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Pasidalink patirtimi su <span id="review-creator-name" class="font-semibold text-gray-900 dark:text-white"></span></p>
+                <div class="flex justify-center gap-1 mb-4" id="review-stars">
+                    ${[1,2,3,4,5].map(n => `<button data-rating="${n}" class="review-star text-4xl text-gray-300 hover:text-primary transition-colors cursor-pointer">★</button>`).join('')}
+                </div>
+                <textarea id="review-content" placeholder="Trumpas atsiliepimas (neprivaloma, max 500 simb.)" maxlength="500" rows="4" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white text-sm focus-ring mb-4 resize-none" style="border-radius:6px;"></textarea>
+                <p id="review-msg" class="text-xs text-red-500 hidden mb-3"></p>
+                <div class="flex gap-2 justify-end">
+                    <button id="review-skip" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Praleisti</button>
+                    <button id="review-submit" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold cursor-pointer" style="border-radius:6px;">Pateikti</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    function showReviewModal(orderId, creatorId, creatorName) {
+        ensureReviewModal();
+        const modal = qs('#review-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        qs('#review-creator-name').textContent = creatorName;
+        qs('#review-content').value = '';
+        qs('#review-msg').classList.add('hidden');
+        let rating = 0;
+        qsa('.review-star').forEach(s => s.classList.remove('text-primary'));
+        qsa('.review-star').forEach(s => s.classList.add('text-gray-300'));
+
+        qsa('.review-star').forEach(star => {
+            star.onclick = () => {
+                rating = parseInt(star.dataset.rating);
+                qsa('.review-star').forEach(s => {
+                    const r = parseInt(s.dataset.rating);
+                    s.classList.toggle('text-primary', r <= rating);
+                    s.classList.toggle('text-gray-300', r > rating);
+                });
+            };
+        });
+
+        qs('#review-skip').onclick = () => modal.classList.add('hidden');
+
+        qs('#review-submit').onclick = async () => {
+            const msg = qs('#review-msg');
+            msg.classList.add('hidden');
+            if (rating < 1) {
+                msg.textContent = 'Pasirink bent 1 žvaigždutę.';
+                msg.classList.remove('hidden');
+                return;
+            }
+            const content = qs('#review-content').value.trim().slice(0, 500);
+            const authorName = firstNameOnly(currentProfile?.name || currentUser?.user_metadata?.name || currentUser?.email);
+
+            const { error } = await supabase.from('reviews').insert({
+                creator_id: creatorId,
+                order_id: orderId,
+                reviewer_user_id: currentUser.id,
+                author_name: authorName,
+                author_location: currentProfile?.location || null,
+                rating,
+                content: content || null,
+            });
+            if (error) {
+                msg.textContent = 'Klaida: ' + error.message;
+                msg.classList.remove('hidden');
+                return;
+            }
+            modal.classList.add('hidden');
+        };
+    }
+
+    async function openReviewForOrder(orderId, creatorId, creatorName) {
+        showReviewModal(orderId, creatorId, creatorName);
+    }
+    window.openReviewForOrder = openReviewForOrder;
+
+    // --- Portfolio ---
+
+    const BLOCKED_PORTFOLIO_DOMAINS = [
+        'instagram.com', 'instagr.am',
+        'youtube.com', 'youtu.be',
+        'tiktok.com',
+        'facebook.com', 'fb.com', 'fb.me',
+        'twitter.com', 'x.com', 't.co',
+        'snapchat.com', 'pinterest.com',
+        'wa.me', 'whatsapp.com',
+        'mailto:', 'tel:',
+        't.me', 'telegram.org',
+    ];
+
+    function validateExternalPortfolioUrl(raw) {
+        if (!raw) return { ok: false, error: 'Įveskite URL' };
+        let u;
+        try {
+            u = new URL(raw);
+        } catch {
+            return { ok: false, error: 'Neteisingas URL formatas (turi prasidėti https://)' };
+        }
+        if (!['http:', 'https:'].includes(u.protocol)) {
+            return { ok: false, error: 'Tinka tik http/https nuorodos' };
+        }
+        const host = u.hostname.toLowerCase().replace(/^www\./, '');
+        const blocked = BLOCKED_PORTFOLIO_DOMAINS.find(d => host === d || host.endsWith('.' + d));
+        if (blocked) {
+            return { ok: false, error: `Domain'as "${host}" neleidžiamas. Naudok Vimeo, Loom, Behance, Frame.io ar Google Drive.` };
+        }
+        return { ok: true, url: u.toString() };
+    }
+
+    function renderExtPortfolioStatus() {
+        const badge = qs('#ext-portfolio-status');
+        const input = qs('#ext-portfolio-url');
+        if (!badge || !input || !creatorData) return;
+
+        const url = creatorData.external_portfolio_url || '';
+        const status = creatorData.external_portfolio_status || 'none';
+        input.value = url;
+
+        const cfg = {
+            none: { label: 'Nepateikta', cls: 'bg-gray-100 text-gray-600' },
+            pending: { label: 'Laukia admin patvirtinimo', cls: 'bg-yellow-100 text-yellow-700' },
+            approved: { label: '✓ Patvirtinta — matoma viešai', cls: 'bg-green-100 text-green-700' },
+            rejected: { label: '✗ Atmesta admin', cls: 'bg-red-100 text-red-700' },
+        }[status] || { label: status, cls: 'bg-gray-100 text-gray-600' };
+
+        badge.textContent = cfg.label;
+        badge.className = `ml-2 text-[10px] font-bold px-2 py-0.5 ${cfg.cls}`;
+        badge.style.borderRadius = '4px';
+        badge.classList.remove('hidden');
+
+        if (status === 'rejected' && creatorData.external_portfolio_admin_note) {
+            const msg = qs('#ext-portfolio-msg');
+            if (msg) {
+                msg.classList.remove('hidden');
+                msg.className = 'text-xs mt-2 text-red-600';
+                msg.textContent = 'Admin pastaba: ' + creatorData.external_portfolio_admin_note;
+            }
+        }
+    }
+
+    async function saveExternalPortfolioUrl() {
+        const input = qs('#ext-portfolio-url');
+        const msg = qs('#ext-portfolio-msg');
+        const btn = qs('#ext-portfolio-save-btn');
+        if (!input || !creatorData?.id) return;
+
+        const raw = input.value.trim();
+
+        if (!raw) {
+            // Clear existing URL
+            const { error } = await supabase.from('creators').update({
+                external_portfolio_url: null,
+                external_portfolio_status: 'none',
+                external_portfolio_submitted_at: null,
+                external_portfolio_reviewed_at: null,
+                external_portfolio_admin_note: null,
+            }).eq('id', creatorData.id);
+            if (error) { if (msg) { msg.classList.remove('hidden'); msg.className = 'text-xs mt-2 text-red-600'; msg.textContent = 'Klaida: ' + error.message; } return; }
+            creatorData.external_portfolio_url = null;
+            creatorData.external_portfolio_status = 'none';
+            renderExtPortfolioStatus();
+            if (msg) { msg.classList.remove('hidden'); msg.className = 'text-xs mt-2 text-green-600'; msg.textContent = 'Nuoroda pašalinta.'; }
+            return;
+        }
+
+        const v = validateExternalPortfolioUrl(raw);
+        if (!v.ok) {
+            if (msg) { msg.classList.remove('hidden'); msg.className = 'text-xs mt-2 text-red-600'; msg.textContent = v.error; }
+            return;
+        }
+
+        if (btn) { btn.disabled = true; btn.textContent = 'Saugoma...'; }
+        const { error } = await supabase.from('creators').update({
+            external_portfolio_url: v.url,
+            external_portfolio_status: 'pending',
+            external_portfolio_submitted_at: new Date().toISOString(),
+            external_portfolio_reviewed_at: null,
+            external_portfolio_admin_note: null,
+        }).eq('id', creatorData.id);
+        if (btn) { btn.disabled = false; btn.textContent = 'Išsaugoti'; }
+
+        if (error) {
+            if (msg) { msg.classList.remove('hidden'); msg.className = 'text-xs mt-2 text-red-600'; msg.textContent = 'Klaida: ' + error.message; }
+            return;
+        }
+        creatorData.external_portfolio_url = v.url;
+        creatorData.external_portfolio_status = 'pending';
+        renderExtPortfolioStatus();
+        if (msg) { msg.classList.remove('hidden'); msg.className = 'text-xs mt-2 text-green-600'; msg.textContent = 'Nuoroda išsaugota ir laukia admin patvirtinimo.'; }
+    }
+
+    function initPortfolio() {
+        const dropzone = qs('#portfolio-dropzone');
+        const fileInput = qs('#portfolio-file-input');
+        if (!dropzone || !fileInput) return;
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handlePortfolioFiles(e.target.files));
+
+        // External portfolio link section
+        const extSaveBtn = qs('#ext-portfolio-save-btn');
+        if (extSaveBtn) extSaveBtn.addEventListener('click', saveExternalPortfolioUrl);
+        renderExtPortfolioStatus();
+
+        ['dragenter', 'dragover'].forEach(ev => {
+            dropzone.addEventListener(ev, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('border-primary', 'bg-primary/5');
+            });
+        });
+        ['dragleave', 'drop'].forEach(ev => {
+            dropzone.addEventListener(ev, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary/5');
+            });
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer?.files?.length) handlePortfolioFiles(e.dataTransfer.files);
+        });
+
+        loadPortfolio();
+    }
+
+    async function loadPortfolio() {
+        const grid = qs('#portfolio-grid');
+        const countEl = qs('#portfolio-count');
+        if (!grid || !creatorData?.id) return;
+
+        grid.innerHTML = '<p class="text-sm text-gray-400 col-span-full text-center py-6">Kraunama...</p>';
+
+        const { data: items, error } = await supabase
+            .from('portfolio_items')
+            .select('*')
+            .eq('creator_id', creatorData.id)
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            grid.innerHTML = `<p class="text-sm text-red-500 col-span-full">Klaida: ${escHtml(error.message)}</p>`;
+            return;
+        }
+
+        if (countEl) {
+            countEl.textContent = `${items?.length || 0} darb${items?.length === 1 ? 'as' : 'ai'}`;
+        }
+
+        if (!items?.length) {
+            grid.innerHTML = `<div class="col-span-full text-center py-10 text-sm text-gray-400">Dar nėra įkeltų darbų. Pradėk virš.</div>`;
+            return;
+        }
+
+        grid.innerHTML = items.map(item => `
+            <div class="relative group bg-gray-100 dark:bg-gray-800 overflow-hidden" style="border-radius:8px; aspect-ratio:1;">
+                <img src="${escHtml(item.image_url)}" alt="${escHtml(item.title || '')}" class="w-full h-full object-cover" loading="lazy">
+                <button data-delete-portfolio="${escHtml(item.id)}" data-storage-path="${escHtml(item.storage_path || '')}"
+                    class="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    style="border-radius:50%;" title="Ištrinti">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                ${item.title ? `<div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent text-white text-xs">${escHtml(item.title)}</div>` : ''}
+            </div>
+        `).join('');
+
+        grid.querySelectorAll('[data-delete-portfolio]').forEach(btn => {
+            btn.addEventListener('click', () => deletePortfolioItem(btn.dataset.deletePortfolio, btn.dataset.storagePath));
+        });
+    }
+
+    async function handlePortfolioFiles(fileList) {
+        const msg = qs('#portfolio-msg');
+        if (!creatorData?.id || !currentUser?.id) return;
+
+        const files = Array.from(fileList);
+        if (!files.length) return;
+
+        const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+        const valid = files.filter(f => allowed.includes(f.type) && f.size <= 10 * 1024 * 1024);
+        const skipped = files.length - valid.length;
+
+        if (msg) {
+            msg.classList.remove('hidden', 'text-red-500', 'text-green-600');
+            msg.classList.add('text-gray-600');
+            msg.textContent = `Įkeliama ${valid.length} failų${skipped ? ` (${skipped} praleisti — netinkamas formatas/dydis)` : ''}...`;
+        }
+
+        let uploaded = 0, failed = 0, lastError = null;
+        const baseOrder = Date.now();
+
+        for (let i = 0; i < valid.length; i++) {
+            const file = valid[i];
+            const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+            const path = `${currentUser.id}/${baseOrder}_${i}.${ext}`;
+
+            const { error: upErr } = await supabase.storage
+                .from('portfolios')
+                .upload(path, file, { cacheControl: '3600', upsert: false });
+
+            if (upErr) { failed++; continue; }
+
+            const { data: urlData } = supabase.storage.from('portfolios').getPublicUrl(path);
+            const publicUrl = urlData?.publicUrl;
+            if (!publicUrl) { failed++; continue; }
+
+            const { error: insErr } = await supabase.from('portfolio_items').insert({
+                creator_id: creatorData.id,
+                image_url: publicUrl,
+                storage_path: path,
+                display_order: baseOrder + i,
+            });
+
+            if (insErr) {
+                console.error('portfolio insert failed', insErr);
+                lastError = insErr.message;
+                await supabase.storage.from('portfolios').remove([path]).catch(() => { });
+                failed++;
+            } else {
+                uploaded++;
+            }
+        }
+
+        if (msg) {
+            if (failed === 0) {
+                msg.className = 'text-sm text-green-600 mb-4';
+                msg.textContent = `Įkelta sėkmingai: ${uploaded} darb${uploaded === 1 ? 'as' : 'ai'}. ✓`;
+            } else {
+                msg.className = 'text-sm text-amber-600 mb-4';
+                msg.textContent = `Įkelta ${uploaded}, nepavyko ${failed}${lastError ? ': ' + lastError : ''}.`;
+            }
+        }
+
+        await loadPortfolio();
+    }
+
+    async function deletePortfolioItem(itemId, storagePath) {
+        if (!confirm('Ištrinti šį darbą iš portfolio?')) return;
+        const { error: delErr } = await supabase.from('portfolio_items').delete().eq('id', itemId);
+        if (delErr) { alert('Klaida: ' + delErr.message); return; }
+        if (storagePath) {
+            await supabase.storage.from('portfolios').remove([storagePath]).catch(() => { });
+        }
+        await loadPortfolio();
     }
 
     // --- Avatar Upload ---
@@ -384,12 +993,6 @@
                 name,
                 bio: qs('#profile-form-bio')?.value?.trim() || null,
                 location: qs('#profile-form-location')?.value?.trim() || null,
-                phone: qs('#profile-form-phone')?.value?.trim() || null,
-                website: qs('#profile-form-website')?.value?.trim() || null,
-                social_instagram: qs('#profile-form-instagram')?.value?.trim() || null,
-                social_facebook: qs('#profile-form-facebook')?.value?.trim() || null,
-                social_linkedin: qs('#profile-form-linkedin')?.value?.trim() || null,
-                social_youtube: qs('#profile-form-youtube')?.value?.trim() || null
             };
 
             const { error } = await supabase.from('profiles').upsert(updates);
@@ -601,7 +1204,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `artifex-mano-duomenys-${new Date().toISOString().slice(0, 10)}.json`;
+            a.download = `medijus-mano-duomenys-${new Date().toISOString().slice(0, 10)}.json`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -885,6 +1488,12 @@
         renderStripeConnectSection();
         wireStripeConnectButton();
 
+        // Auto-sync Stripe state if user just returned from onboarding
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('stripe') === 'return' || params.get('stripe') === 'refresh') {
+            syncStripeStatus();
+        }
+
         // Toggle listeners
         TIERS.forEach(tier => {
             const toggle = qs(`#pkg-${tier}-on`);
@@ -944,6 +1553,26 @@
         }
     }
 
+    async function syncStripeStatus() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        try {
+            await fetch(`${SUPABASE_URL}/functions/v1/stripe-connect-onboard`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+            });
+            // Refresh local creator data after server sync
+            const { data: refreshed } = await supabase.from('creators').select('*').eq('user_id', currentUser.id).single();
+            if (refreshed) {
+                creatorData = refreshed;
+                renderStripeConnectSection();
+            }
+        } catch (_) { /* non-fatal */ }
+    }
+
     function wireStripeConnectButton() {
         const btn = qs('#stripe-connect-btn');
         if (!btn || btn.dataset.wired) return;
@@ -974,6 +1603,23 @@
             });
             const result = await resp.json();
             if (!resp.ok || result.error) throw new Error(result.error || 'Nepavyko gauti registracijos nuorodos');
+
+            if (result.already_complete) {
+                // Stripe says we're done — refresh creator data from DB (server already synced) and re-render.
+                const { data: refreshed } = await supabase.from('creators').select('*').eq('user_id', currentUser.id).single();
+                if (refreshed) {
+                    creatorData = refreshed;
+                    renderStripeConnectSection();
+                }
+                btn.disabled = false;
+                btn.textContent = original;
+                if (msg) {
+                    msg.classList.remove('hidden', 'text-red-500');
+                    msg.classList.add('text-green-600');
+                    msg.textContent = 'Mokėjimai aktyvuoti. ✓';
+                }
+                return;
+            }
             window.location.href = result.url;
         } catch (err) {
             btn.disabled = false;
@@ -1029,10 +1675,22 @@
             'skel-location': data.location || '',
             'skel-price':    data.price_from != null ? data.price_from : '',
             'skel-image':    data.image_url || '',
+            'skel-portfolio-target': data.portfolio_target || 10,
         };
         for (const [id, val] of Object.entries(map)) {
             const el = qs(`#${id}`);
             if (el) el.value = val;
+        }
+
+        // Rising star checkbox + conditional fields
+        const risingCheckbox = qs('#skel-rising-star');
+        const risingFields = qs('#skel-rising-fields');
+        if (risingCheckbox) {
+            risingCheckbox.checked = !!data.is_rising_star;
+            if (risingFields) risingFields.classList.toggle('hidden', !data.is_rising_star);
+            risingCheckbox.addEventListener('change', () => {
+                if (risingFields) risingFields.classList.toggle('hidden', !risingCheckbox.checked);
+            });
         }
 
         // Show existing image preview
@@ -1321,14 +1979,20 @@
 
         const creatorName = currentProfile?.name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || '';
 
+        const isRisingStar = !!qs('#skel-rising-star')?.checked;
+        const portfolioTargetRaw = parseInt(qs('#skel-portfolio-target')?.value || '10', 10);
+        const portfolioTarget = isNaN(portfolioTargetRaw) || portfolioTargetRaw < 1 ? 10 : Math.min(portfolioTargetRaw, 100);
+
         const payload = {
             name:        creatorName,
             role,
             bio:         qs('#skel-bio')?.value?.trim()      || null,
             location:    qs('#skel-location')?.value?.trim() || null,
             price_from:  price,
-            price_label: `Nuo €${price}`,
+            price_label: isRisingStar && price === 0 ? 'Nemokama' : `Nuo €${price}`,
             image_url:   qs('#skel-image')?.value?.trim()    || null,
+            is_rising_star: isRisingStar,
+            portfolio_target: isRisingStar ? portfolioTarget : null,
         };
 
         const btn = qs('#save-skelbimas-btn');
@@ -1351,7 +2015,7 @@
             } else {
                 const { data, error } = await supabase
                     .from('creators')
-                    .insert({ ...payload, user_id: currentUser.id, is_rising_star: false, rating: 0, review_count: 0, status: 'pending' })
+                    .insert({ ...payload, user_id: currentUser.id, rating: 0, review_count: 0, portfolio_current: 0, status: 'pending' })
                     .select()
                     .single();
                 if (error) throw error;

@@ -1,6 +1,10 @@
 // =============================================
-// Artifex Admin Panel
+// Medijus Admin Panel
 // =============================================
+
+console.log('[admin] script loaded', new Date().toISOString());
+window.addEventListener('error', e => console.error('[admin] window error:', e.message, e.filename, e.lineno));
+window.addEventListener('unhandledrejection', e => console.error('[admin] unhandled rejection:', e.reason));
 
 const ADMIN_EMAILS = ['kkleivaarnas@gmail.com'];
 
@@ -23,9 +27,31 @@ function isAdmin(email) {
 let adminInitialized = false;
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[admin] DOMContentLoaded fired, supabase defined:', typeof supabase !== 'undefined');
+    if (typeof supabase === 'undefined') {
+        hideLoading();
+        document.getElementById('access-denied').classList.remove('hidden');
+        document.getElementById('access-denied').innerHTML = '<p class="text-red-500">Klaida: supabase client neužkrautas. Patikrinkite konsolę.</p>';
+        return;
+    }
+
+    // Hard timeout: if auth callback never fires in 5s, show error instead of hanging forever
+    const authTimeout = setTimeout(() => {
+        if (!adminInitialized) {
+            console.error('[admin] auth callback never fired within 5s');
+            hideLoading();
+            const el = document.getElementById('access-denied');
+            if (el) {
+                el.classList.remove('hidden');
+                el.innerHTML = '<div class="text-center"><h2 class="text-xl font-bold text-red-600 mb-2">Sesijos patikra užtruko per ilgai</h2><p class="text-sm text-gray-500">Pabandykite hard refresh (Cmd+Shift+R) arba atsijungti ir vėl prisijungti.</p><button onclick="supabase.auth.signOut().then(()=>location.href=\'prisijungimas.html?redirect=admin.html\')" class="mt-4 px-6 py-2 bg-primary text-white font-semibold text-sm cursor-pointer" style="border-radius:6px;">Atsijungti</button></div>';
+            }
+        }
+    }, 5000);
+
     // Listen for auth state — catches session restore + login
     supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth event:', event, '| email:', session?.user?.email);
+        clearTimeout(authTimeout);
+        console.log('[admin] auth event:', event, '| email:', session?.user?.email);
 
         if (adminInitialized) return;
 
@@ -74,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Setting up filters...');
         setupFilters();
         setupListingsFilters();
+        setupPortfolioLinkFilters();
 
         // Break out of onAuthStateChange callback before querying —
         // supabase-js can deadlock if you await .from() inside the callback
@@ -89,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             loadListingsPendingCount();
+            loadPortfolioLinksPendingCount();
         }, 0);
     });
 });
@@ -108,11 +136,15 @@ function setupTabs() {
             document.getElementById('tab-listings').classList.toggle('hidden', tabName !== 'listings');
             document.getElementById('tab-applications').classList.toggle('hidden', tabName !== 'applications');
             document.getElementById('tab-subscriptions').classList.toggle('hidden', tabName !== 'subscriptions');
+            document.getElementById('tab-disputes').classList.toggle('hidden', tabName !== 'disputes');
+            document.getElementById('tab-portfolio-links').classList.toggle('hidden', tabName !== 'portfolio-links');
             document.getElementById('tab-analytics').classList.toggle('hidden', tabName !== 'analytics');
 
             if (tabName === 'listings') loadListings();
             if (tabName === 'applications') loadApplications();
             if (tabName === 'subscriptions') loadSubscriptions();
+            if (tabName === 'disputes') loadDisputes();
+            if (tabName === 'portfolio-links') loadPortfolioLinks();
             if (tabName === 'analytics') loadAnalytics();
         });
     });
@@ -759,6 +791,360 @@ async function loadRevenueOverview() {
             </div>
         `;
     }).join('');
+}
+
+// ---- Disputes (escrow) ----
+async function loadEscrowSummary() {
+    const { data: rows, error } = await supabase
+        .from('orders')
+        .select('status, amount_cents, platform_fee_cents')
+        .in('status', ['paid', 'delivered', 'rejected', 'disputed', 'approved', 'released']);
+
+    if (error) { console.warn('escrow summary error', error); return; }
+
+    const buckets = {
+        paid: { count: 0, cents: 0 },
+        delivered: { count: 0, cents: 0 },
+        disputed: { count: 0, cents: 0 },
+        escrowTotal: { count: 0, cents: 0 },
+        feeEarned: { count: 0, cents: 0 },
+        feePending: { count: 0, cents: 0 },
+    };
+
+    const ESCROW_STATUSES = new Set(['paid', 'delivered', 'rejected', 'disputed']);
+    const EARNED_STATUSES = new Set(['approved', 'released']);
+
+    (rows || []).forEach(r => {
+        const cents = r.amount_cents || 0;
+        const fee = r.platform_fee_cents || 0;
+
+        if (ESCROW_STATUSES.has(r.status)) {
+            buckets.escrowTotal.count++;
+            buckets.escrowTotal.cents += cents;
+            buckets.feePending.count++;
+            buckets.feePending.cents += fee;
+
+            if (r.status === 'paid') {
+                buckets.paid.count++;
+                buckets.paid.cents += cents;
+            } else if (r.status === 'delivered') {
+                buckets.delivered.count++;
+                buckets.delivered.cents += cents;
+            } else {
+                buckets.disputed.count++;
+                buckets.disputed.cents += cents;
+            }
+        } else if (EARNED_STATUSES.has(r.status)) {
+            buckets.feeEarned.count++;
+            buckets.feeEarned.cents += fee;
+        }
+    });
+
+    const fmt = c => '€' + (c / 100).toFixed(2);
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+    setText('escrow-total', fmt(buckets.escrowTotal.cents));
+    setText('escrow-total-count', `${buckets.escrowTotal.count} užsakymų`);
+    setText('escrow-paid', fmt(buckets.paid.cents));
+    setText('escrow-paid-count', `${buckets.paid.count} užsakymų`);
+    setText('escrow-delivered', fmt(buckets.delivered.cents));
+    setText('escrow-delivered-count', `${buckets.delivered.count} užsakymų`);
+    setText('escrow-disputed', fmt(buckets.disputed.cents));
+    setText('escrow-disputed-count', `${buckets.disputed.count} užsakymų`);
+
+    setText('fee-earned', fmt(buckets.feeEarned.cents));
+    setText('fee-earned-count', `${buckets.feeEarned.count} užsakymų`);
+    setText('fee-pending', fmt(buckets.feePending.cents));
+    setText('fee-pending-count', `${buckets.feePending.count} užsakymų`);
+    setText('fee-total', fmt(buckets.feeEarned.cents + buckets.feePending.cents));
+    setText('fee-total-count', `${buckets.feeEarned.count + buckets.feePending.count} užsakymų`);
+}
+
+async function loadDisputes() {
+    loadEscrowSummary(); // fire-and-forget, fills summary cards
+
+    const container = document.getElementById('disputes-list');
+    container.innerHTML = '<div class="text-center py-12 text-gray-400">Kraunama...</div>';
+
+    const { data: orders, error } = await supabase
+        .from('orders')
+        .select('*, creators(id, name, user_id)')
+        .in('status', ['rejected', 'disputed'])
+        .order('rejected_at', { ascending: true });
+
+    if (error) {
+        container.innerHTML = `<div class="text-red-500 p-4">Klaida: ${escapeHtml(error.message)}</div>`;
+        return;
+    }
+
+    if (!orders || orders.length === 0) {
+        const countEl0 = document.getElementById('disputes-count');
+        if (countEl0) { countEl0.textContent = '0'; countEl0.style.display = 'none'; }
+    }
+    if (!orders || orders.length === 0) {
+        container.innerHTML = `<div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8 text-center" style="border-radius:8px;">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Šiuo metu ginčų nėra. 👍</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = orders.map(o => {
+        const amount = (o.amount_cents != null) ? (o.amount_cents / 100).toFixed(2) : Number(o.amount || 0).toFixed(2);
+        const creatorPart = (o.amount_cents != null) ? ((o.amount_cents - (o.platform_fee_cents || 0)) / 100).toFixed(2) : '?';
+        const isDisputed = o.status === 'disputed';
+        const statusBadge = isDisputed
+            ? '<span class="px-2 py-1 text-[11px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400" style="border-radius:4px;">GINČAS (eskaluota)</span>'
+            : '<span class="px-2 py-1 text-[11px] font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400" style="border-radius:4px;">ATMESTA</span>';
+        const borderCls = isDisputed ? 'border-red-200 dark:border-red-900' : 'border-orange-200 dark:border-orange-900';
+        const deadlineInfo = !isDisputed && o.resolution_deadline ? `<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Auto-eskalavimas: ${new Date(o.resolution_deadline).toLocaleString('lt-LT')}</p>` : '';
+
+        return `
+        <div class="bg-white dark:bg-gray-800 border ${borderCls} p-5" style="border-radius:8px;">
+            <div class="flex items-start justify-between gap-3 mb-3">
+                <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">${escapeHtml(o.service_name || 'Paslauga')}</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Kūrėjas: ${escapeHtml(o.creators?.name || '—')} • €${amount} • Order ID: ${escapeHtml(o.id)}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pristatyta: ${o.delivered_at ? new Date(o.delivered_at).toLocaleString('lt-LT') : '—'} • Atmesta: ${o.rejected_at ? new Date(o.rejected_at).toLocaleString('lt-LT') : '—'}</p>
+                    ${deadlineInfo}
+                </div>
+                ${statusBadge}
+            </div>
+
+            ${o.rejection_reason ? `
+                <div class="mt-2 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-sm" style="border-radius:6px;">
+                    <strong class="text-orange-700 dark:text-orange-400">Kliento atmetimo priežastis:</strong>
+                    <p class="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">${escapeHtml(o.rejection_reason)}</p>
+                </div>` : ''}
+
+            <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                <button onclick="openDisputeChat('${escapeHtml(o.user_id)}', '${escapeHtml(o.creator_id)}', '${escapeHtml(o.creators?.name || '')}')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold cursor-pointer flex items-center gap-1.5" style="border-radius:4px;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    Žiūrėti pokalbį
+                </button>
+                <button onclick="resolveDispute('${escapeHtml(o.id)}', 'refund')" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">
+                    Grąžinti klientui (€${amount})
+                </button>
+                <button onclick="resolveDispute('${escapeHtml(o.id)}', 'release')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">
+                    Atiduoti kūrėjui (€${creatorPart})
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Update count badge — only show disputed (escalated) ones as urgent
+    const disputedCount = (orders || []).filter(o => o.status === 'disputed').length;
+    const countEl = document.getElementById('disputes-count');
+    if (countEl) {
+        countEl.textContent = String(disputedCount || 0);
+        countEl.style.display = disputedCount === 0 ? 'none' : '';
+    }
+}
+
+async function openDisputeChat(clientUserId, creatorId, creatorName) {
+    let modal = document.getElementById('admin-chat-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'admin-chat-modal';
+        modal.className = 'fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-gray-900 max-w-2xl w-full max-h-[80vh] flex flex-col" style="border-radius:8px;">
+                <div class="flex items-center justify-between p-4 border-b border-secondary dark:border-gray-700">
+                    <h3 class="font-bold text-gray-900 dark:text-white">Pokalbis: <span id="admin-chat-creator-name"></span></h3>
+                    <button id="admin-chat-close" class="text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl leading-none">&times;</button>
+                </div>
+                <div id="admin-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-800">
+                    <p class="text-sm text-gray-400 text-center">Kraunama...</p>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        document.getElementById('admin-chat-close').addEventListener('click', () => modal.classList.add('hidden'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+    }
+    modal.classList.remove('hidden');
+    document.getElementById('admin-chat-creator-name').textContent = creatorName || '—';
+    const msgsEl = document.getElementById('admin-chat-messages');
+    msgsEl.innerHTML = '<p class="text-sm text-gray-400 text-center">Kraunama...</p>';
+
+    const { data: convs, error: convErr } = await supabase
+        .from('conversations')
+        .select('id, client_id, creator_id')
+        .eq('client_id', clientUserId)
+        .eq('creator_id', creatorId)
+        .limit(1);
+
+    if (convErr || !convs?.length) {
+        msgsEl.innerHTML = '<p class="text-sm text-gray-400 text-center py-8">Pokalbio dar nėra arba nepavyko užkrauti.</p>';
+        return;
+    }
+
+    const { data: messages } = await supabase
+        .from('messages')
+        .select('id, sender_id, content, created_at')
+        .eq('conversation_id', convs[0].id)
+        .order('created_at', { ascending: true });
+
+    if (!messages?.length) {
+        msgsEl.innerHTML = '<p class="text-sm text-gray-400 text-center py-8">Nieko nerasta šiame pokalbyje.</p>';
+        return;
+    }
+
+    msgsEl.innerHTML = messages.map(m => {
+        const fromClient = m.sender_id === clientUserId;
+        const align = fromClient ? 'justify-start' : 'justify-end';
+        const bubble = fromClient
+            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+            : 'bg-primary/20 text-gray-900 dark:text-white';
+        const label = fromClient ? 'Klientas' : 'Kūrėjas';
+        const time = new Date(m.created_at).toLocaleString('lt-LT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        return `
+            <div class="flex ${align}">
+                <div class="max-w-[80%]">
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mb-0.5 ${fromClient ? '' : 'text-right'}">${label} • ${time}</p>
+                    <div class="px-3 py-2 ${bubble} text-sm whitespace-pre-wrap" style="border-radius:8px;">${escapeHtml(m.content || '')}</div>
+                </div>
+            </div>`;
+    }).join('');
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+async function resolveDispute(orderId, resolution) {
+    const label = resolution === 'refund' ? 'GRĄŽINTI KLIENTUI' : 'ATIDUOTI KŪRĖJUI';
+    const notes = prompt(`Sprendimas: ${label}\n\nĮveskite sprendimo pastabas (privaloma, bus išsaugotos):`);
+    if (!notes || notes.trim().length < 5) {
+        alert('Pastabos privalomos (min 5 simboliai).');
+        return;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        alert('Sesija pasibaigė.');
+        return;
+    }
+
+    try {
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/order-admin-resolve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ order_id: orderId, resolution, notes }),
+        });
+        const result = await resp.json();
+        if (!resp.ok || result.error) throw new Error(result.error || 'Klaida');
+        alert('Sprendimas pritaikytas. ✓');
+        loadDisputes();
+    } catch (err) {
+        alert('Klaida: ' + err.message);
+    }
+}
+
+// ---- Portfolio links moderation ----
+let currentPortfolioLinkFilter = 'pending';
+
+function setupPortfolioLinkFilters() {
+    document.querySelectorAll('.portfolio-link-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.portfolio-link-filter').forEach(b => {
+                b.classList.remove('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+                b.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            });
+            btn.classList.add('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+            btn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            currentPortfolioLinkFilter = btn.dataset.status;
+            loadPortfolioLinks();
+        });
+    });
+}
+
+async function loadPortfolioLinks() {
+    const container = document.getElementById('portfolio-links-list');
+    if (!container) return;
+    container.innerHTML = '<div class="text-center py-12 text-gray-400">Kraunama...</div>';
+
+    const { data: creators, error } = await supabase
+        .from('creators')
+        .select('id, name, external_portfolio_url, external_portfolio_status, external_portfolio_submitted_at, external_portfolio_admin_note')
+        .eq('external_portfolio_status', currentPortfolioLinkFilter)
+        .not('external_portfolio_url', 'is', null)
+        .order('external_portfolio_submitted_at', { ascending: true });
+
+    if (error) {
+        container.innerHTML = `<div class="text-red-500 p-4">Klaida: ${escapeHtml(error.message)}</div>`;
+        return;
+    }
+
+    // Update count
+    const { count: pendingCount } = await supabase
+        .from('creators')
+        .select('id', { count: 'exact', head: true })
+        .eq('external_portfolio_status', 'pending');
+    const countEl = document.getElementById('portfolio-links-count');
+    if (countEl) {
+        countEl.textContent = String(pendingCount || 0);
+        countEl.style.display = (pendingCount || 0) === 0 ? 'none' : '';
+    }
+
+    if (!creators || creators.length === 0) {
+        container.innerHTML = `<div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-8 text-center" style="border-radius:8px;">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Nieko nėra šiame filtre.</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = creators.map(c => {
+        const submitted = c.external_portfolio_submitted_at ? new Date(c.external_portfolio_submitted_at).toLocaleString('lt-LT') : '—';
+        const actions = currentPortfolioLinkFilter === 'pending' ? `
+            <div class="flex gap-2 mt-3">
+                <button onclick="resolvePortfolioLink('${escapeHtml(c.id)}', 'approved')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">✓ Patvirtinti</button>
+                <button onclick="resolvePortfolioLink('${escapeHtml(c.id)}', 'rejected')" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">✗ Atmesti</button>
+            </div>` : '';
+        const note = c.external_portfolio_admin_note ? `
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2"><strong>Admin pastaba:</strong> ${escapeHtml(c.external_portfolio_admin_note)}</p>` : '';
+        return `
+            <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-4" style="border-radius:8px;">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">${escapeHtml(c.name || 'Be vardo')}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Pateikta: ${submitted}</p>
+                        <a href="${escapeHtml(c.external_portfolio_url)}" target="_blank" rel="noopener noreferrer" class="block mt-2 text-sm text-primary hover:underline truncate">${escapeHtml(c.external_portfolio_url)} ↗</a>
+                        ${note}
+                        ${actions}
+                    </div>
+                    <a href="kurejas.html?id=${escapeHtml(c.id)}" target="_blank" class="text-xs text-gray-500 dark:text-gray-400 hover:text-primary whitespace-nowrap">Žiūrėti kūrėjo profilį →</a>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+async function loadPortfolioLinksPendingCount() {
+    const { count } = await supabase
+        .from('creators')
+        .select('id', { count: 'exact', head: true })
+        .eq('external_portfolio_status', 'pending');
+    const el = document.getElementById('portfolio-links-count');
+    if (el) {
+        el.textContent = String(count || 0);
+        el.style.display = (count || 0) === 0 ? 'none' : '';
+    }
+}
+
+async function resolvePortfolioLink(creatorId, status) {
+    let note = null;
+    if (status === 'rejected') {
+        note = prompt('Atmetimo priežastis (matys kūrėjas, privaloma):');
+        if (!note || note.trim().length < 3) {
+            alert('Priežastis privaloma.');
+            return;
+        }
+    }
+    const { error } = await supabase.from('creators').update({
+        external_portfolio_status: status,
+        external_portfolio_reviewed_at: new Date().toISOString(),
+        external_portfolio_admin_note: note,
+    }).eq('id', creatorId);
+    if (error) { alert('Klaida: ' + error.message); return; }
+    loadPortfolioLinks();
 }
 
 // ---- Utility ----

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artifex - Rask Tobulą Kūrėją Savo Projektui</title>
+    <title>Medijus - Rask Tobulą Kūrėją Savo Projektui</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,6 +61,69 @@
             font-weight: 600;
             position: relative;
         }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+            transition-delay: var(--reveal-delay, 0ms);
+            will-change: opacity, transform;
+        }
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+        }
+
+        /* Hero line art draw-on animation */
+        .hero-art path,
+        .hero-art rect,
+        .hero-art circle,
+        .hero-art line,
+        .hero-art polyline,
+        .hero-art ellipse {
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            animation: heroDraw 1.8s ease-out forwards;
+            animation-delay: var(--art-delay, 200ms);
+        }
+        @keyframes heroDraw {
+            to { stroke-dashoffset: 0; }
+        }
+        .hero-art {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+        /* Subtle floating after draw */
+        .hero-art.float {
+            animation: heroFloat 6s ease-in-out infinite;
+            animation-delay: 2.5s;
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-art path,
+            .hero-art rect,
+            .hero-art circle,
+            .hero-art line,
+            .hero-art polyline,
+            .hero-art ellipse {
+                stroke-dasharray: none;
+                stroke-dashoffset: 0;
+                animation: none;
+            }
+            .hero-art.float { animation: none; }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-white dark:bg-gray-900">
@@ -73,7 +136,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">MEDIJUS</span>
                     </a>
                 </div>
 
@@ -124,26 +187,65 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="pt-32 pb-28 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <section class="relative overflow-hidden pt-32 pb-28 bg-gradient-to-b from-stone-100 via-amber-50/40 to-white dark:from-gray-900 dark:to-gray-800">
+        <!-- Decorative line art — 5 zones: TOP, BOTTOM, LEFT, RIGHT, CENTER -->
+
+        <!-- 🔼 TOP (centrally placed, above heading) -->
+        <svg class="hero-art float hidden md:block absolute top-20 left-1/2 -translate-x-1/2 w-20 h-20 lg:w-24 lg:h-24 text-gray-400 dark:text-gray-600 opacity-35" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="--art-delay: 300ms; transform: translateX(-50%) rotate(-12deg);">
+            <!-- Camera -->
+            <rect x="14" y="34" width="72" height="48" rx="6" pathLength="1"/>
+            <path d="M38 34 L42 24 L58 24 L62 34" pathLength="1"/>
+            <circle cx="50" cy="58" r="16" pathLength="1"/>
+            <circle cx="50" cy="58" r="9" pathLength="1"/>
+            <circle cx="74" cy="44" r="2.5" pathLength="1"/>
+        </svg>
+
+        <!-- ◀ LEFT edge, vertically centered -->
+        <svg class="hero-art hidden md:block absolute top-1/2 -translate-y-1/2 left-[3%] w-24 h-24 lg:w-28 lg:h-28 text-gray-400 dark:text-gray-600 opacity-35" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="--art-delay: 600ms; transform: translateY(-50%) rotate(20deg);">
+            <!-- Polaroid -->
+            <rect x="12" y="12" width="76" height="78" rx="2" pathLength="1"/>
+            <rect x="20" y="20" width="60" height="50" pathLength="1"/>
+            <line x1="28" y1="80" x2="60" y2="80" pathLength="1"/>
+        </svg>
+
+        <!-- ▶ RIGHT side, closer to center -->
+        <svg class="hero-art hidden md:block absolute top-1/2 -translate-y-1/2 right-[18%] lg:right-[22%] w-24 h-24 lg:w-32 lg:h-32 text-primary opacity-40" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="--art-delay: 900ms; transform: translateY(-50%) rotate(-25deg);">
+            <!-- Aperture -->
+            <circle cx="50" cy="50" r="36" pathLength="1"/>
+            <line x1="50" y1="14" x2="50" y2="36" pathLength="1"/>
+            <line x1="81" y1="32" x2="62" y2="44" pathLength="1"/>
+            <line x1="81" y1="68" x2="62" y2="56" pathLength="1"/>
+            <line x1="50" y1="86" x2="50" y2="64" pathLength="1"/>
+            <line x1="19" y1="68" x2="38" y2="56" pathLength="1"/>
+            <line x1="19" y1="32" x2="38" y2="44" pathLength="1"/>
+            <circle cx="50" cy="50" r="10" pathLength="1"/>
+        </svg>
+
+        <!-- 🔽 BOTTOM, centered horizontally -->
+        <svg class="hero-art float hidden lg:block absolute bottom-12 left-1/2 -translate-x-1/2 w-44 h-14 text-gray-400 dark:text-gray-600 opacity-30" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="--art-delay: 1200ms; transform: translateX(-50%) rotate(-4deg);">
+            <!-- Brush squiggle -->
+            <path d="M10 35 C 30 10, 50 55, 80 25 S 130 50, 160 20 S 190 35, 195 30" pathLength="1"/>
+        </svg>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative">
             <div class="max-w-4xl mx-auto text-center">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 mb-8" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div class="reveal inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 mb-8" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span class="text-sm font-semibold text-gray-900 dark:text-white">500+ kūrėjų dabar prisijungę</span>
                     <span class="text-sm text-gray-500 dark:text-gray-400">• Vidutinis atsakymo laikas: 2val</span>
                 </div>
 
-                <h1 class="text-3xl md:text-5xl text-gray-900 dark:text-white mb-6 leading-tight tracking-tight" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700;">
+                <h1 class="reveal text-3xl md:text-5xl text-gray-900 dark:text-white mb-6 leading-tight tracking-tight" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; --reveal-delay: 80ms;">
                     Samdyk fotografą, videografą<br>
                     ar <em class="italic">dizainerį</em> <span class="text-primary">Lietuvoje</span>.
                 </h1>
 
-                <p class="text-base text-gray-500 dark:text-gray-500 mb-12">
+                <p class="reveal text-base text-gray-500 dark:text-gray-500 mb-12" style="--reveal-delay: 160ms;">
                     Ar tai verslo projektas ar asmeninė šventė? Pradėk čia.
                 </p>
 
                 <!-- Search Bar -->
-                <div class="mb-12 max-w-2xl mx-auto">
+                <div class="reveal mb-12 max-w-2xl mx-auto" style="--reveal-delay: 240ms;">
                     <div class="flex flex-col md:flex-row gap-3">
                         <div class="flex-1 relative">
                             <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +263,7 @@
                 </div>
 
                 <!-- Stats with context -->
-                <div class="grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+                <div class="reveal grid grid-cols-3 gap-8 max-w-3xl mx-auto" style="--reveal-delay: 320ms;">
                     <div class="text-center">
                         <div id="stat-creators" class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">...</div>
                         <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Patikrintų kūrėjų</div>
@@ -186,7 +288,7 @@
     <section class="py-20 bg-white dark:bg-gray-900 border-y border-secondary dark:border-gray-800">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="grid md:grid-cols-3 gap-12 text-center">
-                <div>
+                <div class="reveal">
                     <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center mx-auto mb-5" style="border-radius: 8px;">
                         <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -197,7 +299,7 @@
                         Užuot tyrinėjęs savaitėmis, gauk pasiūlymus iš kelių kūrėjų per vieną dieną. Palyginimas – akimirka.
                     </p>
                 </div>
-                <div>
+                <div class="reveal" style="--reveal-delay: 120ms;">
                     <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center mx-auto mb-5" style="border-radius: 8px;">
                         <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
@@ -208,7 +310,7 @@
                         Kiekvienas kūrėjas – su portfolio, atsiliepimais ir dokumentais. Jokių netikrų profilių ar nusivylimų.
                     </p>
                 </div>
-                <div>
+                <div class="reveal" style="--reveal-delay: 240ms;">
                     <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center mx-auto mb-5" style="border-radius: 8px;">
                         <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -216,7 +318,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Skaidrios kainos, jokių paslėptų</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                        Žinok tikslią kainą iš anksto. Derinkis tiesiogiai su kūrėju. Be platformos mokesčių už sandorį.
+                        Žinok tikslią kainą iš anksto. Saugus apmokėjimas per platformą — pinigai kūrėjui pervedami tik tau patvirtinus darbą.
                     </p>
                 </div>
             </div>
@@ -226,7 +328,7 @@
     <!-- Quick Links Section -->
     <section class="py-24 bg-gray-50 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="text-center mb-16">
+            <div class="reveal text-center mb-16">
                 <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Du keliai į sėkmę</span>
                 <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
                     Koks tavo projektas?
@@ -238,7 +340,7 @@
 
             <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
                 <!-- Professional Creators -->
-                <a href="kurejai.html" class="block card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-10 relative overflow-hidden group" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <a href="kurejai.html" class="reveal block card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-10 relative overflow-hidden group" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); --reveal-delay: 120ms;">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full -mr-16 -mt-16 opacity-50"></div>
                     <div class="relative">
                         <div class="w-14 h-14 bg-gray-900 dark:bg-gray-100 flex items-center justify-center mb-6" style="border-radius: 8px;">
@@ -282,7 +384,7 @@
                 </a>
 
                 <!-- Rising Stars -->
-                <a href="kylancios-zvaigzdes.html" class="block card-hover bg-gradient-to-br from-primary to-primary-hover p-10 relative overflow-hidden group" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 197, 15, 0.25);">
+                <a href="kylancios-zvaigzdes.html" class="reveal block card-hover bg-gradient-to-br from-primary to-primary-hover p-10 relative overflow-hidden group" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(255, 197, 15, 0.25); --reveal-delay: 240ms;">
                     <div class="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -mr-20 -mt-20 opacity-10"></div>
                     <div class="absolute top-6 right-6">
                         <span class="px-4 py-1.5 bg-white text-primary text-xs font-black uppercase tracking-wide" style="border-radius: 6px;">
@@ -345,7 +447,7 @@
     <!-- How It Works -->
     <section id="how-it-works" class="py-24 bg-gray-50 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="text-center mb-16">
+            <div class="reveal text-center mb-16">
                 <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Kaip tai veikia</span>
                 <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
                     Nuo idėjos iki rezultato<br/>per 3 žingsnius
@@ -353,7 +455,7 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <div class="relative">
+                <div class="reveal relative">
                     <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">1</div>
                     <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
                         <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
@@ -366,7 +468,7 @@
                     </div>
                 </div>
 
-                <div class="relative">
+                <div class="reveal relative" style="--reveal-delay: 140ms;">
                     <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">2</div>
                     <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
                         <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
@@ -379,7 +481,7 @@
                     </div>
                 </div>
 
-                <div class="relative">
+                <div class="reveal relative" style="--reveal-delay: 280ms;">
                     <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary bg-opacity-20 flex items-center justify-center font-black text-2xl text-primary" style="border-radius: 8px;">3</div>
                     <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 h-full" style="border-radius: 8px;">
                         <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mx-auto mb-6" style="border-radius: 8px;">
@@ -393,12 +495,12 @@
                 </div>
             </div>
 
-            <div class="text-center mt-12 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 max-w-3xl mx-auto" style="border-radius: 8px;">
+            <div class="reveal text-center mt-12 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-8 max-w-3xl mx-auto" style="border-radius: 8px;">
                 <p class="text-gray-600 dark:text-gray-400 mb-2">
                     <strong class="text-gray-900 dark:text-white text-lg">Dažniausias klausimas:</strong>
                 </p>
                 <p class="text-gray-500 dark:text-gray-500 text-sm">
-                    "Ar reikia mokėti platformai už sandorį?" <strong class="text-primary">Ne.</strong> Artifex neuždirba iš tavo projektų. Sutarti ir mokėjimai – tiesiai su kūrėju.
+                    "Kiek kainuoja platforma klientui?" <strong class="text-primary">0€.</strong> Tu moki tik kūrėjo nurodytą kainą — be jokių papildomų mokesčių. Platforma uždirba tik 10% komisinį iš kūrėjo, kai darbas patvirtintas.
                 </p>
             </div>
         </div>
@@ -407,14 +509,14 @@
     <!-- Testimonial Section -->
     <section class="py-20 bg-white dark:bg-gray-900">
         <div class="max-w-6xl mx-auto px-6 lg:px-8">
-            <div class="text-center mb-16">
+            <div class="reveal text-center mb-16">
                 <span class="text-sm font-bold text-primary uppercase tracking-wider mb-4 inline-block">Ką sako klientai</span>
                 <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
-                    Kodėl žmonės renkasi Artifex?
+                    Kodėl žmonės renkasi Medijus?
                 </h2>
             </div>
 
-            <div id="reviews-grid" class="grid md:grid-cols-3 gap-6">
+            <div id="reviews-grid" class="reveal grid md:grid-cols-3 gap-6" style="--reveal-delay: 120ms;">
                 <!-- Loaded dynamically from Supabase -->
             </div>
         </div>
@@ -429,7 +531,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">MEDIJUS</span>
                     </div>
                     <p class="text-sm mb-4">
                         Viena platforma - visos medijų paslaugos. Jungiame kūrėjus ir klientus Lietuvoje.
@@ -454,14 +556,14 @@
                 <div>
                     <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
                     <ul class="space-y-3 text-sm">
-                        <li>info@artifex.lt</li>
+                        <li>info@medijus.lt</li>
                         <li>+370 600 12345</li>
                         <li>Vilnius, Lietuva</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-sm">&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <p class="text-sm">&copy; 2026 Medijus. Visos teisės saugomos.</p>
                 <div class="flex gap-6 text-sm">
                     <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
                     <a href="naudojimo-salygos.html" class="hover:text-primary">Naudojimo sąlygos</a>
@@ -473,6 +575,7 @@
     <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/subscription.js"></script>
     <script src="js/home.js"></script>
     <script>
@@ -502,5 +605,24 @@
         });
     </script>
     <script src="js/cookie-consent.js"></script>
+    <script>
+        // Scroll reveal
+        (function () {
+            const els = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window) || !els.length) {
+                els.forEach(el => el.classList.add('is-visible'));
+                return;
+            }
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+            els.forEach(el => io.observe(el));
+        })();
+    </script>
 </body>
 </html>

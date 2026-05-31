@@ -1,7 +1,33 @@
 // Rising Stars page - Dynamic data loading, search, filter + modal
 
 let rsCurrentSearch = '';
-let rsCurrentCategory = null;
+let rsSelectedCategorySlugs = [];
+let rsSelectedCity = '';
+let rsMaxPrice = 500;
+let rsMinRating = 0;
+
+const RS_CATEGORY_GROUPS = [
+    {
+        group: 'Fotografai',
+        slugs: ['foto-asmenims','foto-vestuves','foto-verslui','foto-nekilnojamas','foto-automobiliai','foto-kurybiniai'],
+        names: ['Asmenims','Vestuvės','Verslui','Nekilnojamasis Turtas','Automobiliai','Kūrybiniai Projektai'],
+    },
+    {
+        group: 'Videografai',
+        slugs: ['video-asmeniniai','video-vestuves','video-verslo','video-produktu','video-renginiai','video-nekilnojamas','video-muzika','video-socialine'],
+        names: ['Asmeniniai Projektai','Vestuvės','Verslo Video','Produktų Video','Renginiai','Nekilnojamasis Turtas','Muzika','Socialinė Medija'],
+    },
+    {
+        group: 'Montažuotojai',
+        slugs: ['mont-asmeniniai','mont-vestuves','mont-verslo','mont-produktu','mont-renginiai','mont-muzika','mont-socialine','mont-kurybiniai'],
+        names: ['Asmeniniai Projektai','Vestuvės','Verslo Video','Produktų Video','Renginiai','Muzika','Socialinė Medija','Kūrybiniai Projektai'],
+    },
+    {
+        group: 'Dizaineriai',
+        slugs: ['diz-logotipai','diz-socialine','diz-spausdinta','diz-pakuotes','diz-web','diz-leidiniai','diz-renginiai','diz-iliustracijos'],
+        names: ['Logotipai ir Branding','Socialinė Medija','Spausdinta Medžiaga','Pakuotės Dizainas','Web Dizainas','Leidiniai','Renginiai','Iliustracijos ir Menas'],
+    },
+];
 
 // Store loaded creators for modal access
 const rsCreatorsMap = {};
@@ -27,15 +53,79 @@ function setupRSSearch() {
     });
 }
 
-function setupRSFilters() {
-    const pills = document.querySelectorAll('.filter-pill');
-    pills.forEach(pill => {
-        pill.addEventListener('click', () => {
-            pills.forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            rsCurrentCategory = pill.dataset.category || null;
+function buildRSSidebarCategories() {
+    const container = document.getElementById('rs-sidebar-categories');
+    if (!container) return;
+
+    container.innerHTML = RS_CATEGORY_GROUPS.map(({ group, slugs, names }) => `
+        <div>
+            <button class="rs-sidebar-group-toggle flex items-center justify-between w-full mb-1.5 text-left" data-group="${group}">
+                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">${group}</span>
+                <svg class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transform:rotate(-90deg);">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div class="rs-sidebar-group-cats hidden space-y-1 pl-1">
+                ${slugs.map((slug, i) => `
+                    <label class="flex items-center gap-2 cursor-pointer py-0.5">
+                        <input type="checkbox" class="rs-cat-filter accent-yellow-400" value="${slug}">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">${names[i]}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('.rs-sidebar-group-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const cats = btn.nextElementSibling;
+            cats.classList.toggle('hidden');
+            btn.querySelector('svg').style.transform = cats.classList.contains('hidden') ? 'rotate(-90deg)' : '';
+        });
+    });
+
+    container.querySelectorAll('.rs-cat-filter').forEach(cb => {
+        cb.addEventListener('change', () => {
+            rsSelectedCategorySlugs = [...container.querySelectorAll('.rs-cat-filter:checked')].map(c => c.value);
             loadRisingStars();
         });
+    });
+}
+
+function setupRSFilters() {
+    buildRSSidebarCategories();
+
+    const cityEl = document.getElementById('rs-filter-city');
+    if (cityEl) cityEl.addEventListener('change', () => {
+        rsSelectedCity = cityEl.value;
+        loadRisingStars();
+    });
+
+    const priceEl = document.getElementById('rs-filter-price');
+    const priceVal = document.getElementById('rs-filter-price-val');
+    if (priceEl) priceEl.addEventListener('input', () => {
+        rsMaxPrice = parseInt(priceEl.value);
+        if (priceVal) priceVal.textContent = rsMaxPrice;
+        loadRisingStars();
+    });
+
+    document.querySelectorAll('input[name="rs-filter-rating"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            rsMinRating = parseFloat(radio.value);
+            loadRisingStars();
+        });
+    });
+
+    const clearBtn = document.getElementById('rs-clear-filters-btn');
+    if (clearBtn) clearBtn.addEventListener('click', () => {
+        rsSelectedCategorySlugs = []; rsSelectedCity = ''; rsMaxPrice = 500; rsMinRating = 0;
+        document.querySelectorAll('.rs-cat-filter').forEach(cb => cb.checked = false);
+        const city = document.getElementById('rs-filter-city'); if (city) city.value = '';
+        const price = document.getElementById('rs-filter-price'); if (price) price.value = 500;
+        const pv = document.getElementById('rs-filter-price-val'); if (pv) pv.textContent = '500';
+        const ratingAll = document.querySelector('input[name="rs-filter-rating"][value="0"]');
+        if (ratingAll) ratingAll.checked = true;
+        loadRisingStars();
     });
 }
 
@@ -55,7 +145,13 @@ async function loadRisingStars() {
         .select('*, creator_categories(category_id, categories(slug, name))')
         .eq('status', 'approved')
         .eq('is_rising_star', true)
+        .lte('price_from', rsMaxPrice)
+        .gte('rating', rsMinRating)
         .order('rating', { ascending: false });
+
+    if (rsSelectedCity) {
+        query = query.eq('location', rsSelectedCity);
+    }
 
     if (rsCurrentSearch) {
         query = query.or(`name.ilike.%${rsCurrentSearch}%,role.ilike.%${rsCurrentSearch}%,location.ilike.%${rsCurrentSearch}%`);
@@ -71,18 +167,12 @@ async function loadRisingStars() {
     // Store creators in map for modal
     creators.forEach(c => { rsCreatorsMap[c.id] = c; });
 
-    // Filter by category client-side using looking_for array
+    // Filter by selected categories (client-side via creator_categories join)
     let filtered = creators;
-    if (rsCurrentCategory) {
-        filtered = creators.filter(c => {
-            // Check looking_for array
-            if (c.looking_for && c.looking_for.some(tag =>
-                tag.toLowerCase().includes(rsCurrentCategory.toLowerCase())
-            )) return true;
-            // Check category associations
-            if (c.creator_categories?.some(cc => cc.categories?.slug === rsCurrentCategory)) return true;
-            return false;
-        });
+    if (rsSelectedCategorySlugs.length > 0) {
+        filtered = creators.filter(c =>
+            c.creator_categories?.some(cc => rsSelectedCategorySlugs.includes(cc.categories?.slug))
+        );
     }
 
     if (countEl) countEl.textContent = filtered.length;

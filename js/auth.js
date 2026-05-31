@@ -1,5 +1,5 @@
 // =============================================
-// Artifex Authentication Module (Supabase Auth)
+// Medijus Authentication Module (Supabase Auth)
 // =============================================
 
 (function () {
@@ -86,18 +86,45 @@
 
     // --- Session check on every page load ---
 
+    // Pages that don't enforce the onboarding gate (auth flows + onboarding itself + legal)
+    const ONBOARDING_EXEMPT = new Set([
+        '/onboarding.html', '/prisijungimas.html',
+        '/naudojimo-salygos.html', '/privatumo-politika.html',
+    ]);
+
+    async function enforceOnboarding(user) {
+        if (!user) return;
+        const path = window.location.pathname;
+        // Normalize path (Vercel sometimes serves without .html)
+        const normalized = path.endsWith('.html') ? path : (path === '/' ? '/index.html' : path + '.html');
+        if (ONBOARDING_EXEMPT.has(normalized) || ONBOARDING_EXEMPT.has(path)) return;
+
+        try {
+            const { data: profile } = await supabase.from('profiles').select('onboarded_at').eq('id', user.id).maybeSingle();
+            if (!profile?.onboarded_at) {
+                window.location.href = 'onboarding.html';
+            }
+        } catch (e) {
+            console.warn('onboarding check failed', e);
+        }
+    }
+
     async function initAuth() {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             updateNavForUser(session?.user || null);
+            await enforceOnboarding(session?.user || null);
         } catch (e) {
             console.error('auth.js: session check failed', e);
             updateNavForUser(null);
         }
 
         // Listen for auth state changes (e.g. after OAuth redirect)
-        supabase.auth.onAuthStateChange((_event, session) => {
+        supabase.auth.onAuthStateChange((event, session) => {
             updateNavForUser(session?.user || null);
+            if (event === 'SIGNED_IN') {
+                enforceOnboarding(session?.user || null);
+            }
         });
     }
 
@@ -173,7 +200,7 @@
 
     // --- Expose API globally ---
 
-    window.artifexAuth = {
+    window.medijusAuth = {
         initAuth,
         signUpWithEmail,
         signInWithEmail,

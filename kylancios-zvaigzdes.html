@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kylančios Žvaigždės - Artifex | Nauji Talentai Nemokamai</title>
+    <title>Kylančios Žvaigždės - Medijus | Nauji Talentai Nemokamai</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,7 +81,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="hidden sm:inline text-gray-900 dark:text-white">MEDIJUS</span>
                     </a>
                 </div>
 
@@ -105,7 +105,7 @@
                         <a href="prisijungimas.html" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">
                             Prisijungti
                         </a>
-                        <a href="prisijungimas.html?tab=register" class="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 text-sm sm:px-6 sm:py-2.5 sm:text-base font-medium" style="border-radius: 4px;">
+                        <a href="prisijungimas.html?tab=register&role=kurejas" class="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 text-sm sm:px-6 sm:py-2.5 sm:text-base font-medium" style="border-radius: 4px;">
                             Tapti Žvaigžde
                         </a>
                     </div>
@@ -272,52 +272,96 @@
         </div>
     </section>
 
-    <!-- Search & Filter Section -->
-    <section id="creators" class="py-8 bg-white dark:bg-gray-900">
+    <!-- Search + Filters + Grid (with sidebar like /kurejai) -->
+    <section id="creators" class="py-8 bg-gray-50 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <!-- Search Bar -->
-            <div class="relative max-w-2xl mx-auto mb-6">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input id="rs-search" type="text" placeholder="Ieškoti kylančios žvaigždės..." class="w-full h-12 pl-12 pr-4 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring" style="border-radius: 8px;">
-            </div>
+            <div class="lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8">
+                <!-- Sidebar -->
+                <aside id="rs-sidebar" class="mb-6 lg:mb-0">
+                    <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-5" style="border-radius:8px;">
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Filtrai</h2>
+                            <button id="rs-clear-filters-btn" class="text-xs text-primary hover:underline font-medium">Išvalyti</button>
+                        </div>
 
-            <!-- Filter Tags -->
-            <div class="flex gap-3 overflow-x-auto hide-scrollbar justify-center flex-wrap">
-                <button class="filter-pill active px-4 py-2 border border-secondary dark:border-gray-700 text-sm font-medium whitespace-nowrap" data-category="" style="border-radius: 6px;">
-                    Visi
-                </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="vestuvės" style="border-radius: 6px;">
-                    Vestuvės
-                </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="portretai" style="border-radius: 6px;">
-                    Portretai
-                </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="produktai" style="border-radius: 6px;">
-                    Produktai
-                </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="eventai" style="border-radius: 6px;">
-                    Eventai
-                </button>
-                <button class="filter-pill px-4 py-2 border border-secondary dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium whitespace-nowrap hover:border-primary" data-category="video" style="border-radius: 6px;">
-                    Video
-                </button>
-            </div>
-        </div>
-    </section>
+                        <!-- Kategorijos -->
+                        <div class="mb-6">
+                            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kategorijos</h3>
+                            <div class="space-y-4" id="rs-sidebar-categories"></div>
+                        </div>
 
-    <!-- Rising Stars Grid -->
-    <section class="py-8 bg-gray-50 dark:bg-gray-800">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-6">
-                <p class="text-gray-600 dark:text-gray-400">
-                    Rasta <span id="rs-count" class="font-semibold text-gray-900 dark:text-white">...</span> kylančios žvaigždės
-                </p>
-            </div>
+                        <!-- Miestas -->
+                        <div class="mb-6">
+                            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Miestas</h3>
+                            <select id="rs-filter-city" class="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white" style="border-radius:6px;">
+                                <option value="">Visi miestai</option>
+                                <option value="Vilnius">Vilnius</option>
+                                <option value="Kaunas">Kaunas</option>
+                                <option value="Klaipėda">Klaipėda</option>
+                                <option value="Šiauliai">Šiauliai</option>
+                                <option value="Panevėžys">Panevėžys</option>
+                            </select>
+                        </div>
 
-            <div id="rs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Loaded dynamically from Supabase -->
+                        <!-- Kaina -->
+                        <div class="mb-6">
+                            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kaina</h3>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">€0</span>
+                                <input id="rs-filter-price" type="range" min="0" max="500" value="500" step="10" class="flex-1 accent-yellow-400">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">€<span id="rs-filter-price-val">500</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Min. reitingas -->
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Min. reitingas</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="rs-filter-rating" class="accent-yellow-400" value="0" checked>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Visi</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="rs-filter-rating" class="accent-yellow-400" value="3">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">3+</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="rs-filter-rating" class="accent-yellow-400" value="3.5">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">3.5+</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="rs-filter-rating" class="accent-yellow-400" value="4">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">4+</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="rs-filter-rating" class="accent-yellow-400" value="4.5">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">4.5+</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main content -->
+                <div>
+                    <!-- Search Bar -->
+                    <div class="relative mb-6">
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input id="rs-search" type="text" placeholder="Ieškoti kylančios žvaigždės..." class="w-full h-12 pl-12 pr-4 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring" style="border-radius:8px;">
+                    </div>
+
+                    <div class="flex items-center justify-between mb-6">
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Rasta <span id="rs-count" class="font-semibold text-gray-900 dark:text-white">...</span> kylančios žvaigždės
+                        </p>
+                    </div>
+
+                    <div id="rs-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Loaded dynamically from Supabase -->
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -375,9 +419,9 @@
             <p class="text-xl text-white text-opacity-90 mb-8 max-w-2xl mx-auto">
                 Kurk portfolio, gauk patirties ir atsiliepimų. Tapk profesionalu su mūsų pagalba.
             </p>
-            <button class="bg-white text-primary px-8 py-3 font-bold hover:bg-gray-100" style="border-radius: 6px;">
+            <a href="prisijungimas.html?tab=register&role=kurejas" class="inline-block bg-white text-primary px-8 py-3 font-bold hover:bg-gray-100" style="border-radius: 6px;">
                 Tapti Kylančia Žvaigžde
-            </button>
+            </a>
         </div>
     </section>
 
@@ -392,7 +436,7 @@
                         <div class="flex items-center justify-center" style="width: 48px; height: 48px;">
                             <span style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 600; font-style: italic; color: #FFC50F; line-height: 1;">A</span>
                         </div>
-                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">ARTIFEX</span>
+                        <span style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; letter-spacing: 0.1em;" class="text-white">MEDIJUS</span>
                     </div>
                     <p class="text-sm">
                         Viena platforma - visos medijų paslaugos. Jungiame kūrėjus ir klientus.
@@ -408,21 +452,21 @@
                 <div>
                     <h5 class="text-white font-semibold mb-4">Kūrėjams</h5>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-primary">Tapti Profesionalu</a></li>
-                        <li><a href="#" class="hover:text-primary">Tapti Kylančia Žvaigžde</a></li>
+                        <li><a href="prisijungimas.html?tab=register&role=kurejas" class="hover:text-primary">Tapti Profesionalu</a></li>
+                        <li><a href="prisijungimas.html?tab=register&role=kurejas" class="hover:text-primary">Tapti Kylančia Žvaigžde</a></li>
                     </ul>
                 </div>
                 <div>
                     <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
                     <ul class="space-y-2 text-sm">
-                        <li>info@artifex.lt</li>
+                        <li>info@medijus.lt</li>
                         <li>+370 600 12345</li>
                         <li>Vilnius, Lietuva</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-8 text-center text-sm">
-                <p>&copy; 2026 Artifex. Visos teisės saugomos.</p>
+                <p>&copy; 2026 Medijus. Visos teisės saugomos.</p>
             </div>
         </div>
     </footer>
@@ -432,6 +476,7 @@
     <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/subscription.js"></script>
     <script src="js/rising-stars.js"></script>
     <script>
@@ -485,21 +530,10 @@
                     return;
                 }
 
-                // Check user role — creators bypass the gate
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-
-                if (profile && profile.role === 'kurejas') {
-                    gate.classList.add('hidden');
-                    gated.classList.remove('hidden');
-                    return;
-                }
-
-                // Check subscription
-                const hasAccess = await window.artifexSubscription.hasActiveSubscription();
+                // Both clients and creators need an active subscription to access.
+                // (Previously creators had a free bypass — removed because they don't
+                // order services here and the section is for buyers only.)
+                const hasAccess = await window.medijusSubscription.hasActiveSubscription();
 
                 if (hasAccess) {
                     gate.classList.add('hidden');

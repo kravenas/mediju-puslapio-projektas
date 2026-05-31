@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ---- Subscription status on plans page ----
 async function loadSubscriptionStatus() {
-    if (!window.artifexSubscription) return;
+    if (!window.medijusSubscription) return;
 
-    const sub = await window.artifexSubscription.getSubscription();
+    const sub = await window.medijusSubscription.getSubscription();
     const statusEl = document.getElementById('plan-status');
     const proBtn = document.getElementById('activate-pro-btn');
     if (!statusEl || !proBtn) return;
@@ -48,7 +48,7 @@ async function loadSubscriptionStatus() {
         return;
     }
 
-    const daysLeft = window.artifexSubscription.getDaysRemaining(sub);
+    const daysLeft = window.medijusSubscription.getDaysRemaining(sub);
 
     if (sub.plan === 'pro' && sub.status === 'active') {
         proBtn.textContent = '✓ Pro planas aktyvus';
@@ -64,9 +64,9 @@ async function loadSubscriptionStatus() {
     }
 
     // Check for review discount
-    const reviewCount = await window.artifexSubscription.getUserReviewCount();
-    if (reviewCount > 0 && window.artifexSubscription.canGetReviewDiscount(sub)) {
-        const priceInfo = window.artifexSubscription.getPrice(sub);
+    const reviewCount = await window.medijusSubscription.getUserReviewCount();
+    if (reviewCount > 0 && window.medijusSubscription.canGetReviewDiscount(sub)) {
+        const priceInfo = window.medijusSubscription.getPrice(sub);
         if (priceInfo.hasDiscount) {
             proBtn.innerHTML = `Aktyvuoti Pro — <s>€${priceInfo.original}</s> €${priceInfo.price}/mėn`;
         }
@@ -86,17 +86,17 @@ function setupProButton() {
 
         if (proBtn.disabled) return;
 
-        const sub = await window.artifexSubscription.getSubscription();
+        const sub = await window.medijusSubscription.getSubscription();
         if (sub?.plan === 'pro' && sub?.status === 'active') return;
 
         // Check for review discount
-        const reviewCount = await window.artifexSubscription.getUserReviewCount();
-        const useDiscount = reviewCount > 0 && window.artifexSubscription.canGetReviewDiscount(sub);
+        const reviewCount = await window.medijusSubscription.getUserReviewCount();
+        const useDiscount = reviewCount > 0 && window.medijusSubscription.canGetReviewDiscount(sub);
 
         proBtn.disabled = true;
         proBtn.textContent = 'Aktyvuojama...';
 
-        const result = await window.artifexSubscription.activateProPlan(useDiscount);
+        const result = await window.medijusSubscription.activateProPlan(useDiscount);
 
         if (result.error) {
             showBadgeNotification('Klaida: ' + result.error, 'error');
@@ -105,7 +105,7 @@ function setupProButton() {
             return;
         }
 
-        const priceInfo = window.artifexSubscription.getPrice(sub);
+        const priceInfo = window.medijusSubscription.getPrice(sub);
         const paidAmount = useDiscount ? priceInfo.price : priceInfo.original;
 
         showBadgeNotification(`Pro planas aktyvuotas! Mokėjimas: €${paidAmount}. Galioja 30 dienų.`, 'success');
