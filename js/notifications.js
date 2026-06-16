@@ -38,16 +38,16 @@
 
     async function loadInitialUnreadCount() {
         // Count messages addressed to current user that aren't read yet.
-        // Schema-agnostic: try (read_at IS NULL AND sender_id != me) under RLS.
+        // (messages.is_read = false AND sender_id != me) under RLS.
         try {
             const { count } = await supabase
                 .from('messages')
                 .select('id', { count: 'exact', head: true })
                 .neq('sender_id', currentUserId)
-                .is('read_at', null);
+                .eq('is_read', false);
             ensureBadge(count || 0);
         } catch (_) {
-            // If 'read_at' column doesn't exist, silently ignore — badge stays 0.
+            // Ignore on error — badge stays at 0.
         }
     }
 
