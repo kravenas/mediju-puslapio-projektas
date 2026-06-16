@@ -899,7 +899,10 @@
         const fileInput = qs('#portfolio-file-input');
         if (!dropzone || !fileInput) return;
 
-        dropzone.addEventListener('click', () => fileInput.click());
+        // Guard: the file input sits inside the dropzone, so fileInput.click()
+        // dispatches a click that bubbles back here — without this check it would
+        // loop infinitely and spawn endless file dialogs (freezing the page).
+        dropzone.addEventListener('click', (e) => { if (e.target !== fileInput) fileInput.click(); });
         fileInput.addEventListener('change', (e) => handlePortfolioFiles(e.target.files));
 
         // External portfolio link section
