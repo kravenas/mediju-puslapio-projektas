@@ -388,9 +388,9 @@ function renderPackageComparison(packages, actionEl, creatorId) {
                 <span class="text-xl font-bold text-gray-900 dark:text-white mt-0.5">€${escapeHtml(pkg.price)}</span>
                 <span class="text-xs font-medium text-gray-800 dark:text-gray-200 mt-1.5 leading-tight">${escapeHtml(pkg.name)}</span>
                 ${pkg.description ? `<p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed line-clamp-3">${escapeHtml(pkg.description)}</p>` : ''}
-                <div class="flex gap-2 mt-2 text-[11px] text-gray-400">
-                    ${pkg.delivery_days ? `<span>&#128197; ${escapeHtml(pkg.delivery_days)} d.d.</span>` : ''}
-                    <span>&#128260; ${escapeHtml(revText)}</span>
+                <div class="flex flex-wrap gap-1.5 mt-2.5">
+                    ${pkg.delivery_days ? `<span class="inline-flex items-center gap-1 text-sm font-semibold text-gray-800 dark:text-gray-100 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 px-2.5 py-1" style="border-radius:6px;">&#128197; ${escapeHtml(pkg.delivery_days)} d.d.</span>` : ''}
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 px-2.5 py-1" style="border-radius:6px;">&#128260; ${escapeHtml(revText)}</span>
                 </div>
                 ${pkg.features?.length ? `
                     <ul class="mt-2 space-y-0.5 text-[11px] text-gray-600 dark:text-gray-300 flex-1">
