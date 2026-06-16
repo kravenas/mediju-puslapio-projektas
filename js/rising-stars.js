@@ -6,6 +6,17 @@ let rsSelectedCity = '';
 let rsMaxPrice = 500;
 let rsMinRating = 0;
 
+// --- Contact (write) gating: newcomers can view the section but not message ---
+function rsContactAllowed() { return window.rsCanContact !== false; }
+window.rsApplyContactRestriction = function () {
+    document.querySelectorAll('[data-rs-chat]').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.classList.remove('hover:bg-gray-700');
+        btn.title = 'Kaip naujokas gali tik peržiūrėti — rašyti gali tik Pro nariai';
+    });
+};
+
 const RS_CATEGORY_GROUPS = [
     {
         group: 'Fotografai',
@@ -199,9 +210,9 @@ async function loadRisingStars() {
         const creatorIdAttr = escapeAttr(creator.id);
 
         return `
-            <div class="card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 6px;">
+            <div class="card-hover creator-card overflow-hidden">
                 <div class="relative h-48 bg-gradient-to-br ${gradient} overflow-hidden">
-                    <img src="${safeUrl(creator.image_url)}" alt="" class="w-full h-full object-cover opacity-80">
+                    <img src="${safeUrl(creator.image_url)}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover opacity-80">
                     <div class="absolute top-3 left-3">
                         <span class="px-3 py-1 bg-primary text-white text-xs font-bold" style="border-radius: 6px;">
                             KYLANTI ŽVAIGŽDĖ
@@ -270,6 +281,7 @@ async function loadRisingStars() {
     grid.querySelectorAll('[data-rs-chat]').forEach(btn => {
         btn.addEventListener('click', () => startChatWithCreator(btn.dataset.rsChat));
     });
+    if (!rsContactAllowed()) window.rsApplyContactRestriction();
 }
 
 // ============================================
@@ -402,6 +414,7 @@ async function openRSModal(creatorId) {
     modal.querySelectorAll('[data-rs-chat]').forEach(btn => {
         btn.addEventListener('click', () => startChatWithCreator(btn.dataset.rsChat));
     });
+    if (!rsContactAllowed()) window.rsApplyContactRestriction();
 
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => {
@@ -455,6 +468,10 @@ async function loadRSModalReviews(creatorId) {
 }
 
 async function startChatWithCreator(creatorId) {
+    if (!rsContactAllowed()) {
+        alert('Kaip naujokas gali tik peržiūrėti Naujokų sekciją. Rašyti kūrėjams gali tik Pro nariai.');
+        return;
+    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         window.location.href = 'prisijungimas.html';

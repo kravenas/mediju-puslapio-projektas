@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,700&display=swap');
+
 /* ============================================================
    Medijus UI — rounded "liquid glass" controls
    Loaded on every page after tailwind.css so it can override
@@ -6,6 +8,14 @@
    search; tabs/filters/accordions are intentionally excluded.
    ============================================================ */
 
+/* Serif display heading — luxury-minimalism hero/section titles */
+.display-heading {
+  font-family: 'Playfair Display', Georgia, serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.1 !important;
+}
+
 /* Primary action buttons -> dark "graphite glass" on light pages.
    Gold is reserved for small accents (stars, links, icons). */
 a.bg-primary,
@@ -13,29 +23,24 @@ button.bg-primary,
 input.bg-primary {
   position: relative;
   border-radius: 8px !important;                 /* crisp, professional corners */
-  background-color: rgba(31, 41, 55, 0.58) !important;
-  background-image: linear-gradient(180deg,
-                      rgba(55, 65, 81, 0.60) 0%,
-                      rgba(31, 41, 55, 0.54) 100%) !important;
-  color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 4px 18px rgba(0, 0, 0, 0.16) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  transition: transform .2s ease, box-shadow .25s ease !important;
+  background-color: rgba(31, 41, 55, 0.04) !important;   /* hollow: almost no fill */
+  background-image: none !important;
+  color: #1f2937 !important;                              /* dark text on light bg */
+  border: 1.5px solid rgba(17, 24, 39, 0.32) !important; /* just the stroke */
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transition: background-color .2s ease, border-color .2s ease, transform .2s ease !important;
 }
-/* On dark pages keep the button visible (lighter translucent glass) */
+/* Dark pages: light stroke + light text */
 .dark a.bg-primary,
 .dark button.bg-primary,
 .dark input.bg-primary {
-  background-color: rgba(75, 85, 99, 0.55) !important;
-  background-image: linear-gradient(180deg,
-                      rgba(107, 114, 128, 0.60) 0%,
-                      rgba(75, 85, 99, 0.52) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
 }
 
 /* Cookie-accept lives on the dark banner -> keep a gold glass accent */
@@ -54,23 +59,29 @@ input.bg-primary {
   transition: transform .2s ease, box-shadow .25s ease !important;
 }
 
-/* faint top gloss */
+/* no fill gloss on the hollow buttons */
 a.bg-primary::before,
 button.bg-primary::before,
-input.bg-primary::before {
-  content: "";
-  position: absolute;
-  inset: 1px 1px 55% 1px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
-  pointer-events: none;
-}
+input.bg-primary::before { display: none; }
 
 a.bg-primary:hover,
 button.bg-primary:hover,
 input.bg-primary:hover,
 #cookie-accept:hover {
   transform: translateY(-1px);
+}
+/* subtle fill on hover so it still feels interactive */
+a.bg-primary:hover,
+button.bg-primary:hover,
+input.bg-primary:hover {
+  background-color: rgba(17, 24, 39, 0.07) !important;
+  border-color: rgba(17, 24, 39, 0.55) !important;
+}
+.dark a.bg-primary:hover,
+.dark button.bg-primary:hover,
+.dark input.bg-primary:hover {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
 }
 
 a.bg-primary:active,
@@ -85,6 +96,7 @@ a.bg-primary > *,
 button.bg-primary > * {
   position: relative;
   z-index: 1;
+  color: inherit !important;
 }
 
 /* ---- Hero search field: matching frosted glass (crisp corners) ---- */
@@ -159,4 +171,69 @@ nav.fixed {
 }
 #hero-search {
   border: 1px solid rgba(17, 24, 39, 0.12) !important;  /* thin, even with the button */
+}
+
+/* ============================================================
+   Luxury-minimalism polish (Superhuman-style) — all pages
+   ============================================================ */
+
+/* Tighter, more refined display headings */
+h1, h2 { letter-spacing: -0.02em; }
+h1 { line-height: 1.1; }
+
+/* Premium, soft card elevation on hover */
+.card-hover {
+  transition: transform .4s cubic-bezier(.2,.7,.2,1), box-shadow .4s ease !important;
+}
+.card-hover:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 24px 50px -18px rgba(15, 23, 42, 0.20) !important;
+}
+
+/* Refined gold focus ring */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.18) !important;
+}
+
+/* Smoother, more graceful scroll-reveal (if .reveal is used) */
+.reveal { transition-timing-function: cubic-bezier(.2,.7,.2,1) !important; }
+
+/* ============================================================
+   Subtle "glass light" — a reflection that reads in BOTH modes.
+   Light mode: convey "lit from above" via depth — crisp top edge,
+   faint lower inner shade, and a soft elevation shadow (the dark
+   cues are what stay visible on white). Dark mode: bright inner
+   highlights. Add class="glass-light" to apply to any shape.
+   ============================================================ */
+.bg-primary\/10, .bg-primary\/20, .bg-primary\/5,
+.bg-primary.bg-opacity-10, .bg-primary.bg-opacity-20, .bg-primary.bg-opacity-5,
+.glass-light {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),          /* crisp top highlight */
+    inset 0 -10px 14px -11px rgba(15, 23, 42, 0.18),  /* lower inner shade */
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 10px 22px -12px rgba(15, 23, 42, 0.14) !important; /* soft elevation */
+}
+.dark .bg-primary\/10, .dark .bg-primary\/20, .dark .bg-primary\/5,
+.dark .bg-primary.bg-opacity-10, .dark .bg-primary.bg-opacity-20, .dark .bg-primary.bg-opacity-5,
+.dark .glass-light {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 10px 16px -12px rgba(255, 255, 255, 0.14),
+    inset 0 -10px 14px -12px rgba(0, 0, 0, 0.5),
+    0 10px 24px -12px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Buttons keep the hollow look but gain a faint lit edge in both modes */
+a.bg-primary, button.bg-primary, input.bg-primary, #cookie-accept {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 6px 16px -12px rgba(15, 23, 42, 0.18) !important;
+}
+.dark a.bg-primary, .dark button.bg-primary, .dark input.bg-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 6px 18px -12px rgba(0, 0, 0, 0.5) !important;
 }

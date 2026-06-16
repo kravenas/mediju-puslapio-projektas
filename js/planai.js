@@ -44,11 +44,9 @@ async function loadSubscriptionStatus() {
     if (!statusEl || !proBtn) return;
 
     if (!sub) {
-        statusEl.textContent = 'Registruokitės, kad gautumėte nemokamą bandymą';
+        statusEl.textContent = 'Prisijunkite, kad aktyvuotumėte Pro planą';
         return;
     }
-
-    const daysLeft = window.medijusSubscription.getDaysRemaining(sub);
 
     if (sub.plan === 'pro' && sub.status === 'active') {
         proBtn.textContent = '✓ Pro planas aktyvus';
@@ -56,11 +54,12 @@ async function loadSubscriptionStatus() {
         proBtn.classList.add('bg-green-500', 'cursor-default');
         proBtn.disabled = true;
         statusEl.textContent = `Galioja iki ${new Date(sub.paid_ends_at).toLocaleDateString('lt-LT')}`;
-    } else if (sub.plan === 'trial' && sub.status === 'active') {
-        statusEl.innerHTML = `Bandomasis laikotarpis: liko <strong>${daysLeft} d.</strong>`;
     } else if (sub.status === 'expired') {
-        statusEl.innerHTML = '<span style="color:#ef4444;">Jūsų planas baigėsi</span>';
+        statusEl.innerHTML = '<span style="color:#ef4444;">Pro planas baigėsi — aktyvuok iš naujo</span>';
         proBtn.textContent = 'Aktyvuoti Pro planą — €10/mėn';
+    } else {
+        // free plan
+        statusEl.textContent = 'Naudojiesi nemokamu planu — aktyvuok Pro, kad atrakintum naujokus.';
     }
 
     // Check for review discount

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <title>Medijus - Admin</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +29,7 @@
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <a href="index.html" class="flex items-center gap-3">
-                    <span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
+                    <img src="favicon.svg" alt="" style="height:30px;width:30px;" class="flex-shrink-0"><span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
                 </a>
                 <span class="ml-4 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold uppercase" style="border-radius:4px;">Admin</span>
             </div>
@@ -79,6 +81,16 @@
             </button>
             <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="analytics">
                 Analitika
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="messages">
+                Žinutės
+                <span id="messages-count" class="ml-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-bold" style="border-radius:10px;"></span>
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="reviews">
+                Atsiliepimai
+            </button>
+            <button class="admin-tab px-5 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-b-2 border-transparent" data-tab="orders">
+                Užsakymai
             </button>
         </div>
 
@@ -246,6 +258,50 @@
                 <div id="revenue-list" class="space-y-3">
                     <div class="text-center py-8 text-gray-400 dark:text-gray-500">Kraunama...</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Messages Tab -->
+        <div id="tab-messages" class="hidden">
+            <div class="flex items-center gap-3 mb-6">
+                <button class="messages-filter active px-4 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" style="border-radius:6px;" data-status="unhandled">Naujos</button>
+                <button class="messages-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="handled">Atsakytos</button>
+                <button class="messages-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="all">Visos</button>
+            </div>
+            <div id="messages-list" class="space-y-4">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Reviews Moderation Tab -->
+        <div id="tab-reviews" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <button class="reviews-filter active px-4 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" style="border-radius:6px;" data-status="visible">Matomi</button>
+                    <button class="reviews-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="hidden">Paslėpti</button>
+                    <button class="reviews-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="all">Visi</button>
+                </div>
+                <button id="reviews-csv-btn" class="px-4 py-2 text-sm font-semibold bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-700" style="border-radius:6px;">⬇ CSV</button>
+            </div>
+            <div id="reviews-mod-list" class="space-y-4">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
+            </div>
+        </div>
+
+        <!-- Orders / Payments Tab -->
+        <div id="tab-orders" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button class="orders-filter active px-4 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" style="border-radius:6px;" data-status="all">Visi</button>
+                    <button class="orders-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="paid">Apmokėti</button>
+                    <button class="orders-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="delivered">Pristatyti</button>
+                    <button class="orders-filter px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700" style="border-radius:6px;" data-status="approved">Užbaigti</button>
+                </div>
+                <button id="orders-csv-btn" class="px-4 py-2 text-sm font-semibold bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-700" style="border-radius:6px;">⬇ CSV</button>
+            </div>
+            <div id="orders-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"></div>
+            <div id="orders-admin-list" class="space-y-3">
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>
             </div>
         </div>
     </div>

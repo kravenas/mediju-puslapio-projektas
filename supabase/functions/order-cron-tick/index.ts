@@ -25,10 +25,15 @@ Deno.serve(async (req: Request) => {
 
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const providedAuth = req.headers.get("X-Service-Auth") ?? "";
-    if (providedAuth !== serviceKey) return json({ error: "Unauthorized" }, 401);
-
     const admin = createClient(supabaseUrl, serviceKey);
+
+    // Authenticate the cron caller against the shared secret stored in vault
+    // (the same value pg_cron sends). This decouples auth from the platform
+    // service-role key, which can rotate and previously caused 401s.
+    const providedAuth = req.headers.get("X-Service-Auth") ?? "";
+    const { data: expectedAuth } = await admin.rpc("cron_auth_token");
+    const validAuth = (expectedAuth && providedAuth === expectedAuth) || providedAuth === serviceKey;
+    if (!validAuth) return json({ error: "Unauthorized" }, 401);
     const now = new Date().toISOString();
 
     // 1) Auto-escalate rejected → disputed (no Stripe needed)
@@ -104,10 +109,109 @@ Deno.serve(async (req: Request) => {
         }
     }
 
+    // 3) Delivery-deadline reminders & overdue notices (work still in progress = 'paid')
+    const LOGO_URL = "https://huqnfqagjsjgotxnecfk.supabase.co/storage/v1/object/public/brand/medijus-mark.png";
+    const siteUrl = (Deno.env.get("SITE_URL") || "https://medijus.lt").replace(/\/+$/, "");
+
+    const emailShell = (heading: string, bodyHtml: string) => `<div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#111827">
+        <div style="text-align:center;padding:18px 0 20px;border-bottom:1px solid #e5e7eb;margin-bottom:28px">
+            <img src="${LOGO_URL}" alt="Medijus" width="38" height="38" style="vertical-align:middle">
+            <span style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:600;color:#111827;vertical-align:middle;margin-left:8px;letter-spacing:-0.5px">Medijus</span>
+        </div>
+        <h2 style="color:#111827">${heading}</h2>
+        ${bodyHtml}
+        <p style="margin-top:24px"><a href="${siteUrl}/profilis" style="background:#D4A017;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600">Peržiūrėti užsakymą</a></p>
+        <p style="color:#6b7280;font-size:12px;margin-top:28px;border-top:1px solid #e5e7eb;padding-top:16px">Medijus — Lietuvos kūrybinė platforma · <a href="${siteUrl}" style="color:#6b7280">medijus.lt</a></p>
+    </div>`;
+
+    const sendEmail = async (to: string, subject: string, html: string) => {
+        try {
+            await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${serviceKey}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ to, subject, html }),
+            });
+        } catch (_) { /* never let email break the cron */ }
+    };
+    const creatorEmail = async (creatorId: string): Promise<string | null> => {
+        const { data: creator } = await admin.from("creators").select("user_id").eq("id", creatorId).single();
+        if (!creator?.user_id) return null;
+        const { data: cu } = await admin.auth.admin.getUserById(creator.user_id);
+        return cu?.user?.email ?? null;
+    };
+    const userEmail = async (userId: string): Promise<string | null> => {
+        const { data: u } = await admin.auth.admin.getUserById(userId);
+        return u?.user?.email ?? null;
+    };
+
+    const reminded: string[] = [];
+    const overdueNotified: string[] = [];
+
+    try {
+        // 3a) Approaching deadline (within 3 days), not yet reminded → nudge creator
+        const in3 = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: upcoming } = await admin
+            .from("orders")
+            .select("id, creator_id, service_name, delivery_deadline")
+            .eq("status", "paid")
+            .is("deadline_reminder_sent_at", null)
+            .not("delivery_deadline", "is", null)
+            .gt("delivery_deadline", now)
+            .lt("delivery_deadline", in3);
+
+        for (const o of upcoming ?? []) {
+            const email = await creatorEmail(o.creator_id);
+            if (email) {
+                const dl = String(o.delivery_deadline).slice(0, 10);
+                await sendEmail(email, "⏰ Artėja pristatymo terminas — Medijus", emailShell(
+                    "Liko nedaug laiko ⏰",
+                    `<p>Primename: užsakymo${o.service_name ? ` „<strong>${o.service_name}</strong>"` : ""} pristatymo terminas <strong>${dl}</strong> — liko mažiau nei 3 dienos.</p>
+                     <p>Nespėji? Gali pakoreguoti terminą savo užsakymų skiltyje, kol darbas dar nepristatytas.</p>`,
+                ));
+            }
+            await admin.from("orders").update({ deadline_reminder_sent_at: now }).eq("id", o.id);
+            reminded.push(o.id);
+        }
+
+        // 3b) Overdue (deadline passed), still not delivered, not yet notified → tell both sides
+        const { data: overdue } = await admin
+            .from("orders")
+            .select("id, creator_id, user_id, service_name, delivery_deadline")
+            .eq("status", "paid")
+            .is("overdue_notified_at", null)
+            .not("delivery_deadline", "is", null)
+            .lt("delivery_deadline", now);
+
+        for (const o of overdue ?? []) {
+            const cEmail = await creatorEmail(o.creator_id);
+            if (cEmail) {
+                await sendEmail(cEmail, "⚠️ Praleistas pristatymo terminas — Medijus", emailShell(
+                    "Terminas praleistas ⚠️",
+                    `<p>Užsakymo${o.service_name ? ` „<strong>${o.service_name}</strong>"` : ""} pristatymo terminas jau praėjo. Pristatyk darbą kuo greičiau arba susisiek su klientu per platformą.</p>
+                     <p>Jei darbas nebus pristatytas, klientas gali atšaukti užsakymą ir atgauti lėšas.</p>`,
+                ));
+            }
+            if (o.user_id) {
+                const clEmail = await userEmail(o.user_id);
+                if (clEmail) {
+                    await sendEmail(clEmail, "Tavo užsakymo terminas praleistas — Medijus", emailShell(
+                        "Kūrėjas vėluoja",
+                        `<p>Kūrėjas dar nepristatė užsakymo${o.service_name ? ` „<strong>${o.service_name}</strong>"` : ""}, nors terminas jau praėjo.</p>
+                         <p>Lėšos vis dar saugiai laikomos escrow'e. Susisiek su kūrėju per platformą — jei darbas nebus pristatytas, galėsi atšaukti ir atgauti pinigus.</p>`,
+                    ));
+                }
+            }
+            await admin.from("orders").update({ overdue_notified_at: now }).eq("id", o.id);
+            overdueNotified.push(o.id);
+        }
+    } catch (_) { /* reminders are best-effort; never fail the whole tick */ }
+
     return json({
         ok: true,
         escalated_to_disputed: (escalated ?? []).map(r => r.id),
         auto_approved: approvedIds,
+        deadline_reminded: reminded,
+        overdue_notified: overdueNotified,
         failures,
     });
 });

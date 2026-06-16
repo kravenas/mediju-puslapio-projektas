@@ -14,6 +14,8 @@
         interests: [],
         budget: '',
         bio: '',
+        isRisingStar: false,
+        portfolioTarget: 10,
     };
 
     function qs(s) { return document.querySelector(s); }
@@ -132,6 +134,12 @@
             });
         });
 
+        const obRisingCb = qs('#ob-rising-star');
+        if (obRisingCb) obRisingCb.addEventListener('change', () => {
+            const f = qs('#ob-rising-fields');
+            if (f) f.classList.toggle('hidden', !obRisingCb.checked);
+        });
+
         qs('#step2-back').addEventListener('click', () => showStep(1));
 
         qs('#step2-next').addEventListener('click', () => {
@@ -140,6 +148,9 @@
                 state.creatorRole = qs('#ob-role').value;
                 const priceRaw = qs('#ob-price').value;
                 state.price = priceRaw ? parseInt(priceRaw) : null;
+                state.isRisingStar = !!qs('#ob-rising-star')?.checked;
+                const ptRaw = parseInt(qs('#ob-portfolio-target')?.value || '10', 10);
+                state.portfolioTarget = (isNaN(ptRaw) || ptRaw < 1) ? 10 : Math.min(ptRaw, 100);
                 if (!state.creatorRole) return err('#step2-error', 'Pasirink profesiją.');
                 if (state.price === null || isNaN(state.price) || state.price < 0) return err('#step2-error', 'Įvesk kainą (gali būti 0 jei kuri portfolio).');
             } else {
@@ -209,7 +220,8 @@
                     review_count: 0,
                     portfolio_current: 0,
                     status: 'pending',
-                    is_rising_star: false,
+                    is_rising_star: state.isRisingStar,
+                    portfolio_target: state.isRisingStar ? state.portfolioTarget : null,
                 });
                 if (cErr) throw new Error('Kūrėjo profilio klaida: ' + cErr.message);
             }

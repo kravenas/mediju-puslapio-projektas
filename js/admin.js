@@ -12,6 +12,7 @@ let currentFilter = 'pending';
 let rejectingAppId = null;
 let currentListingsFilter = 'pending';
 let rejectingListingId = null;
+let currentMessagesFilter = 'unhandled';
 
 function hideLoading() {
     const el = document.getElementById('admin-loading');
@@ -97,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log('Setting up tabs...');
         setupTabs();
+        setupMessagesFilters();
         console.log('Setting up filters...');
         setupFilters();
         setupListingsFilters();
@@ -117,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             loadListingsPendingCount();
             loadPortfolioLinksPendingCount();
+            loadMessagesCount();
         }, 0);
     });
 });
@@ -139,6 +142,9 @@ function setupTabs() {
             document.getElementById('tab-disputes').classList.toggle('hidden', tabName !== 'disputes');
             document.getElementById('tab-portfolio-links').classList.toggle('hidden', tabName !== 'portfolio-links');
             document.getElementById('tab-analytics').classList.toggle('hidden', tabName !== 'analytics');
+            document.getElementById('tab-messages').classList.toggle('hidden', tabName !== 'messages');
+            document.getElementById('tab-reviews').classList.toggle('hidden', tabName !== 'reviews');
+            document.getElementById('tab-orders').classList.toggle('hidden', tabName !== 'orders');
 
             if (tabName === 'listings') loadListings();
             if (tabName === 'applications') loadApplications();
@@ -146,8 +152,191 @@ function setupTabs() {
             if (tabName === 'disputes') loadDisputes();
             if (tabName === 'portfolio-links') loadPortfolioLinks();
             if (tabName === 'analytics') loadAnalytics();
+            if (tabName === 'messages') loadMessages();
+            if (tabName === 'reviews') loadReviewsAdmin();
+            if (tabName === 'orders') loadOrdersAdmin();
         });
     });
+
+    setupReviewsFilters();
+    setupOrdersFilters();
+}
+
+// ---- Reviews moderation ----
+
+let reviewsFilter = 'visible';
+let reviewsCache = [];
+
+function setupReviewsFilters() {
+    document.querySelectorAll('.reviews-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.reviews-filter').forEach(b => {
+                b.classList.remove('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+                b.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            });
+            btn.classList.add('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+            btn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            reviewsFilter = btn.dataset.status;
+            loadReviewsAdmin();
+        });
+    });
+    const csv = document.getElementById('reviews-csv-btn');
+    if (csv) csv.addEventListener('click', () => exportCsv('atsiliepimai', reviewsCache.map(r => ({
+        id: r.id, kurejas: r.creators?.name || '', autorius: r.author_name || '',
+        ivertinimas: r.rating, atsiliepimas: r.content || '', atsakymas: r.creator_response || '',
+        pasleptas: r.hidden ? 'taip' : 'ne', data: r.created_at
+    }))));
+}
+
+async function loadReviewsAdmin() {
+    const list = document.getElementById('reviews-mod-list');
+    if (!list) return;
+    list.innerHTML = '<div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>';
+
+    let query = supabase.from('reviews').select('*, creators(name)').order('created_at', { ascending: false });
+    if (reviewsFilter === 'visible') query = query.eq('hidden', false);
+    else if (reviewsFilter === 'hidden') query = query.eq('hidden', true);
+
+    const { data: reviews, error } = await query;
+    if (error) { list.innerHTML = `<p class="text-red-500 text-sm">Klaida: ${escapeHtml(error.message)}</p>`; return; }
+    reviewsCache = reviews || [];
+    if (!reviews.length) { list.innerHTML = '<div class="text-center py-12 text-gray-400">Atsiliepimų nėra.</div>'; return; }
+
+    list.innerHTML = reviews.map(r => `
+        <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-4 ${r.hidden ? 'opacity-60' : ''}" style="border-radius:8px;" data-review-row="${escapeHtml(r.id)}">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">${escapeHtml(r.author_name || 'Anon')}</span>
+                        <span class="text-xs text-yellow-500">${'★'.repeat(Math.max(0, Math.min(5, r.rating || 0)))}</span>
+                        <span class="text-xs text-gray-400">→ ${escapeHtml(r.creators?.name || '—')}</span>
+                        ${r.hidden ? '<span class="text-[10px] font-bold px-2 py-0.5 bg-red-100 text-red-600" style="border-radius:10px;">PASLĖPTAS</span>' : ''}
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${escapeHtml(r.content || '')}</p>
+                    ${r.creator_response ? `<p class="text-xs text-primary mt-1">↳ atsakymas: ${escapeHtml(r.creator_response)}</p>` : ''}
+                    <p class="text-[11px] text-gray-400 mt-1">${new Date(r.created_at).toLocaleString('lt-LT')}</p>
+                </div>
+                <div class="flex flex-col gap-1.5 flex-shrink-0">
+                    <button data-review-hide="${escapeHtml(r.id)}" data-hidden="${r.hidden}" class="px-3 py-1.5 text-xs font-semibold ${r.hidden ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}" style="border-radius:4px;">${r.hidden ? 'Rodyti' : 'Slėpti'}</button>
+                    <button data-review-del="${escapeHtml(r.id)}" class="px-3 py-1.5 text-xs font-semibold bg-red-100 text-red-600 hover:bg-red-200" style="border-radius:4px;">Trinti</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    list.querySelectorAll('[data-review-hide]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.reviewHide;
+        const newHidden = btn.dataset.hidden !== 'true';
+        btn.disabled = true;
+        const { error } = await supabase.from('reviews').update({ hidden: newHidden }).eq('id', id);
+        if (error) { alert('Klaida: ' + error.message); btn.disabled = false; return; }
+        loadReviewsAdmin();
+    }));
+    list.querySelectorAll('[data-review-del]').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Negrįžtamai ištrinti šį atsiliepimą?')) return;
+        btn.disabled = true;
+        const { error } = await supabase.from('reviews').delete().eq('id', btn.dataset.reviewDel);
+        if (error) { alert('Klaida: ' + error.message); btn.disabled = false; return; }
+        loadReviewsAdmin();
+    }));
+}
+
+// ---- Orders / payments overview ----
+
+let ordersFilter = 'all';
+let ordersCache = [];
+
+function setupOrdersFilters() {
+    document.querySelectorAll('.orders-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.orders-filter').forEach(b => {
+                b.classList.remove('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+                b.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            });
+            btn.classList.add('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+            btn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            ordersFilter = btn.dataset.status;
+            loadOrdersAdmin();
+        });
+    });
+    const csv = document.getElementById('orders-csv-btn');
+    if (csv) csv.addEventListener('click', () => exportCsv('uzsakymai', ordersCache.map(o => ({
+        id: o.id, kurejas: o.creators?.name || '', paslauga: o.service_name || '',
+        suma_eur: ((o.amount_cents || 0) / 100).toFixed(2), komisija_eur: ((o.platform_fee_cents || 0) / 100).toFixed(2),
+        statusas: o.status, stripe_status: o.stripe_status || '', sukurta: o.created_at, apmoketa: o.paid_at || ''
+    }))));
+}
+
+async function loadOrdersAdmin() {
+    const list = document.getElementById('orders-admin-list');
+    const summary = document.getElementById('orders-summary');
+    if (!list) return;
+    list.innerHTML = '<div class="text-center py-12 text-gray-400 dark:text-gray-500">Kraunama...</div>';
+
+    let query = supabase.from('orders').select('*, creators(name)').neq('status', 'pending_payment').order('created_at', { ascending: false });
+    if (ordersFilter !== 'all') query = query.eq('status', ordersFilter);
+
+    const { data: orders, error } = await query;
+    if (error) { list.innerHTML = `<p class="text-red-500 text-sm">Klaida: ${escapeHtml(error.message)}</p>`; return; }
+    ordersCache = orders || [];
+
+    // Summary cards (computed over the current filter)
+    const gross = orders.reduce((s, o) => s + (o.amount_cents || 0), 0) / 100;
+    const fees = orders.reduce((s, o) => s + (o.platform_fee_cents || 0), 0) / 100;
+    const escrow = orders.filter(o => ['paid', 'delivered', 'rejected', 'disputed'].includes(o.status))
+        .reduce((s, o) => s + (o.amount_cents || 0), 0) / 100;
+    if (summary) summary.innerHTML = `
+        ${adminStatCard('Užsakymų', orders.length, 'bg-gray-50 dark:bg-gray-800')}
+        ${adminStatCard('Bendra suma', '€' + gross.toFixed(2), 'bg-blue-50 dark:bg-blue-900/20')}
+        ${adminStatCard('Platformos komisija', '€' + fees.toFixed(2), 'bg-green-50 dark:bg-green-900/20')}
+        ${adminStatCard('Escrow (užšaldyta)', '€' + escrow.toFixed(2), 'bg-amber-50 dark:bg-amber-900/20')}
+    `;
+
+    if (!orders.length) { list.innerHTML = '<div class="text-center py-12 text-gray-400">Užsakymų nėra.</div>'; return; }
+
+    const STATUS_LT = { paid: 'Apmokėta', delivered: 'Pristatyta', approved: 'Užbaigta', released: 'Išmokėta', rejected: 'Atmesta', refunded: 'Grąžinta', disputed: 'Ginčas' };
+    list.innerHTML = orders.map(o => `
+        <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-4 flex items-center justify-between gap-3" style="border-radius:8px;">
+            <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">${escapeHtml(o.service_name || 'Paslauga')}</span>
+                    <span class="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300" style="border-radius:10px;">${escapeHtml(STATUS_LT[o.status] || o.status)}</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Kūrėjas: ${escapeHtml(o.creators?.name || '—')} · ${new Date(o.created_at).toLocaleDateString('lt-LT')}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <p class="text-sm font-bold text-gray-900 dark:text-white">€${((o.amount_cents || 0) / 100).toFixed(2)}</p>
+                <p class="text-[11px] text-gray-400">komisija €${((o.platform_fee_cents || 0) / 100).toFixed(2)}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function adminStatCard(label, value, bg) {
+    return `<div class="${bg} border border-secondary dark:border-gray-700 p-3" style="border-radius:8px;">
+        <p class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(label)}</p>
+        <p class="text-xl font-bold text-gray-900 dark:text-white mt-0.5">${escapeHtml(String(value))}</p>
+    </div>`;
+}
+
+// CSV export helper — builds a CSV from an array of flat objects and downloads it.
+function exportCsv(name, rows) {
+    if (!rows || !rows.length) { alert('Nėra duomenų eksportui.'); return; }
+    const headers = Object.keys(rows[0]);
+    const esc = (v) => {
+        const s = String(v ?? '');
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const csv = [headers.join(','), ...rows.map(r => headers.map(h => esc(r[h])).join(','))].join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `medijus-${name}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
 }
 
 // ---- Status filters ----
@@ -402,6 +591,115 @@ function setupListingsFilters() {
     });
 }
 
+// ==========================================
+// Contact messages (kontaktai.html form)
+// ==========================================
+
+function setupMessagesFilters() {
+    document.querySelectorAll('.messages-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.messages-filter').forEach(b => {
+                b.classList.remove('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+                b.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            });
+            btn.classList.add('active', 'bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-400');
+            btn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+
+            currentMessagesFilter = btn.dataset.status;
+            loadMessages();
+        });
+    });
+}
+
+async function loadMessagesCount() {
+    const { count } = await supabase
+        .from('contact_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('handled', false);
+    const el = document.getElementById('messages-count');
+    if (el) el.textContent = count > 0 ? count : '';
+}
+
+async function loadMessages() {
+    const container = document.getElementById('messages-list');
+    container.innerHTML = '<div class="text-center py-12 text-gray-400">Kraunama...</div>';
+
+    let query = supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (currentMessagesFilter === 'unhandled') query = query.eq('handled', false);
+    else if (currentMessagesFilter === 'handled') query = query.eq('handled', true);
+
+    const { data: messages, error } = await query;
+
+    if (error) {
+        container.innerHTML = `
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-5" style="border-radius:10px;">
+                <p class="text-red-600 dark:text-red-400 font-semibold text-sm mb-2">Klaida kraunant žinutes</p>
+                <p class="text-red-500 text-xs font-mono">${error.message}</p>
+            </div>`;
+        return;
+    }
+
+    if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-gray-400 dark:text-gray-500">Žinučių nėra</div>';
+        return;
+    }
+
+    container.innerHTML = messages.map(renderMessage).join('');
+}
+
+function renderMessage(m) {
+    const date = new Date(m.created_at).toLocaleString('lt-LT', {
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+    const name = escapeHtml(m.name || '—');
+    const email = escapeHtml(m.email || '');
+    const body = escapeHtml(m.message || '').replace(/\n/g, '<br>');
+
+    const badge = m.handled
+        ? '<span class="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold" style="border-radius:10px;">Atsakyta</span>'
+        : '<span class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-semibold" style="border-radius:10px;">Nauja</span>';
+
+    const action = m.handled
+        ? `<button onclick="markMessageHandled('${m.id}', false)" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium">Pažymėti kaip naują</button>`
+        : `<button onclick="markMessageHandled('${m.id}', true)" class="text-sm text-primary hover:underline font-semibold">Pažymėti atsakyta</button>`;
+
+    return `
+        <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 p-5" style="border-radius:12px;">
+            <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                    <p class="font-semibold text-gray-900 dark:text-white">${name}</p>
+                    <a href="mailto:${email}" class="text-sm text-primary hover:underline">${email}</a>
+                </div>
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    ${badge}
+                    <span class="text-xs text-gray-400 dark:text-gray-500">${date}</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4">${body}</p>
+            <div class="flex items-center gap-4 pt-3 border-t border-secondary dark:border-gray-700">
+                <a href="mailto:${email}?subject=Re: Medijus užklausa" class="text-sm text-primary hover:underline font-semibold">Atsakyti el. paštu</a>
+                ${action}
+            </div>
+        </div>`;
+}
+
+async function markMessageHandled(id, handled) {
+    const { error } = await supabase
+        .from('contact_messages')
+        .update({ handled })
+        .eq('id', id);
+    if (error) {
+        alert('Klaida: ' + error.message);
+        return;
+    }
+    await loadMessages();
+    await loadMessagesCount();
+}
+
 async function loadListingsPendingCount() {
     const { count } = await supabase
         .from('creators')
@@ -483,7 +781,7 @@ function renderListing(l) {
     const reviewedInfo = reviewedDate ? `<span class="text-xs text-gray-400 ml-2">Peržiūrėta: ${reviewedDate}</span>` : '';
 
     const avatar = l.image_url
-        ? `<img src="${safeUrl(l.image_url)}" class="w-12 h-12 object-cover flex-shrink-0" style="border-radius:8px;" alt="">`
+        ? `<img src="${safeUrl(l.image_url)}" loading="lazy" decoding="async" class="w-12 h-12 object-cover flex-shrink-0" style="border-radius:8px;" alt="">`
         : `<div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 text-sm font-bold flex-shrink-0" style="border-radius:8px;">${escapeHtml(l.name ? l.name.charAt(0).toUpperCase() : '?')}</div>`;
 
     return `

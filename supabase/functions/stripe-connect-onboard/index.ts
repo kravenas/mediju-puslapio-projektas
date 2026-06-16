@@ -40,6 +40,10 @@ Deno.serve(async (req: Request) => {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const siteUrl = Deno.env.get("SITE_URL") ?? "";
+        // Prefer the caller's Origin so the Stripe return lands back where the user
+        // actually is (localhost while testing, the real domain in prod).
+        const reqOrigin = req.headers.get("origin") ?? "";
+        const redirectBase = (/^https?:\/\//i.test(reqOrigin) ? reqOrigin : siteUrl).replace(/\/+$/, "");
 
         const userClient = createClient(supabaseUrl, serviceKey, {
             global: { headers: { Authorization: `Bearer ${token}` } },
@@ -105,8 +109,8 @@ Deno.serve(async (req: Request) => {
 
         const link = await stripe.accountLinks.create({
             account: accountId,
-            refresh_url: `${siteUrl}/profilis.html?stripe=refresh`,
-            return_url: `${siteUrl}/profilis.html?stripe=return`,
+            refresh_url: `${redirectBase}/profilis?stripe=refresh`,
+            return_url: `${redirectBase}/profilis?stripe=return`,
             type: "account_onboarding",
         });
 

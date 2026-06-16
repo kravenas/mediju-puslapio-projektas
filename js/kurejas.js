@@ -380,7 +380,7 @@ function renderPackageComparison(packages, actionEl, creatorId) {
         const badge = isHighlighted ? '<span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap z-10">Populiariausias</span>' : '';
 
         return `
-            <div class="pkg-card relative ${borderCls} bg-white dark:bg-gray-900 p-3 flex flex-col ${i > 0 ? 'hidden md:flex' : ''}"
+            <div class="pkg-card relative ${borderCls} bg-white dark:bg-gray-900 p-3 flex flex-col ${i > 0 ? 'hidden' : ''}"
                 data-pkg-idx="${i}" data-service-id="${escapeAttr(pkg.id)}" data-service-name="${escapeAttr(pkg.name)}" data-service-price="${escapeAttr(pkg.price)}"
                 style="border-radius:8px; min-height:200px;">
                 ${badge}
@@ -407,10 +407,10 @@ function renderPackageComparison(packages, actionEl, creatorId) {
     }).join('');
 
     container.innerHTML = `
-        <div class="flex md:hidden mb-3 gap-1 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex mb-3 gap-1 border-b border-gray-100 dark:border-gray-700">
             ${tabsHtml}
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-${packages.length} gap-2">
+        <div class="grid grid-cols-1 gap-2">
             ${cardsHtml}
         </div>
     `;
@@ -425,13 +425,10 @@ function renderPackageComparison(packages, actionEl, creatorId) {
             });
             tab.classList.remove('text-gray-500', 'dark:text-gray-400', 'border-transparent');
             tab.classList.add('text-primary', 'border-primary');
+            // Show only the selected package full-width (same on mobile & desktop).
             container.querySelectorAll('.pkg-card').forEach(c => {
                 c.classList.toggle('hidden', c.dataset.pkgIdx !== idx);
-                c.classList.remove('md:flex');
-                if (c.dataset.pkgIdx === idx) c.classList.remove('hidden');
             });
-            // Re-show all on desktop via media query workaround
-            container.querySelectorAll('.pkg-card').forEach(c => c.classList.add('md:flex'));
         });
     });
 
@@ -567,6 +564,7 @@ async function loadReviews(creatorId) {
         .from('reviews')
         .select('*')
         .eq('creator_id', creatorId)
+        .eq('hidden', false)
         .order('created_at', { ascending: false });
 
     if (error || !reviews || reviews.length === 0) {
@@ -584,6 +582,11 @@ async function loadReviews(creatorId) {
             </div>
             ${r.content ? `<p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">${escapeHtml(r.content)}</p>` : ''}
             ${r.author_location ? `<p class="text-xs text-gray-400 mt-1">${escapeHtml(r.author_location)}</p>` : ''}
+            ${r.creator_response && r.creator_response.trim() ? `
+                <div class="mt-2 pl-3 border-l-2 border-primary/40">
+                    <p class="text-xs font-semibold text-primary mb-0.5">Kūrėjo atsakymas</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">${escapeHtml(r.creator_response)}</p>
+                </div>` : ''}
         </div>
     `).join('');
 }

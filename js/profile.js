@@ -309,6 +309,32 @@
         return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
     }
 
+    // Set the "Užsakymai" tab badge on page load, without waiting for the user
+    // to open the tab. Mirrors the nav avatar badge (auth.js) so the two agree:
+    // creator → orders awaiting delivery (paid); client → delivered awaiting approval.
+    async function updateOrdersTabBadge(isCreator) {
+        const badge = qs('#orders-badge');
+        if (!badge) return;
+        try {
+            let count = 0;
+            if (isCreator) {
+                const creatorId = creatorData?.id;
+                if (!creatorId) return;
+                const { count: c } = await supabase.from('orders')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('creator_id', creatorId).eq('status', 'paid');
+                count = c || 0;
+            } else {
+                const { count: c } = await supabase.from('orders')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.id).eq('status', 'delivered');
+                count = c || 0;
+            }
+            badge.textContent = String(count);
+            badge.classList.toggle('hidden', count === 0);
+        } catch (_) { /* orders table/column missing — keep badge hidden */ }
+    }
+
     async function loadOrders(isCreator) {
         const container = qs('#orders-panel-content');
         if (!container) return;
@@ -414,7 +440,17 @@
 
         let action = '';
         if (isCreator && o.status === 'paid') {
-            action = `<button data-action="deliver" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Pažymėti kaip atlikta</button>`;
+            action = `
+                <button data-action="deliver-toggle" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Pristatyti darbą</button>
+                <div data-deliver-form="${escHtml(o.id)}" class="hidden mt-3 p-3 bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700" style="border-radius:6px;">
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Pristatymo nuoroda <span class="text-red-500">*</span></label>
+                    <input data-deliver-url="${escHtml(o.id)}" type="url" placeholder="https://wetransfer.com/... arba Google Drive nuoroda" class="w-full h-10 px-3 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white text-sm" style="border-radius:4px;">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">💡 Naudok nuorodą, galiojančią bent kol klientas patvirtins. Google Drive/Dropbox saugiausia (WeTransfer nemokama ~7 d.).</p>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-3 mb-1">Žinutė klientui (neprivaloma)</label>
+                    <textarea data-deliver-note="${escHtml(o.id)}" rows="2" placeholder="Kas viduje, slaptažodis transferui, instrukcijos..." class="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white text-sm" style="border-radius:4px;"></textarea>
+                    <button data-action="deliver-submit" data-order-id="${escHtml(o.id)}" class="mt-3 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Išsiųsti klientui →</button>
+                </div>
+            `;
         } else if (!isCreator && o.status === 'delivered') {
             const left = daysLeft(o.approval_deadline);
             action = `
@@ -447,6 +483,40 @@
                 <p class="text-gray-700 dark:text-gray-300 mt-1">${escHtml(o.rejection_reason)}</p>
             </div>` : '';
 
+        const deliveryInfo = o.delivery_url ? `
+            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-sm" style="border-radius:6px;">
+                <strong class="text-blue-700 dark:text-blue-400">${isCreator ? 'Tavo pristatytas darbas:' : 'Kūrėjo pristatytas darbas:'}</strong>
+                ${o.delivery_note ? `<p class="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-line">${escHtml(o.delivery_note)}</p>` : ''}
+                <a href="${escHtml(o.delivery_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold" style="border-radius:4px;">⬇ Atsisiųsti darbą</a>
+            </div>` : '';
+
+        // Delivery deadline — shown while the work is in progress (status 'paid').
+        // Creator can adjust it per order (hybrid model); client sees it read-only.
+        let deadlineInfo = '';
+        if (o.status === 'paid' && o.delivery_deadline) {
+            const d = new Date(o.delivery_deadline);
+            const dateStr = d.toLocaleDateString('lt-LT');
+            const dLeft = Math.ceil((d.getTime() - Date.now()) / 86400000);
+            const overdue = dLeft < 0;
+            const statusTxt = overdue
+                ? `<span class="text-red-600 dark:text-red-400 font-semibold">vėluojama ${Math.abs(dLeft)} d.</span>`
+                : `liko <strong>${dLeft} d.</strong>`;
+            const who = isCreator ? 'Pristatyti iki' : 'Kūrėjas pristatys iki';
+            const adjust = isCreator ? `
+                <div class="mt-2">
+                    <button data-action="deadline-toggle" data-order-id="${escHtml(o.id)}" class="text-xs text-primary hover:underline cursor-pointer">Keisti terminą</button>
+                    <div data-deadline-form="${escHtml(o.id)}" class="hidden mt-2 flex items-center gap-2 flex-wrap">
+                        <input data-deadline-input="${escHtml(o.id)}" type="date" class="h-9 px-2 bg-white dark:bg-gray-900 border border-secondary dark:border-gray-600 text-sm text-gray-900 dark:text-white" style="border-radius:4px;">
+                        <button data-action="deadline-save" data-order-id="${escHtml(o.id)}" class="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold cursor-pointer" style="border-radius:4px;">Išsaugoti</button>
+                    </div>
+                </div>` : '';
+            deadlineInfo = `
+                <div class="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm" style="border-radius:6px;">
+                    <span class="text-amber-800 dark:text-amber-300">📅 ${who}: <strong>${dateStr}</strong> — ${statusTxt}</span>
+                    ${adjust}
+                </div>`;
+        }
+
         return `
             <div class="bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 p-4 mb-3" style="border-radius:8px;">
                 <div class="flex items-start justify-between gap-3 mb-2">
@@ -457,13 +527,21 @@
                     <span class="px-2 py-1 text-[11px] font-semibold ${meta.cls} dark:bg-opacity-20" style="border-radius:4px;">${meta.label}</span>
                 </div>
                 ${rejectInfo}
+                ${deadlineInfo}
+                ${deliveryInfo}
                 <div class="mt-3">${action}</div>
             </div>
         `;
     }
 
     function attachOrderActionListeners(isCreator) {
-        qsa('[data-action="deliver"]').forEach(btn => {
+        qsa('[data-action="deliver-toggle"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const form = qs(`[data-deliver-form="${btn.dataset.orderId}"]`);
+                if (form) form.classList.toggle('hidden');
+            });
+        });
+        qsa('[data-action="deliver-submit"]').forEach(btn => {
             btn.addEventListener('click', () => handleOrderAction('deliver', btn.dataset.orderId, btn, isCreator));
         });
         qsa('[data-action="approve"]').forEach(btn => {
@@ -471,6 +549,26 @@
         });
         qsa('[data-action="reject"]').forEach(btn => {
             btn.addEventListener('click', () => handleOrderAction('reject', btn.dataset.orderId, btn, isCreator));
+        });
+        // Hybrid deadline: creator adjusts the delivery date for a specific order.
+        qsa('[data-action="deadline-toggle"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const form = qs(`[data-deadline-form="${btn.dataset.orderId}"]`);
+                if (form) form.classList.toggle('hidden');
+            });
+        });
+        qsa('[data-action="deadline-save"]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.orderId;
+                const val = qs(`[data-deadline-input="${id}"]`)?.value;
+                if (!val) { alert('Pasirink datą.'); return; }
+                const iso = new Date(val + 'T23:59:59').toISOString();
+                btn.disabled = true;
+                const { error } = await supabase.rpc('set_delivery_deadline', { p_order_id: id, p_deadline: iso });
+                btn.disabled = false;
+                if (error) { alert('Klaida: ' + error.message); return; }
+                loadOrders(isCreator);
+            });
         });
     }
 
@@ -483,9 +581,14 @@
 
         let endpoint, body;
         if (action === 'deliver') {
-            if (!confirm('Pažymėti šį užsakymą kaip atliktą? Klientas turės 7d patvirtinti arba atmesti.')) return;
+            const url = (qs(`[data-deliver-url="${orderId}"]`)?.value || '').trim();
+            const note = (qs(`[data-deliver-note="${orderId}"]`)?.value || '').trim();
+            if (!/^https?:\/\/.+/i.test(url)) {
+                alert('Įvesk teisingą pristatymo nuorodą (turi prasidėti http:// arba https://).');
+                return;
+            }
             endpoint = 'order-mark-delivered';
-            body = { order_id: orderId };
+            body = { order_id: orderId, delivery_url: url, delivery_note: note || null };
         } else if (action === 'approve') {
             if (!confirm('Patvirtinti darbą? Kūrėjui bus pervedami pinigai.')) return;
             endpoint = 'order-approve';
@@ -588,7 +691,19 @@
             };
         });
 
-        qs('#review-skip').onclick = () => modal.classList.add('hidden');
+        qs('#review-skip').onclick = async () => {
+            // Client declined to rate → record an automatic 5★ review from "Medijus".
+            modal.classList.add('hidden');
+            await supabase.from('reviews').insert({
+                creator_id: creatorId,
+                order_id: orderId,
+                reviewer_user_id: currentUser.id,
+                author_name: 'Medijus',
+                author_location: null,
+                rating: 5,
+                content: 'Automatinis įvertinimas — užsakymas sėkmingai įvykdytas.',
+            });
+        };
 
         qs('#review-submit').onclick = async () => {
             const msg = qs('#review-msg');
@@ -1069,20 +1184,36 @@
 
         const ratingEl = qs('#stat-rating');
         const reviewsEl = qs('#stat-reviews');
-        const viewsEl = qs('#stat-views');
         const ordersEl = qs('#stat-orders');
 
         if (creatorData) {
-            if (ratingEl) ratingEl.textContent = creatorData.rating || '0.0';
-            if (reviewsEl) reviewsEl.textContent = creatorData.review_count || '0';
-            if (viewsEl) viewsEl.textContent = '—';
-            if (ordersEl) ordersEl.textContent = '—';
+            // Compute live from the loaded reviews instead of trusting the
+            // cached creators.rating / creators.review_count columns — nothing
+            // keeps those in sync when a review is inserted, so they stay 0.
+            const reviews = creatorData.reviews || [];
+            const reviewCount = reviews.length;
+            const avgRating = reviewCount
+                ? (reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0) / reviewCount).toFixed(1)
+                : '0.0';
 
-            renderReviews(creatorData.reviews || []);
+            if (ratingEl) ratingEl.textContent = avgRating;
+            if (reviewsEl) reviewsEl.textContent = String(reviewCount);
+            if (ordersEl) ordersEl.textContent = '…';
+
+            // Count real orders for this creator (exclude never-paid carts).
+            supabase
+                .from('orders')
+                .select('id', { count: 'exact', head: true })
+                .eq('creator_id', creatorData.id)
+                .neq('status', 'pending_payment')
+                .then(({ count }) => {
+                    if (ordersEl) ordersEl.textContent = String(count || 0);
+                });
+
+            renderReviews(reviews);
         } else {
             if (ratingEl) ratingEl.textContent = '—';
             if (reviewsEl) reviewsEl.textContent = '0';
-            if (viewsEl) viewsEl.textContent = '—';
             if (ordersEl) ordersEl.textContent = '—';
 
             const container = qs('#reviews-list');
@@ -1122,14 +1253,21 @@
 
         const sorted = [...reviews].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
 
-        container.innerHTML = sorted.map(r => `
-            <div class="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+        container.innerHTML = sorted.map(r => {
+            const hasResponse = !!(r.creator_response && r.creator_response.trim());
+            const responseBlock = hasResponse ? `
+                <div class="mt-2 ml-1 pl-3 border-l-2 border-primary/40">
+                    <p class="text-xs font-semibold text-primary mb-0.5">Jūsų atsakymas:</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400" data-review-response>${escHtml(r.creator_response)}</p>
+                </div>` : '';
+            return `
+            <div class="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0" data-review-id="${escHtml(r.id)}">
                 <div class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <span class="text-sm font-semibold text-gray-600 dark:text-gray-300">${(r.author_name || '?').charAt(0)}</span>
+                    <span class="text-sm font-semibold text-gray-600 dark:text-gray-300">${escHtml((r.author_name || '?').charAt(0))}</span>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                        <span class="font-medium text-sm text-gray-900 dark:text-white">${r.author_name}</span>
+                        <span class="font-medium text-sm text-gray-900 dark:text-white">${escHtml(r.author_name)}</span>
                         <span class="text-xs text-gray-400">${formatDate(r.created_at)}</span>
                     </div>
                     <div class="flex gap-0.5 mt-0.5">
@@ -1137,10 +1275,53 @@
                             `<svg class="w-3.5 h-3.5 ${i < r.rating ? 'text-primary' : 'text-gray-300 dark:text-gray-600'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`
                         ).join('')}
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">${r.content || ''}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${escHtml(r.content || '')}</p>
+                    ${responseBlock}
+                    <button type="button" data-review-reply-toggle class="mt-2 text-xs font-semibold text-primary hover:underline cursor-pointer">${hasResponse ? 'Redaguoti atsakymą' : 'Atsakyti'}</button>
+                    <div class="hidden mt-2" data-review-reply-form>
+                        <textarea data-review-reply-input rows="2" maxlength="500" class="w-full text-sm px-3 py-2 border border-secondary dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white" style="border-radius:6px;" placeholder="Parašyk viešą atsakymą...">${hasResponse ? escHtml(r.creator_response) : ''}</textarea>
+                        <div class="flex gap-2 mt-1.5">
+                            <button type="button" data-review-reply-submit class="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold cursor-pointer" style="border-radius:4px;">Išsaugoti</button>
+                            <button type="button" data-review-reply-cancel class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-semibold cursor-pointer" style="border-radius:4px;">Atšaukti</button>
+                            ${hasResponse ? '<button type="button" data-review-reply-delete class="px-3 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-semibold cursor-pointer" style="border-radius:4px;">Pašalinti</button>' : ''}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
+
+        wireReviewReplies(container);
+    }
+
+    function wireReviewReplies(container) {
+        container.querySelectorAll('[data-review-id]').forEach(card => {
+            const reviewId = card.getAttribute('data-review-id');
+            const toggle = card.querySelector('[data-review-reply-toggle]');
+            const form = card.querySelector('[data-review-reply-form]');
+            const input = card.querySelector('[data-review-reply-input]');
+            const submit = card.querySelector('[data-review-reply-submit]');
+            const cancel = card.querySelector('[data-review-reply-cancel]');
+            const del = card.querySelector('[data-review-reply-delete]');
+            if (!toggle || !form) return;
+
+            toggle.addEventListener('click', () => {
+                form.classList.toggle('hidden');
+                if (!form.classList.contains('hidden')) input?.focus();
+            });
+            cancel?.addEventListener('click', () => form.classList.add('hidden'));
+
+            async function save(text) {
+                submit.disabled = true;
+                const { error } = await supabase.rpc('set_review_response', { p_review_id: Number(reviewId), p_response: text });
+                submit.disabled = false;
+                if (error) { alert('Klaida: ' + error.message); return; }
+                // Refresh from DB so the displayed list reflects the change.
+                creatorData = await loadCreatorData(currentUser.id);
+                renderReviews(creatorData?.reviews || []);
+            }
+            submit?.addEventListener('click', () => save(input.value));
+            del?.addEventListener('click', () => { if (confirm('Pašalinti atsakymą?')) save(''); });
+        });
     }
 
     function renderActivityTimeline() {
@@ -2083,6 +2264,10 @@
         renderProfileForm();
         setupTabs();
         setupAvatarUpload();
+
+        // Eagerly populate the "Užsakymai" tab badge so it matches the nav badge
+        // immediately, instead of only after the user opens the orders tab.
+        updateOrdersTabBadge(isCreatorRole(role));
 
         // Live preview on form input
         const formFields = qsa('#tab-informacija input, #tab-informacija textarea');

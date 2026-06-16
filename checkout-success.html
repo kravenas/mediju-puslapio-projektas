@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <title>Mokėjimas sėkmingas - Medijus</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <script src="https://js-de.sentry-cdn.com/e65b09ebdc7e2b3188cdae22b00067cc.min.js" crossorigin="anonymous"></script>
@@ -84,11 +86,6 @@
     <script src="js/utils.js"></script>
     <script src="js/supabase-config.js"></script>
     <script>
-        if (localStorage.getItem('darkMode') === 'true' ||
-            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('order');
 

@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Private / app pages — no SEO value, keep out of the index
+Disallow: /profilis
+Disallow: /profilis.html
+Disallow: /zinutes
+Disallow: /zinutes.html
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /onboarding
+Disallow: /onboarding.html
+Disallow: /checkout-success
+Disallow: /checkout-success.html
+Disallow: /checkout-cancel
+Disallow: /checkout-cancel.html
+
+Sitemap: https://medijus.lt/sitemap.xml

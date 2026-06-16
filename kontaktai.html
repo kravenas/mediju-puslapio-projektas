@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
+    <title>Kontaktai - Medijus</title>
+    <meta name="description" content="Susisiek su Medijus komanda. Klausimai apie platformą, bendradarbiavimą ar pagalbą — esame pasiruošę padėti.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://medijus.lt/kontaktai">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Medijus">
+    <meta property="og:locale" content="lt_LT">
+    <meta property="og:title" content="Kontaktai - Medijus">
+    <meta property="og:description" content="Susisiek su Medijus komanda — klausimai, bendradarbiavimas, pagalba.">
+    <meta property="og:url" content="https://medijus.lt/kontaktai">
+    <meta property="og:image" content="https://medijus.lt/img/bg-media.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js" integrity="sha384-sfbOag7cEcqn2DK53T/iBNAH/2cMCf7bSzJDwBhV117A0z/NIj9Usei1jKIBY1Ae" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
+    <link rel="stylesheet" href="css/medijus-ui.css">
+    <style>
+        :root {
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+        * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+        .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.18); border-color: rgba(212,160,23,0.5); }
+        .cf-input {
+            width: 100%; padding: 0.75rem 1rem; font-size: 0.95rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white dark:bg-gray-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-secondary dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="index.html" class="flex items-center gap-2">
+                    <img src="favicon.svg" alt="" style="height:30px;width:30px;" class="flex-shrink-0"><span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
+                </a>
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kūrėjai</a>
+                    <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
+                    <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
+                    <a href="kontaktai.html" class="text-gray-900 dark:text-white font-semibold">Kontaktai</a>
+                </div>
+                <div id="auth-buttons"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <section class="max-w-6xl mx-auto px-6 lg:px-8 py-16 md:py-24">
+        <div class="max-w-2xl mb-12 md:mb-16">
+            <p class="text-xs font-semibold tracking-[0.18em] uppercase text-primary mb-3">Kontaktai</p>
+            <h1 class="text-4xl md:text-5xl text-gray-900 dark:text-white mb-5 tracking-tight" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700;">Susisiek su mumis</h1>
+            <p class="text-lg text-gray-500 dark:text-gray-400 leading-relaxed">Turi klausimą, pasiūlymą ar nori bendradarbiauti? Parašyk mums — atsakysime per 1–2 darbo dienas.</p>
+        </div>
+
+        <div class="grid md:grid-cols-5 gap-12 lg:gap-20">
+            <!-- Contact info -->
+            <div class="md:col-span-2 space-y-10">
+                <div class="flex items-start gap-5">
+                    <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center flex-shrink-0" style="border-radius: 12px;">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">El. paštas</h3>
+                        <a href="mailto:info@medijus.lt" class="text-gray-600 dark:text-gray-400 hover:text-primary">info@medijus.lt</a>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5">
+                    <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center flex-shrink-0" style="border-radius: 12px;">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Vieta</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Kaunas, Lietuva</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5">
+                    <div class="w-14 h-14 bg-primary bg-opacity-10 flex items-center justify-center flex-shrink-0" style="border-radius: 12px;">
+                        <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 01-1.38-.9 3.7 3.7 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.5.01-4.74.07-.97.04-1.5.21-1.85.34-.46.18-.8.4-1.15.74-.34.35-.56.69-.74 1.15-.13.35-.3.88-.34 1.85C3.01 8.5 3 8.85 3 12s.01 3.5.07 4.74c.04.97.21 1.5.34 1.85.18.46.4.8.74 1.15.35.34.69.56 1.15.74.35.13.88.3 1.85.34 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c.97-.04 1.5-.21 1.85-.34.46-.18.8-.4 1.15-.74.34-.35.56-.69.74-1.15.13-.35.3-.88.34-1.85.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.04-.97-.21-1.5-.34-1.85a3.1 3.1 0 00-.74-1.15 3.1 3.1 0 00-1.15-.74c-.35-.13-.88-.3-1.85-.34C15.5 4.01 15.15 4 12 4zm0 3.06A4.94 4.94 0 1012 16.94 4.94 4.94 0 0012 7.06zm0 8.14A3.2 3.2 0 1112 8.8a3.2 3.2 0 010 6.4zm6.3-8.34a1.15 1.15 0 11-2.3 0 1.15 1.15 0 012.3 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Soc. tinklai</h3>
+                        <div class="flex gap-4">
+                            <a href="https://instagram.com/medijus.lt" target="_blank" rel="noopener" class="text-gray-600 dark:text-gray-400 hover:text-primary">@medijus.lt</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact form -->
+            <div class="md:col-span-3 mt-4 md:mt-0">
+                <form id="contact-form" class="bg-white dark:bg-gray-800/60 border border-secondary dark:border-gray-700 p-6 sm:p-8" style="border-radius: 14px;" novalidate>
+                    <div class="grid sm:grid-cols-2 gap-5 mb-5">
+                        <div>
+                            <label for="cf-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vardas</label>
+                            <input id="cf-name" name="name" type="text" required maxlength="200" autocomplete="name" placeholder="Tavo vardas" class="cf-input bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring">
+                        </div>
+                        <div>
+                            <label for="cf-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">El. paštas</label>
+                            <input id="cf-email" name="email" type="email" required maxlength="320" autocomplete="email" placeholder="tavo@pastas.lt" class="cf-input bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="cf-message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Žinutė</label>
+                        <textarea id="cf-message" name="message" required maxlength="5000" rows="6" placeholder="Kuo galime padėti?" class="cf-input bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus-ring resize-y"></textarea>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <button id="cf-submit" type="submit" class="bg-primary font-semibold px-8 py-3 text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Siųsti žinutę</button>
+                        <p id="cf-status" class="text-sm" role="status" aria-live="polite"></p>
+                    </div>
+                </form>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-4">Pateikdami žinutę sutinkate su mūsų <a href="privatumo-politika.html" class="underline hover:text-primary">privatumo politika</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-16">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="favicon.svg" alt="" style="height:42px;width:42px;" class="flex-shrink-0"><span style="font-family: 'Fraunces', serif; font-size: 46px; font-weight: 600; letter-spacing: -2px; line-height: 1;" class="text-white">Medijus</span>
+                    </div>
+                    <p class="text-sm mb-4">Viena platforma — visos medijų paslaugos. Jungiame kūrėjus ir klientus Lietuvoje.</p>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Rask Kūrėją</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="kurejai.html" class="hover:text-primary">Profesionalai</a></li>
+                        <li><a href="kylancios-zvaigzdes.html" class="hover:text-primary">Kylančios Žvaigždės</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kūrėjams</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="planai.html" class="hover:text-primary">Kainos</a></li>
+                        <li><a href="prisijungimas.html" class="hover:text-primary">Registracija</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-4">Kontaktai</h5>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="kontaktai.html" class="hover:text-primary">Susisiek su mumis</a></li>
+                        <li>info@medijus.lt</li>
+                        <li>Kaunas, Lietuva</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">&copy; 2026 Medijus. Visos teisės saugomos.</p>
+                <div class="flex gap-6 text-sm">
+                    <a href="privatumo-politika.html" class="hover:text-primary">Privatumo politika</a>
+                    <a href="naudojimo-salygos.html" class="hover:text-primary">Naudojimo sąlygos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cookie-consent.js"></script>
+    <script src="js/kontaktai.js"></script>
+</body>
+</html>

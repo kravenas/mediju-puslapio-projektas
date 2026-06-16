@@ -148,3 +148,51 @@
         }
     });
 })();
+
+// --- Global presence: live count of creators currently online (homepage badge) ---
+(function presenceCounter() {
+    function ltCreators(n) {
+        const d = n % 10, dd = n % 100;
+        if (d === 1 && dd !== 11) return 'kūrėjas';
+        if (d >= 2 && d <= 9 && !(dd >= 11 && dd <= 19)) return 'kūrėjai';
+        return 'kūrėjų';
+    }
+
+    let channel = null;
+
+    function renderCount() {
+        const el = document.getElementById('badge-online');
+        if (!el || !channel) return;
+        const state = channel.presenceState();
+        let online = 0;
+        // Only tracked users appear; count those flagged as creators.
+        Object.values(state).forEach(metas => {
+            if (metas.some(m => m.is_creator)) online++;
+        });
+        if (online > 0) {
+            el.textContent = `• ${online} ${ltCreators(online)} prisijungę`;
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    }
+
+    async function start() {
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
+        const isCreator = user?.user_metadata?.role === 'kurejas';
+        const key = user?.id || ('guest-' + Math.random().toString(36).slice(2));
+
+        channel = supabase.channel('online-creators', { config: { presence: { key } } });
+        channel
+            .on('presence', { event: 'sync' }, renderCount)
+            .subscribe(async (status) => {
+                // Logged-in users mark themselves present; guests only observe.
+                if (status === 'SUBSCRIBED' && user) {
+                    await channel.track({ is_creator: isCreator });
+                }
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', start);
+})();

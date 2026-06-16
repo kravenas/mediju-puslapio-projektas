@@ -101,6 +101,7 @@ async function loadReviews() {
     const { data: reviews, error } = await supabase
         .from('reviews')
         .select('*')
+        .eq('hidden', false)
         .order('created_at', { ascending: false })
         .limit(3);
 
@@ -156,4 +157,15 @@ async function loadStats() {
     if (creatorsEl) creatorsEl.textContent = totalCreators > 100 ? `${totalCreators}+` : totalCreators;
     if (reviewsEl) reviewsEl.textContent = totalReviews > 100 ? `${totalReviews}+` : totalReviews;
     if (ratingEl) ratingEl.textContent = `${avgRating}★`;
+
+    // Hero badge — real numbers (not the old hardcoded "500+ online / 2val")
+    const ltCreators = (n) => {
+        const d = n % 10, dd = n % 100;
+        if (d === 1 && dd !== 11) return 'kūrėjas';
+        if (d >= 2 && d <= 9 && !(dd >= 11 && dd <= 19)) return 'kūrėjai';
+        return 'kūrėjų';
+    };
+    const badgeCreators = document.getElementById('badge-creators');
+    if (badgeCreators) badgeCreators.textContent = `${totalCreators} ${ltCreators(totalCreators)} platformoje`;
+    // (Second badge part — live online creators — is handled by presence in notifications.js)
 }

@@ -271,13 +271,21 @@ async function loadCreators(replace) {
         return q;
     }
 
-    // Load all promoted creator IDs first
-    const { data: promotedBadges } = await supabase
+    // Load priority badge IDs. Search ranking: promoted > quality > everyone else.
+    const { data: priorityBadges } = await supabase
         .from('creator_badges')
-        .select('creator_id')
-        .eq('badge_type', 'promoted')
+        .select('creator_id, badge_type')
+        .in('badge_type', ['promoted', 'quality'])
         .eq('active', true);
-    const promotedIds = (promotedBadges || []).map(b => b.creator_id);
+    const promotedIds = [...new Set((priorityBadges || [])
+        .filter(b => b.badge_type === 'promoted').map(b => b.creator_id))];
+    // Quality creators rank below promoted. If a creator has both badges,
+    // promoted wins and we don't list them twice.
+    const qualityIds = [...new Set((priorityBadges || [])
+        .filter(b => b.badge_type === 'quality').map(b => b.creator_id))]
+        .filter(id => !promotedIds.includes(id));
+    // Combined priority block (in rank order) that sits above regular results.
+    const priorityIds = [...promotedIds, ...qualityIds];
 
     // Sort helper
     function applySort(q) {
@@ -303,20 +311,31 @@ async function loadCreators(replace) {
         creators = promoCreators || [];
     }
 
-    // Load regular creators (excluding promoted on page 0)
+    // Then quality-badged creators — above regular results, below promoted.
+    if (currentPage === 0 && qualityIds.length > 0) {
+        let qualityQuery = applyBaseFilters(
+            supabase.from('creators').select('*, creator_categories(category_id, categories(slug, name))')
+        );
+        qualityQuery = qualityQuery.in('id', qualityIds);
+        qualityQuery = applySort(qualityQuery);
+        const { data: qualityCreators } = await qualityQuery;
+        creators = creators.concat(qualityCreators || []);
+    }
+
+    // Load regular creators (excluding promoted + quality on page 0)
     let regularQuery = applyBaseFilters(
         supabase.from('creators').select('*, creator_categories(category_id, categories(slug, name))')
     );
-    if (promotedIds.length > 0) {
-        // Exclude promoted from regular results (they're already at top)
-        for (const pid of promotedIds) {
+    if (priorityIds.length > 0) {
+        // Exclude promoted + quality from regular results (already at top)
+        for (const pid of priorityIds) {
             regularQuery = regularQuery.neq('id', pid);
         }
     }
     regularQuery = applySort(regularQuery);
 
     const regularNeeded = PAGE_SIZE - (currentPage === 0 ? creators.length : 0);
-    const regularOffset = currentPage === 0 ? 0 : (currentPage * PAGE_SIZE - promotedIds.length);
+    const regularOffset = currentPage === 0 ? 0 : (currentPage * PAGE_SIZE - priorityIds.length);
     regularQuery = regularQuery.range(
         Math.max(0, regularOffset),
         Math.max(0, regularOffset) + regularNeeded - 1
@@ -370,10 +389,10 @@ async function loadCreators(replace) {
         const promotedIcon = cBadges.includes('promoted') ? '<svg class="w-4 h-4 text-purple-500 flex-shrink-0" title="Reklamuojamas" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>' : '';
         const promotedBanner = cBadges.includes('promoted') ? '<div class="absolute top-2 right-2 bg-purple-500 text-white text-[10px] font-bold px-2 py-0.5 z-10" style="border-radius: 3px;">Reklamuojamas</div>' : '';
         return `
-            <a href="kurejas.html#id=${creator.id}" class="block card-hover bg-white dark:bg-gray-900 border border-secondary dark:border-gray-700 overflow-hidden cursor-pointer" style="border-radius: 6px; text-decoration: none; color: inherit;">
+            <a href="kurejas.html#id=${creator.id}" class="block card-hover creator-card overflow-hidden cursor-pointer" style="text-decoration: none; color: inherit;">
                 <div class="relative h-48 bg-gradient-to-br ${gradient} overflow-hidden">
                     ${promotedBanner}
-                    <img src="${safeUrl(creator.image_url)}" alt="" class="w-full h-full object-cover opacity-80">
+                    <img src="${safeUrl(creator.image_url)}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover opacity-80">
                 </div>
                 <div class="p-6">
                     <div class="flex items-start justify-between mb-3">

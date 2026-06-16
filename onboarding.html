@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <title>Pradėk čia – Medijus</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +24,7 @@
     <div class="w-full max-w-2xl">
         <!-- Logo -->
         <div class="text-center mb-8">
-            <span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
+            <img src="favicon.svg" alt="" style="height:30px;width:30px;" class="flex-shrink-0"><span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
         </div>
 
         <!-- Card -->
@@ -38,7 +40,7 @@
 
             <!-- Step 1: Basics -->
             <div data-panel="1">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Pasakyk apie save</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Papasakok apie save</h1>
                 <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Pradėk nuo pagrindinės informacijos. Tai užtruks ~2 min.</p>
 
                 <div class="space-y-4">
@@ -117,6 +119,22 @@
                             class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-primary"
                             style="border-radius:6px;">
                         <p class="text-xs text-gray-500 mt-1">Galėsi tikslinti vėliau.</p>
+                    </div>
+
+                    <!-- Naujokas (Kylanti žvaigždė) opt-in -->
+                    <div class="border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4" style="border-radius:8px;">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="ob-rising-star" class="mt-1 w-4 h-4 accent-primary cursor-pointer">
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Dar tik pradedu — skelbtis kaip <strong>Naujokas (Kylanti žvaigždė)</strong> ⭐</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Jei neturi daug patirties — pradėk Naujoku: kuri portfolio siūlydamas paslaugas nemokamai ar už labai mažą kainą, gauni atsiliepimus ir augi. Tavo skelbimas atsiras „Naujokų" sekcijoje.</p>
+                                <div id="ob-rising-fields" class="hidden mt-3">
+                                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Tavo tikslas (kiek projektų atlikti, kad subręstum):</label>
+                                    <input type="number" id="ob-portfolio-target" min="1" max="100" value="10" class="w-24 px-3 py-1.5 bg-white dark:bg-gray-800 border border-secondary dark:border-gray-600 text-gray-900 dark:text-white text-sm" style="border-radius:4px;">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">projektų</span>
+                                </div>
+                            </div>
+                        </label>
                     </div>
                 </div>
 

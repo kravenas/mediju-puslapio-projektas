@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <title>Prisijungimas - Medijus</title>
 
     <!-- Fonts -->
@@ -68,7 +70,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <a href="index.html" class="flex items-center gap-3">
-                        <span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
+                        <img src="favicon.svg" alt="" style="height:30px;width:30px;" class="flex-shrink-0"><span style="font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
                     </a>
                 </div>
 
@@ -76,19 +78,11 @@
                     <a href="kurejai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kūrėjai</a>
                     <a href="kylancios-zvaigzdes.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Naujokai</a>
                     <a href="planai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Planai</a>
-                    <a href="index.html#how-it-works" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kaip Veikia</a>
+                    <a href="kontaktai.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Kontaktai</a>
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800" style="border-radius: 4px;">
-                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                        </svg>
-                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                    </button>
-                    <div class="auth-nav-buttons flex items-center space-x-4">
+<div class="auth-nav-buttons flex items-center space-x-4">
                         <a href="prisijungimas.html" class="hidden sm:block text-primary font-semibold">
                             Prisijungti
                         </a>
@@ -109,7 +103,6 @@
                 <a href="kurejai.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Kūrėjai</a>
                 <a href="kylancios-zvaigzdes.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Naujokai</a>
                 <a href="planai.html" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Planai</a>
-                <a href="index.html#how-it-works" class="block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium py-2">Kaip Veikia</a>
             </div>
         </div>
     </nav>
@@ -117,8 +110,17 @@
     <!-- Auth Card -->
     <main class="pt-28 pb-20 px-4">
         <div class="max-w-md mx-auto">
+            <!-- Heading -->
+            <div class="text-center mb-8">
+                <a href="index.html" class="inline-flex items-center justify-center gap-2 mb-4">
+                    <img src="favicon.svg" alt="" style="height:34px;width:34px;" class="flex-shrink-0">
+                    <span style="font-family: 'Fraunces', serif; font-size: 34px; font-weight: 600; letter-spacing: -1px; line-height: 1;" class="text-gray-900 dark:text-white">Medijus</span>
+                </a>
+                <h1 class="display-heading text-2xl md:text-3xl text-gray-900 dark:text-white">Sveiki sugrįžę</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Prisijunkite arba sukurkite paskyrą</p>
+            </div>
             <!-- Card -->
-            <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+            <div class="bg-white dark:bg-gray-800 border border-secondary dark:border-gray-700 overflow-hidden" style="border-radius: 16px; box-shadow: 0 20px 50px -24px rgba(15,23,42,0.25);">
 
                 <!-- Tabs -->
                 <div class="flex border-b border-secondary dark:border-gray-700">
@@ -322,7 +324,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
-                    <span style="font-family: 'Fraunces', serif; font-size: 46px; font-weight: 600; letter-spacing: -2px; line-height: 1;" class="text-white">Medijus</span>
+                    <img src="favicon.svg" alt="" style="height:42px;width:42px;" class="flex-shrink-0"><span style="font-family: 'Fraunces', serif; font-size: 46px; font-weight: 600; letter-spacing: -2px; line-height: 1;" class="text-white">Medijus</span>
                 </div>
                 <p class="text-sm">&copy; 2026 Medijus. Visos teisės saugomos.</p>
                 <div class="flex gap-6 text-sm">
@@ -337,20 +339,6 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
     <script>
-        // Theme Toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-
-        if (localStorage.getItem('darkMode') === 'true' ||
-            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        }
-
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            localStorage.setItem('darkMode', html.classList.contains('dark'));
-        });
-
         // Mobile Menu Toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -521,6 +509,17 @@
                 const redirectTo = new URLSearchParams(window.location.search).get('redirect');
                 setTimeout(() => { window.location.href = redirectTo || 'index.html'; }, 1000);
             } catch (err) {
+                // Email not yet confirmed → send a 6-digit code and show the verify screen
+                if (/not confirmed|not been confirmed/i.test(err.message || '')) {
+                    pendingRegistration = { email };
+                    try { await supabase.auth.resend({ type: 'signup', email }); } catch (e) {}
+                    document.getElementById('form-login').classList.add('hidden');
+                    document.getElementById('form-otp').classList.remove('hidden');
+                    document.getElementById('otp-email-display').textContent = email;
+                    document.getElementById('otp-code').focus();
+                    showMessage('El. paštas dar nepatvirtintas — atsiuntėme 6 skaitmenų kodą.', 'success');
+                    return;
+                }
                 const msg = err.message === 'Invalid login credentials'
                     ? 'Neteisingas el. paštas arba slaptažodis'
                     : (err.message || 'Klaida prisijungiant');

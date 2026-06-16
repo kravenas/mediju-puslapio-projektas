@@ -43,6 +43,11 @@ Deno.serve(async (req: Request) => {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const siteUrl = Deno.env.get("SITE_URL") ?? "";
+        // Prefer the caller's Origin so the post-payment redirect lands back where
+        // the user actually is (localhost while testing, the real domain in prod).
+        // Fall back to SITE_URL only when Origin is missing/invalid.
+        const reqOrigin = req.headers.get("origin") ?? "";
+        const redirectBase = (/^https?:\/\//i.test(reqOrigin) ? reqOrigin : siteUrl).replace(/\/+$/, "");
 
         // Resolve caller from JWT
         const userClient = createClient(supabaseUrl, serviceKey, {
@@ -106,8 +111,8 @@ Deno.serve(async (req: Request) => {
             },
             metadata: { order_id: order.id },
             client_reference_id: order.id,
-            success_url: `${siteUrl}/checkout-success.html?order=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${siteUrl}/checkout-cancel.html?order=${order.id}`,
+            success_url: `${redirectBase}/checkout-success?order=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${redirectBase}/checkout-cancel?order=${order.id}`,
         }, {
             idempotencyKey: `checkout_session_${order.id}`,
         });

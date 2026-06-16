@@ -51,11 +51,14 @@
                         </svg>
                     </a>
                     <a href="profilis.html" class="flex items-center gap-2 hover:opacity-80">
-                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-                            ${avatarUrl
-                                ? `<img src="${avatarUrl}" alt="${name}" class="w-full h-full object-cover">`
-                                : initial
-                            }
+                        <div class="relative flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                                ${avatarUrl
+                                    ? `<img src="${avatarUrl}" alt="${name}" class="w-full h-full object-cover">`
+                                    : initial
+                                }
+                            </div>
+                            <span id="nav-action-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-900" title="Užsakymų, laukiančių tavo veiksmo"></span>
                         </div>
                         <span class="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300">${name}</span>
                     </a>
@@ -72,6 +75,8 @@
                     window.location.reload();
                 });
             }
+
+            updateActionBadge(user);
         } else {
             navRight.innerHTML = `
                 <a href="prisijungimas.html" class="hidden sm:block text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">
@@ -82,6 +87,35 @@
                 </a>
             `;
         }
+    }
+
+    // --- Profile notification badge: orders awaiting the user's action ---
+    // Creator: paid orders awaiting delivery. Client: delivered orders awaiting confirmation.
+    async function updateActionBadge(user) {
+        const badge = document.getElementById('nav-action-badge');
+        if (!badge || !user) return;
+        try {
+            let count = 0;
+            const { data: cr } = await supabase
+                .from('creators').select('id').eq('user_id', user.id).maybeSingle();
+            if (cr?.id) {
+                const { count: c } = await supabase.from('orders')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('creator_id', cr.id).eq('status', 'paid');
+                count = c || 0;
+            } else {
+                const { count: c } = await supabase.from('orders')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('user_id', user.id).eq('status', 'delivered');
+                count = c || 0;
+            }
+            if (count > 0) {
+                badge.textContent = count > 9 ? '9+' : String(count);
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        } catch (_) { /* orders table/column missing — keep badge hidden */ }
     }
 
     // --- Session check on every page load ---
