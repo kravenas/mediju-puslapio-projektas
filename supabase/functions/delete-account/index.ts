@@ -38,29 +38,16 @@ Deno.serve(async (req: Request) => {
         }
         const userId = userData.user.id;
 
-        // 2. Admin client deletes related rows + the auth user.
+        // 2. Admin client removes all dependent rows (FK-safe) then the auth user.
         const admin = createClient(supabaseUrl, serviceKey);
 
-        // Look up creator id (if any) to clean dependents.
-        const { data: creator } = await admin
-            .from("creators")
-            .select("id")
-            .eq("user_id", userId)
-            .maybeSingle();
-
-        if (creator?.id) {
-            await admin.from("creator_services").delete().eq("creator_id", creator.id);
-            await admin.from("creator_categories").delete().eq("creator_id", creator.id);
-            await admin.from("creator_badges").delete().eq("creator_id", creator.id);
-            await admin.from("creators").delete().eq("id", creator.id);
+        // Single transactional cleanup of every row that would otherwise block
+        // auth deletion (subscriptions, conversations, messages, creator data,
+        // orders, etc.) — see purge_user_dependents().
+        const { error: purgeErr } = await admin.rpc("purge_user_dependents", { p_uid: userId });
+        if (purgeErr) {
+            return json({ error: "Cleanup failed: " + purgeErr.message }, 500);
         }
-
-        // Best-effort cleanup of other user-scoped tables. Missing tables are ignored.
-        const userTables = ["messages", "conversations", "orders", "reviews", "profiles"];
-        for (const table of userTables) {
-            await admin.from(table).delete().eq("user_id", userId);
-        }
-        await admin.from("profiles").delete().eq("id", userId);
 
         // 3. Finally delete the auth user.
         const { error: delErr } = await admin.auth.admin.deleteUser(userId);
