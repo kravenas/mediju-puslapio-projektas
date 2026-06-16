@@ -9,6 +9,8 @@
 // Auth: callers must present the project SERVICE_ROLE_KEY as a Bearer token, so
 // this endpoint is internal-only (not callable by end users).
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+
 const CORS = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -35,7 +37,19 @@ Deno.serve(async (req: Request) => {
             return json({ error: "to, subject and html|text are required" }, 400);
         }
 
-        const apiKey = Deno.env.get("RESEND_API_KEY");
+        // Prefer the env secret; fall back to the key stored in vault (set via
+        // get_resend_key RPC) since edge secrets can't always be written directly.
+        let apiKey = Deno.env.get("RESEND_API_KEY");
+        if (!apiKey) {
+            try {
+                const admin = createClient(
+                    Deno.env.get("SUPABASE_URL")!,
+                    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+                );
+                const { data } = await admin.rpc("get_resend_key");
+                if (data) apiKey = data as string;
+            } catch (_) { /* fall through to graceful no-op */ }
+        }
         // Graceful no-op until the key is configured — never block the caller's flow.
         if (!apiKey) return json({ skipped: true, reason: "RESEND_API_KEY not configured" });
 
