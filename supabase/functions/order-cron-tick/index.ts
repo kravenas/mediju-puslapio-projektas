@@ -146,6 +146,55 @@ Deno.serve(async (req: Request) => {
 
     const reminded: string[] = [];
     const overdueNotified: string[] = [];
+    const autoDeclined: string[] = [];
+
+    // 3) Auto-decline: acceptance window expired without creator response → refund client.
+    try {
+        const { data: expired } = await admin
+            .from("orders")
+            .select("id, creator_id, user_id, service_name, stripe_payment_intent_id, stripe_refund_id")
+            .eq("status", "pending_acceptance")
+            .not("acceptance_deadline", "is", null)
+            .lt("acceptance_deadline", now);
+
+        for (const o of expired ?? []) {
+            try {
+                let refundId = o.stripe_refund_id as string | null;
+                if (!refundId && o.stripe_payment_intent_id) {
+                    const refund = await stripe.refunds.create({
+                        payment_intent: o.stripe_payment_intent_id,
+                        metadata: { order_id: o.id, type: "acceptance_timeout" },
+                    }, { idempotencyKey: `timeout_refund_${o.id}` });
+                    refundId = refund.id;
+                }
+                await admin.from("orders").update({
+                    status: "declined",
+                    refunded_at: now,
+                    stripe_refund_id: refundId,
+                    rejection_reason: "Automatiškai atšaukta — kūrėjas nepriėmė užsakymo per 3 dienas",
+                }).eq("id", o.id);
+                autoDeclined.push(o.id);
+
+                const cEmail = await creatorEmail(o.creator_id);
+                if (cEmail) {
+                    await sendEmail(cEmail, "Užsakymas atšauktas (nepriimtas laiku) — Medijus", emailShell(
+                        "Praleidai priėmimo terminą",
+                        `<p>Užsakymas${o.service_name ? ` „<strong>${o.service_name}</strong>"` : ""} buvo automatiškai atšauktas, nes nepriėmei jo per 3 dienas. Pinigai grąžinti klientui.</p>`,
+                    ));
+                }
+                if (o.user_id) {
+                    const clEmail = await userEmail(o.user_id);
+                    if (clEmail) {
+                        await sendEmail(clEmail, "Užsakymas atšauktas — pinigai grąžinti — Medijus", emailShell(
+                            "Užsakymas atšauktas",
+                            `<p>Kūrėjas nepriėmė tavo užsakymo${o.service_name ? ` „<strong>${o.service_name}</strong>"` : ""} per 3 dienas, todėl jis automatiškai atšauktas.</p>
+                             <p style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:12px 16px"><strong>💸 Pinigai grąžinami</strong> į tavo kortelę.</p>`,
+                        ));
+                    }
+                }
+            } catch (_) { /* skip this order on failure, try next */ }
+        }
+    } catch (_) { /* best-effort */ }
 
     try {
         // 3a) Approaching deadline (within 3 days), not yet reminded → nudge creator
@@ -210,6 +259,7 @@ Deno.serve(async (req: Request) => {
         ok: true,
         escalated_to_disputed: (escalated ?? []).map(r => r.id),
         auto_approved: approvedIds,
+        auto_declined: autoDeclined,
         deadline_reminded: reminded,
         overdue_notified: overdueNotified,
         failures,

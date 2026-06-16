@@ -101,7 +101,7 @@
             if (cr?.id) {
                 const { count: c } = await supabase.from('orders')
                     .select('id', { count: 'exact', head: true })
-                    .eq('creator_id', cr.id).eq('status', 'paid');
+                    .eq('creator_id', cr.id).in('status', ['pending_acceptance', 'paid']);
                 count = c || 0;
             } else {
                 const { count: c } = await supabase.from('orders')

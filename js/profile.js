@@ -290,7 +290,9 @@
 
     const STATUS_LABEL = {
         pending_payment: { label: 'Laukia mokėjimo', cls: 'bg-gray-100 text-gray-700' },
-        paid: { label: 'Apmokėta', cls: 'bg-blue-100 text-blue-700' },
+        pending_acceptance: { label: 'Laukia patvirtinimo', cls: 'bg-amber-100 text-amber-700' },
+        declined: { label: 'Atmesta — grąžinta', cls: 'bg-purple-100 text-purple-700' },
+        paid: { label: 'Vykdoma', cls: 'bg-blue-100 text-blue-700' },
         delivered: { label: 'Pristatyta', cls: 'bg-amber-100 text-amber-700' },
         approved: { label: 'Patvirtinta', cls: 'bg-green-100 text-green-700' },
         rejected: { label: 'Atmesta', cls: 'bg-orange-100 text-orange-700' },
@@ -322,7 +324,7 @@
                 if (!creatorId) return;
                 const { count: c } = await supabase.from('orders')
                     .select('id', { count: 'exact', head: true })
-                    .eq('creator_id', creatorId).eq('status', 'paid');
+                    .eq('creator_id', creatorId).in('status', ['pending_acceptance', 'paid']);
                 count = c || 0;
             } else {
                 const { count: c } = await supabase.from('orders')
@@ -373,9 +375,17 @@
 
         const visible = (orders || []).filter(o => o.status !== 'pending_payment');
 
-        // Escrow summary (orders not yet settled)
-        const ESCROW_STATUSES = ['paid', 'delivered', 'rejected', 'disputed'];
+        // Escrow summary (orders not yet settled — money is held by the platform)
+        const ESCROW_STATUSES = ['pending_acceptance', 'paid', 'delivered', 'rejected', 'disputed'];
         const escrow = visible.filter(o => ESCROW_STATUSES.includes(o.status));
+
+        // Orders awaiting the current user's action.
+        // Creator: accept new orders (pending_acceptance) or deliver started ones (paid).
+        // Client: approve delivered work.
+        const needsAction = (o) => isCreator
+            ? (o.status === 'pending_acceptance' || o.status === 'paid')
+            : o.status === 'delivered';
+        const actionCount = visible.filter(needsAction).length;
         const escrowCents = escrow.reduce((sum, o) => {
             if (isCreator) {
                 return sum + ((o.amount_cents || 0) - (o.platform_fee_cents || 0));
@@ -393,10 +403,8 @@
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-900 border border-secondary dark:border-gray-700 p-4" style="border-radius:8px;">
                     <p class="text-xs text-gray-500 dark:text-gray-400">${isCreator ? 'Laukia tavo veiksmų' : 'Laukia tavo patvirtinimo'}</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${
-                        visible.filter(o => isCreator ? o.status === 'paid' : o.status === 'delivered').length
-                    }</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">užsakym${visible.filter(o => isCreator ? o.status === 'paid' : o.status === 'delivered').length === 1 ? 'as' : 'ai'}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${actionCount}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">užsakym${actionCount === 1 ? 'as' : 'ai'}</p>
                 </div>
                 <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4" style="border-radius:8px;">
                     <p class="text-xs text-green-700 dark:text-green-300">${isCreator ? 'Sėkmingai gauta' : 'Užbaigti užsakymai'}</p>
@@ -418,10 +426,7 @@
             return;
         }
 
-        // Badge — count orders needing action
-        const actionCount = visible.filter(o =>
-            isCreator ? o.status === 'paid' : o.status === 'delivered'
-        ).length;
+        // Badge — count orders needing action (computed above as actionCount)
         const badge = qs('#orders-badge');
         if (badge) {
             badge.textContent = String(actionCount);
@@ -439,7 +444,17 @@
         const partyName = isCreator ? '(užsakovas)' : escHtml(o.creators?.name || '—');
 
         let action = '';
-        if (isCreator && o.status === 'paid') {
+        if (isCreator && o.status === 'pending_acceptance') {
+            action = `
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button data-action="accept" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">✓ Priimti užsakymą</button>
+                    <button data-action="decline" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Atmesti</button>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Priėmus — pradedamas skaičiuoti pristatymo terminas pagal tavo paketą. Atmetus — pinigai grąžinami klientui.</p>
+            `;
+        } else if (!isCreator && o.status === 'pending_acceptance') {
+            action = `<p class="text-sm text-gray-500 dark:text-gray-400">⏳ Laukiama, kol kūrėjas patvirtins užsakymą. Jei nepatvirtins per 3 d., pinigai bus grąžinti automatiškai.</p>`;
+        } else if (isCreator && o.status === 'paid') {
             action = `
                 <button data-action="deliver-toggle" data-order-id="${escHtml(o.id)}" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold cursor-pointer" style="border-radius:4px;">Pristatyti darbą</button>
                 <div data-deliver-form="${escHtml(o.id)}" class="hidden mt-3 p-3 bg-gray-50 dark:bg-gray-800 border border-secondary dark:border-gray-700" style="border-radius:6px;">
@@ -515,6 +530,16 @@
                     <span class="text-amber-800 dark:text-amber-300">📅 ${who}: <strong>${dateStr}</strong> — ${statusTxt}</span>
                     ${adjust}
                 </div>`;
+        } else if (o.status === 'pending_acceptance' && o.acceptance_deadline) {
+            const d = new Date(o.acceptance_deadline);
+            const dateStr = d.toLocaleDateString('lt-LT');
+            const dLeft = Math.ceil((d.getTime() - Date.now()) / 86400000);
+            const txt = dLeft < 0 ? '<span class="text-red-600 dark:text-red-400 font-semibold">terminas baigėsi</span>' : `liko <strong>${dLeft} d.</strong>`;
+            const who = isCreator ? '⏳ Priimti/atmesti iki' : '⏳ Kūrėjas turi patvirtinti iki';
+            deadlineInfo = `
+                <div class="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm" style="border-radius:6px;">
+                    <span class="text-amber-800 dark:text-amber-300">${who}: <strong>${dateStr}</strong> — ${txt}</span>
+                </div>`;
         }
 
         return `
@@ -549,6 +574,12 @@
         });
         qsa('[data-action="reject"]').forEach(btn => {
             btn.addEventListener('click', () => handleOrderAction('reject', btn.dataset.orderId, btn, isCreator));
+        });
+        qsa('[data-action="accept"]').forEach(btn => {
+            btn.addEventListener('click', () => handleOrderAction('accept', btn.dataset.orderId, btn, isCreator));
+        });
+        qsa('[data-action="decline"]').forEach(btn => {
+            btn.addEventListener('click', () => handleOrderAction('decline', btn.dataset.orderId, btn, isCreator));
         });
         // Hybrid deadline: creator adjusts the delivery date for a specific order.
         qsa('[data-action="deadline-toggle"]').forEach(btn => {
@@ -601,6 +632,15 @@
             }
             endpoint = 'order-reject';
             body = { order_id: orderId, reason };
+        } else if (action === 'accept') {
+            if (!confirm('Priimti užsakymą? Pradedamas skaičiuoti pristatymo terminas pagal tavo paketą.')) return;
+            endpoint = 'order-accept';
+            body = { order_id: orderId };
+        } else if (action === 'decline') {
+            const reason = prompt('Kodėl atmetate užsakymą? (neprivaloma, bus matoma klientui)\nKlientui bus grąžinti pinigai.');
+            if (reason === null) return; // cancelled
+            endpoint = 'order-decline';
+            body = { order_id: orderId, reason: reason.trim() || null };
         } else {
             return;
         }
