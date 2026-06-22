@@ -174,6 +174,11 @@
     // --- Activate pro plan (test mode) ---
 
     async function activateProPlan(useReviewDiscount) {
+        // Soft launch: real payments are off. Block the (no-charge) Pro grant so
+        // nobody can unlock Pro for free until Stripe billing is live.
+        if (window.PAYMENTS_ENABLED === false) {
+            return { error: 'Mokėjimai dar neaktyvūs — Pro planas bus netrukus.' };
+        }
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return { error: 'Neprisijungta' };
 

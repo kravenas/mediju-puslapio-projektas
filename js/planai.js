@@ -43,6 +43,16 @@ async function loadSubscriptionStatus() {
     const proBtn = document.getElementById('activate-pro-btn');
     if (!statusEl || !proBtn) return;
 
+    // Soft launch: payments off — Pro activation disabled, browsing stays free.
+    if (window.PAYMENTS_ENABLED === false) {
+        statusEl.textContent = 'Pro planas bus aktyvuojamas netrukus — kol kas naudokis platforma nemokamai.';
+        proBtn.textContent = 'Pro planas — netrukus';
+        proBtn.disabled = true;
+        proBtn.classList.remove('bg-primary', 'hover:bg-primary-hover');
+        proBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        return;
+    }
+
     if (!sub) {
         statusEl.textContent = 'Prisijunkite, kad aktyvuotumėte Pro planą';
         return;
@@ -152,6 +162,17 @@ function updateButtonStates() {
 function setupBadgeButtons() {
     const qualityBtn = document.getElementById('buy-quality-badge');
     const promotedBtn = document.getElementById('buy-promoted-badge');
+
+    // Soft launch: payments off — badge purchase disabled (shown as "netrukus").
+    if (window.PAYMENTS_ENABLED === false) {
+        [qualityBtn, promotedBtn].forEach(btn => {
+            if (!btn) return;
+            btn.textContent = 'Netrukus';
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+        });
+        return;
+    }
 
     if (qualityBtn) {
         qualityBtn.addEventListener('click', handleQualityBadgeClick);
@@ -331,6 +352,13 @@ function closePurchaseModal() {
 
 // ---- Purchase badge (test mode – no real payment) ----
 async function purchaseBadge(badgeType) {
+    // Soft launch: real payments are off. Block the (no-charge) badge grant so
+    // ženkliukai can't be activated for free until Stripe billing is live.
+    if (window.PAYMENTS_ENABLED === false) {
+        showBadgeNotification('Mokėjimai dar neaktyvūs — ženkliukai bus netrukus.', 'error');
+        return;
+    }
+
     const confirmBtn = document.getElementById('modal-confirm-btn');
     const originalText = confirmBtn.textContent;
     confirmBtn.disabled = true;
