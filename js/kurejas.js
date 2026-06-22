@@ -496,6 +496,23 @@ function renderLegacyServices(services, container, actionEl, creatorId) {
 }
 
 function renderOrderButton(service, actionEl, creatorId) {
+    // Soft launch: online payments not yet enabled — show "coming soon" instead
+    // of the pay button so visitors can't reach the (test-mode) Stripe checkout.
+    if (window.PAYMENTS_ENABLED === false) {
+        actionEl.innerHTML = `
+            <div class="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-gray-600 dark:text-gray-400 truncate pr-2">${escapeHtml(service.name)}</span>
+                    <span class="font-bold text-gray-900 dark:text-white">€${escapeHtml(service.price)}</span>
+                </div>
+                <button disabled class="w-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-semibold py-3 text-sm cursor-not-allowed" style="border-radius:6px;">
+                    Užsakymai netrukus
+                </button>
+                <p class="text-xs text-gray-400 text-center mt-2">Online užsakymai bus įjungti netrukus. Kol kas susisiek su kūrėju per žinutes.</p>
+            </div>
+        `;
+        return;
+    }
     actionEl.innerHTML = `
         <div class="border-t border-gray-100 dark:border-gray-700 pt-3">
             <div class="flex items-center justify-between mb-3">

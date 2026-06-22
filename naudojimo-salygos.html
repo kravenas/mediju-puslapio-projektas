@@ -66,7 +66,7 @@
 
         <div class="mb-10">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Naudojimo sąlygos</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Paskutinis atnaujinimas: 2026 m. gegužės 6 d.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paskutinis atnaujinimas: 2026 m. birželio 22 d.</p>
         </div>
 
         <div class="text-gray-700 dark:text-gray-300 text-sm">
@@ -118,14 +118,30 @@
             </div>
 
             <div class="policy-section">
-                <h2 class="text-gray-900 dark:text-white">4. Užsakymai ir mokėjimai</h2>
-                <p>Klientai ir kūrėjai bendrauja per Platformos žinučių sistemą. Konkrečios paslaugos kaina, terminai ir specifikacijos yra suderinami tiesiogiai tarp šalių.</p>
+                <h2 class="text-gray-900 dark:text-white">4. Užsakymai, terminai ir mokėjimai</h2>
+                <p>Klientas užsako pasirinktą Kūrėjo paslaugų paketą tiesiogiai per Platformą už pakete nurodytą fiksuotą kainą. Papildomus klausimus ir specifikacijas šalys gali aptarti per Platformos žinučių sistemą.</p>
+
+                <h3 class="text-gray-900 dark:text-white">4.1 Mokėjimai ir lėšų rezervavimas</h3>
                 <ul>
-                    <li>Mokėjimai atliekami per <strong>Stripe</strong> sistemą (kortele). Platforma ima 10% komisinį mokestį, likę 90% pervedami kūrėjui per Stripe Connect.</li>
+                    <li>Mokėjimai atliekami per <strong>Stripe</strong> sistemą (kortele). Užsakymo metu sumokėta suma yra <strong>rezervuojama (laikoma sąlyginio deponavimo principu)</strong> ir Kūrėjui pervedama tik įvykdžius užsakymą.</li>
+                    <li>Platforma ima <strong>10% komisinį mokestį</strong>; likę 90% pervedami Kūrėjui per Stripe Connect.</li>
                     <li>Kūrėjas, norėdamas priimti mokėjimus, turi prisijungti Stripe Connect Express paskyrą ir užbaigti KYC procedūrą.</li>
                     <li>Visos kainos pateiktos eurais (€) ir gali būti pakeistos su išankstiniu pranešimu.</li>
-                    <li>Šiuo metu mokėjimo sistema veikia testavimo režimu — apie pereitą į gyvąjį režimą bus pranešta atskirai.</li>
+                    <li>Šiuo metu mokėjimo sistema veikia testavimo režimu — apie perėjimą į gyvąjį režimą bus pranešta atskirai.</li>
                 </ul>
+
+                <h3 class="text-gray-900 dark:text-white">4.2 Užsakymo priėmimas (3 dienos)</h3>
+                <p>Po apmokėjimo Kūrėjas turi <strong>3 dienas</strong> priimti arba atmesti užsakymą:</p>
+                <ul>
+                    <li>Jei Kūrėjas <strong>priima</strong> užsakymą, pradedamas darbų vykdymas ir nustatomas pristatymo terminas (žr. 4.3).</li>
+                    <li>Jei Kūrėjas <strong>atmeta</strong> užsakymą arba per 3 dienas nepriima jokio sprendimo, užsakymas automatiškai atšaukiamas, o Klientui <strong>grąžinama visa sumokėta suma</strong>.</li>
+                </ul>
+
+                <h3 class="text-gray-900 dark:text-white">4.3 Pristatymo terminas</h3>
+                <p>Priėmus užsakymą, Kūrėjas privalo pristatyti darbą per <strong>pakete nurodytą įvykdymo terminą</strong> (skaičiuojama nuo priėmimo momento). Platforma automatiškai siunčia priminimus apie artėjantį ar praleistą terminą.</p>
+
+                <h3 class="text-gray-900 dark:text-white">4.4 Darbo patvirtinimas ir lėšų išmokėjimas</h3>
+                <p>Kūrėjui pristačius darbą, Klientas jį peržiūri ir patvirtina. Patvirtinus, rezervuotos lėšos (atskaičius komisinį) pervedamos Kūrėjui. Jei Klientas per <strong>7 dienas</strong> nuo pristatymo nepatvirtina ir nepateikia pretenzijos, darbas laikomas priimtu ir lėšos Kūrėjui išmokamos automatiškai.</p>
             </div>
 
             <div class="policy-section">
@@ -134,8 +150,9 @@
                 <ul>
                     <li>Pateikti tikslią informaciją apie save, savo įgūdžius ir patirtį.</li>
                     <li>Įkelti tik savo paties sukurtus darbus į portfolio. Svetimo turinio naudojimas griežtai draudžiamas.</li>
+                    <li>Per 3 dienas priimti arba atmesti gautą užsakymą — nereaguojant, užsakymas atšaukiamas ir Klientui grąžinami pinigai.</li>
                     <li>Atvykti į suderintą fotosesiją, filmavimą ar konsultaciją sutartu laiku.</li>
-                    <li>Pristatyti darbus sutartais terminais ir sutarta kokybe.</li>
+                    <li>Pristatyti darbus per pakete nurodytą terminą ir sutarta kokybe.</li>
                     <li>Bendrauti su Klientais profesionaliai ir mandagiai.</li>
                     <li>Gerbti Klientų privatumą — neviešinti Kliento informacijos ar darbų be jo sutikimo.</li>
                 </ul>
@@ -260,7 +277,7 @@
                     <h5 class="text-white font-semibold mb-4">Kūrėjams</h5>
                     <ul class="space-y-3 text-sm">
                         <li><a href="planai.html" class="hover:text-primary">Kainos</a></li>
-                        <li><a href="prisijungimas.html" class="hover:text-primary">Registracija</a></li>
+                        <li><a href="prisijungimas.html?tab=register" class="hover:text-primary">Registracija</a></li>
                     </ul>
                 </div>
                 <div>

@@ -713,6 +713,23 @@ function selectModalService(id, name, price) {
     const section = document.getElementById('modal-order-section');
     if (!section) return;
 
+    if (window.PAYMENTS_ENABLED === false) {
+        // Soft launch: online payments not yet enabled.
+        section.innerHTML = `
+            <div class="modal-order-summary">
+                <div class="modal-order-info">
+                    <span class="modal-order-name">${escapeHtml(name)}</span>
+                    <span class="modal-order-price">€${escapeHtml(price)}</span>
+                </div>
+                <button class="modal-cta" id="stripe-pay-btn" disabled style="opacity:.6;cursor:not-allowed;">
+                    Užsakymai netrukus
+                </button>
+                <p style="font-size:12px;color:#9ca3af;text-align:center;margin-top:8px;">Online užsakymai bus įjungti netrukus. Kol kas susisiek su kūrėju per žinutes.</p>
+            </div>
+        `;
+        return;
+    }
+
     section.innerHTML = `
         <div class="modal-order-summary">
             <div class="modal-order-info">
@@ -727,6 +744,7 @@ function selectModalService(id, name, price) {
 }
 
 async function initiatePayment() {
+    if (window.PAYMENTS_ENABLED === false) return; // soft launch: checkout disabled
     if (!selectedModalService || !modalCreatorId) return;
 
     const { data: { session } } = await supabase.auth.getSession();

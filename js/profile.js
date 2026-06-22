@@ -1748,6 +1748,24 @@
 
         section.classList.remove('hidden');
 
+        // Soft launch: payouts not enabled yet — show "coming soon" and keep the
+        // Stripe Connect onboarding disabled until live payments are switched on.
+        if (window.PAYMENTS_ENABLED === false) {
+            title.textContent = 'Mokėjimai netrukus';
+            desc.textContent = 'Mokėjimų priėmimas (Stripe) bus įjungtas netrukus. Kol kas gali ramiai pildyti profilį ir portfolio — kūrėjus matys visi lankytojai.';
+            if (status) {
+                status.textContent = 'Netrukus';
+                status.className = 'inline-block px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300';
+                status.classList.remove('hidden');
+            }
+            if (btn) {
+                btn.textContent = 'Netrukus';
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            return;
+        }
+
         const charges = creatorData.stripe_charges_enabled;
         const payouts = creatorData.stripe_payouts_enabled;
         const submitted = creatorData.stripe_details_submitted;
@@ -1778,6 +1796,7 @@
     }
 
     async function syncStripeStatus() {
+        if (window.PAYMENTS_ENABLED === false) return; // soft launch: don't hit Stripe
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
         try {
@@ -1805,6 +1824,7 @@
     }
 
     async function startStripeConnect() {
+        if (window.PAYMENTS_ENABLED === false) return; // soft launch: onboarding disabled
         const btn = qs('#stripe-connect-btn');
         const msg = qs('#stripe-connect-msg');
         if (msg) msg.classList.add('hidden');
