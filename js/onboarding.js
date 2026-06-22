@@ -189,6 +189,17 @@
     }
 
     async function persist() {
+        // Validate the optional avatar up front so nothing is saved if it isn't an
+        // image. The avatars bucket also rejects non-images server-side.
+        const avatarFile = qs('#ob-avatar')?.files?.[0] || null;
+        if (avatarFile) {
+            const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+            const avatarExt = (avatarFile.name.split('.').pop() || '').toLowerCase();
+            if (!ALLOWED_IMAGE_TYPES.includes(avatarFile.type) || !['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(avatarExt)) {
+                throw new Error('Nuotrauka turi būti paveikslėlis (JPG, PNG, WEBP arba GIF).');
+            }
+        }
+
         // 1. Update profile
         const profileUpdate = {
             id: currentUser.id,
@@ -231,6 +242,7 @@
         const fileInput = qs('#ob-avatar');
         const file = fileInput.files?.[0];
         if (file) {
+            // (Type already validated at the top of persist(); bucket enforces too.)
             const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
             const path = `${currentUser.id}/avatar.${ext}`;
             const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, cacheControl: '3600' });
